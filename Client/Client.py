@@ -1,24 +1,29 @@
-
 import socket
 
-PORT = 6060
-SERVER = "127.0.0.1"
-END = True
-client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
-client.connect((SERVER,PORT))
+def start_client():
+    server_ip = '127.0.0.1'
+    server_port = 5555
 
-def client_socket(send_data):
-    global END
-    #send_data = input("Input your Username :")
-    client.send(send_data.encode())
-    if send_data.lower() == "bye":
-        client.close()
-        END = False
-    else:
-        data_receive = client.recv(1024).decode()
-        print(f"{data_receive}")
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((server_ip, server_port))
 
-client_socket(input("Input your Username :"))
-while END:
-    client_socket(input("Input your message :"))
+    message = input("Enter Username:")
+    client_socket.send(message.encode('utf-8'))
+
+    while True:
+        message = input("Enter a message to send to the server (type 'exit' to quit): ")
+        if message.lower() == 'exit':
+            break
+
+        client_socket.send(message.encode('utf-8'))
+
+        # Receive and print the server's response
+        response = client_socket.recv(1024).decode('utf-8')
+        print(f"Server response: {response}")
+
+    client_socket.close()
+
+
+if __name__ == "__main__":
+    start_client()

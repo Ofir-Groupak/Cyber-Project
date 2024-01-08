@@ -1,42 +1,45 @@
 import socket
 import threading
 
-SERVER_IP = "127.0.0.1"
-SERVER_PORT =6060
-clients_usernames = []
-clients_objects = []
+server_ip = "127.0.0.1"
+server_port =5555
+client_usernames_to_objects = {}
 
 def init_server():
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    server_socket.bind((SERVER_IP,SERVER_PORT))
+    server_socket.bind((server_ip,server_port))
     server_socket.listen()
-    print(" waiting for clients")
+    print("Server is up and running!")
     return server_socket
 
-def client_session(client_object,username):
+def get_clients(server_socket):
+    print("Waiting for clients!")
+    client_object ,client_IP =  server_socket.accept()
+    username = client_object.recv(1024).decode()
+    client_usernames_to_objects[username] = client_object
+    client_thread = threading.Thread(target=client_handle, args=(client_object, username))
+    client_thread.start()
+
+def client_handle(client_object,username):
+    print(f"Accepted connection from {username}")
     while True:
-        data = client_object.recv(1024).decode()
-        if data.lower() == "bye":
-            print(f" {username} is disconnected")
-            client_object.close()
+        data = client_object.recv(1024)
+        if not data:
             break
-        print(username+" :",data )
-        client_object.send("Ack".encode())
+        message = data.decode('utf-8')
+        print(f"Received from {username}: {message}")
 
+        response = f"Server received: {message}"
+        client_object.send(response.encode('utf-8'))
 
+    print(f"Connection from {username} closed.")
+    client_object.close()
 
-def main():
+if __name__=="__main__":
     server_socket = init_server()
-    while True:
-        client_object ,client_IP =  server_socket.accept()
-        print(client_object)
-        print(client_IP)
-        clients_objects.append(client_object)
-        username = client_object.recv(1024).decode()
-        clients_usernames.append(username)
-        client_object.send("Welcome to Server".encode())
-        client_th = threading.Thread(target=client_session, args=(client_object,username))
-        client_th.start()
+    get_clients(server_socket)
 
 
-main()
+
+
+
