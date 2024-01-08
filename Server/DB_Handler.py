@@ -26,7 +26,13 @@ def check_password(username , given_password):
         WHERE username=?
         ''',(username,)
     )
-    correct_password = cursor.fetchone()[0]
+    try:
+        correct_password = cursor.fetchone()[0]
+    except TypeError:
+        conn.commit()
+        conn.close()
+
+        return False
 
     conn.commit()
     conn.close()
@@ -75,7 +81,7 @@ def change_password(username , password):
 
 if __name__=="__main__":
     create_table()
-    #add_user('admin','1234')
+    add_user('admin','1234')
     #print(check_password('admin' ,'12345'))
     #remove_user('admin')
     #change_password('admin1','admin')

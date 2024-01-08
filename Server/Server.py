@@ -1,5 +1,6 @@
 import socket
 import threading
+from DB_Handler import *
 
 server_ip = "127.0.0.1"
 server_port =5555
@@ -15,10 +16,15 @@ def init_server():
 def get_clients(server_socket):
     print("Waiting for clients!")
     client_object ,client_IP =  server_socket.accept()
-    username = client_object.recv(1024).decode()
-    client_usernames_to_objects[username] = client_object
-    client_thread = threading.Thread(target=client_handle, args=(client_object, username))
-    client_thread.start()
+    data = client_object.recv(1024).decode().split('#')
+    username = data[0]
+    password = data[1]
+    if(check_password(username,password)):
+        client_usernames_to_objects[username] = client_object
+        client_thread = threading.Thread(target=client_handle, args=(client_object, username))
+        client_thread.start()
+    else:
+        print("wrong password")
 
 def client_handle(client_object,username):
     print(f"Accepted connection from {username}")
