@@ -4,13 +4,14 @@ conn = sqlite3.connect('users.db')
 
 cursor = conn.cursor()
 
-cursor.execute( '''
-CREATE TABLE IF NOT EXISTS my_table (
-    username TEXT PRIMARY KEY,
+create_table_query = '''
+CREATE TABLE IF NOT EXISTS users (
+    username PRIMARY KEY,
     password TEXT NOT NULL,
 );
 '''
-)
+
+cursor.execute(create_table_query)
 
 conn.commit()
 conn.close()
