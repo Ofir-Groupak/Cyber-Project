@@ -20,9 +20,11 @@ def get_index_for_disease(illness):
     return -1
 def get_symptoms_for_disease(disease):
     symptoms = []
-    all_symptoms = df.iloc[get_index_for_disease(disease)]
-    for number in range(1,17):
-        symptoms.append((all_symptoms[number]))
+    #all_symptoms = df.iloc[get_index_for_disease(disease)]
+    for symptom in [x for x in df.itertuples() if x[1]==disease]:
+        for i in range(1,17):
+            symptoms.append(symptom[i])
+
     return [x for x in symptoms if not pd.isna(x)]
 
 def remove_diseases_with_x(diseases,symptom):
@@ -35,14 +37,27 @@ def remove_diseases_with_x(diseases,symptom):
 
 
 if __name__=="__main__":
-
+    answer = True
 
     current_symptoms = []
     first_symptom = input("Enter your most severe symptom : ")
     current_symptoms.append(first_symptom)
     potential_diseases = list_for_symptom(first_symptom)
 
-    print(potential_diseases)
+    while len(potential_diseases) >= 2:
+        disease_and_symptoms = []
+        for illness in potential_diseases:
+            disease_and_symptoms.append([illness, get_symptoms_for_disease(illness)])
+
+        while answer==True:
+            for num in disease_and_symptoms[0][1]:
+                answer = input(f"do you have {disease_and_symptoms[0][num]} ? ")
+                if answer=='no':
+                    answer = False
+                    break
+
+
+
 
 
 
