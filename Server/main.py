@@ -50,8 +50,6 @@ def remove_diseases_without_x(diseases,symptom):
     return updated_diseases
 
 
-
-
 if __name__=="__main__":
 
     current_symptoms = []

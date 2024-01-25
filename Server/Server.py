@@ -28,6 +28,7 @@ def get_clients(server_socket):
 
 def client_handle(client_object,username):
     print(f"Accepted connection from {username}")
+    client_object.send("Login Accepted".encode())
     while True:
         data = client_object.recv(1024)
         if not data:
