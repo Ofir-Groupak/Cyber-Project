@@ -2,6 +2,7 @@ import socket
 from GUI import *
 
 def start_client():
+    #starts client
     server_ip = '127.0.0.1'
     server_port = 5555
 
@@ -10,6 +11,7 @@ def start_client():
 
     return client_socket
 def client_start_socket(client):
+    #starts a socket
     global END
 
     data_receive = client_socket.recv(1024).decode()

@@ -8,6 +8,7 @@ server_port =5555
 client_usernames_to_objects = {}
 
 def init_server():
+    # Initialize server socket
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     server_socket.bind((server_ip,server_port))
     server_socket.listen()
@@ -15,6 +16,7 @@ def init_server():
     return server_socket
 
 def get_clients(server_socket):
+    # Accept incoming client connections
     print("Waiting for clients!")
     client_object ,client_IP =  server_socket.accept()
     data = client_object.recv(1024).decode().split('#')
@@ -24,6 +26,11 @@ def get_clients(server_socket):
 
 
 def client_handle(client_object,username):
+    """
+    :param client_object: represents the client's object
+    :param username: represents the username given by the user
+    :return:None
+    """
     print(f"Accepted connection from {username}")
     client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
     data = client_object.recv(1024).decode()
@@ -31,6 +38,11 @@ def client_handle(client_object,username):
 
 
 def examine(first_symptom,client_object):
+    """
+    :param first_symptom: represents the symptom given to the user
+    :param client_object: represents the client's object
+    :return: None
+    """
     current_symptoms = []
     current_symptoms.append(first_symptom)
     potential_diseases = list_for_symptom(first_symptom)
