@@ -49,9 +49,7 @@ def remove_diseases_without_x(diseases,symptom):
 
     return updated_diseases
 
-
-if __name__=="__main__":
-
+def examine():
     current_symptoms = []
     first_symptom = input("Enter your first symptom : ")
     current_symptoms.append(first_symptom)

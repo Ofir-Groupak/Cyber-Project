@@ -1,6 +1,7 @@
 import socket
 import threading
 from DB_Handler import *
+from Examinor import *
 
 server_ip = "127.0.0.1"
 server_port =5555
@@ -18,29 +19,72 @@ def get_clients(server_socket):
     client_object ,client_IP =  server_socket.accept()
     data = client_object.recv(1024).decode().split('#')
     username = data[0]
-    password = data[1]
-    if(check_password(username,password)):
-        client_usernames_to_objects[username] = client_object
-        client_thread = threading.Thread(target=client_handle, args=(client_object, username))
-        client_thread.start()
-    else:
-        print("wrong password")
+    client_thread = threading.Thread(target=client_handle, args=(client_object,username))
+    client_thread.start()
+
 
 def client_handle(client_object,username):
     print(f"Accepted connection from {username}")
-    client_object.send("Login Accepted".encode())
+    client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
+    data = client_object.recv(1024).decode()
+    examine(data,client_object)
+
+
+def examine(first_symptom,client_object):
+    current_symptoms = []
+    current_symptoms.append(first_symptom)
+    potential_diseases = list_for_symptom(first_symptom)
+    potential_diseases_to_symptoms = {}
+
+    for disease in potential_diseases:
+        potential_diseases_to_symptoms[disease] = get_symptoms_for_disease(disease)
+
     while True:
-        data = client_object.recv(1024)
-        if not data:
-            break
-        message = data.decode('utf-8')
-        print(f"Received from {username}: {message}")
+        #print(potential_diseases_to_symptoms.keys())
+        for potential_disease in potential_diseases_to_symptoms.keys():
+            print(f"Currently examines for {potential_disease}")
+            try:
+                symptoms = potential_diseases_to_symptoms[potential_disease]
+            except KeyError:
+                if not potential_diseases_to_symptoms:
+                    result = f"You have {potential_disease}"
+                    print(result)
+                    client_object.send(result.encode('utf-8'))
+                    return
+                break
+            for potential_symptom in [x for x in symptoms if x not in current_symptoms]:
+                question = (f"do you suffer from {potential_symptom} ? answer yes/no")
+                client_object.send(question.encode('utf-8'))
+                #print('2')
+                answer =client_object.recv(1024).decode()
+                #print('3')
+                if answer =='no':
+                    answer=False
+                else:
+                    answer=True
 
-        response = f"Server received: {message}"
-        client_object.send(response.encode('utf-8'))
+                if answer:
+                    current_symptoms.append(potential_symptom)
+                    potential_diseases_to_symptoms = remove_diseases_without_x(potential_diseases_to_symptoms,potential_symptom)
+                    if len(potential_diseases_to_symptoms) == 1:
+                        result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
+                        print(result)
+                        client_object.send(result.encode('utf-8'))
+                        return
+                else:
+                    #print('2')
+                    potential_diseases_to_symptoms = remove_diseases_with_x(potential_diseases_to_symptoms,potential_symptom)
+                    if len(potential_diseases_to_symptoms) == 1:
+                        result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
+                        print(result)
+                        client_object.send(result.encode('utf-8'))
+                        return
 
-    print(f"Connection from {username} closed.")
-    client_object.close()
+            if len(potential_diseases_to_symptoms) == 1:
+                return
+
+
+
 
 if __name__=="__main__":
     server_socket = init_server()
