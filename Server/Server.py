@@ -3,7 +3,7 @@ import threading
 from DB_Handler import *
 from Examinor import *
 
-server_ip = "127.0.0.1"
+server_ip = "172.20.135.88"
 server_port =5555
 client_usernames_to_objects = {}
 
@@ -17,12 +17,14 @@ def init_server():
 
 def get_clients(server_socket):
     # Accept incoming client connections
-    print("Waiting for clients!")
-    client_object ,client_IP =  server_socket.accept()
-    data = client_object.recv(1024).decode().split('#')
-    username = data[0]
-    client_thread = threading.Thread(target=client_handle, args=(client_object,username))
-    client_thread.start()
+
+    while True:
+        print("Waiting for clients!")
+        client_object ,client_IP =  server_socket.accept()
+        data = client_object.recv(1024).decode().split('#')
+        username = data[0]
+        client_thread = threading.Thread(target=client_handle, args=(client_object,username))
+        client_thread.start()
 
 
 def client_handle(client_object,username):
@@ -34,7 +36,10 @@ def client_handle(client_object,username):
     print(f"Accepted connection from {username}")
     client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
     data = client_object.recv(1024).decode()
-    examine(data,client_object)
+    examine_thread = threading.Thread(target=examine, args=(data,client_object))
+    examine_thread.start()
+
+    #examine(data,client_object)
 
 
 def examine(first_symptom,client_object):
