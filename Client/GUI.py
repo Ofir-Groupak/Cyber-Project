@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import messagebox
+
 def login_page(client_object):
     root = tk.Tk()
     root.title("Login Page")
@@ -23,8 +25,11 @@ def login_page(client_object):
         information = username_entry.get() + "#" + password_entry.get()
         client_object.send(information.encode())
         response = client_object.recv(1024).decode()
-        if response=="Login Accepted":
+        if response=="Correct":
             first_symptom_window(root,client_object)
+        else:
+            messagebox.showinfo("Error", "Incorrect password,Try Again!")
+
 
     login_button = tk.Button(frame, text="Login",command=send_data, font=("Helvetica", 12), bg="red",
                              fg="white", padx=10, pady=5)
@@ -68,7 +73,7 @@ def first_symptom_window(previous_window,client_object):
         information = entry.get()
         client_object.send(information.encode())
         question = client_object.recv(1024).decode()
-        questionaaire(root2,client_object,"niger?")
+        questionaaire(root2,client_object,question)
 
 
     # Create main window
@@ -110,10 +115,13 @@ def questionaaire(previous_window,client_object,question):
     previous_window.destroy()
 
     def on_yes():
-        print("Yes button clicked")
+        client_object.send("yes".encode())
+        question_label.grid_remove()
 
     def on_no():
-        print("No button clicked")
+        client_object.send("no".encode())
+        question_label.grid_remove()
+
 
     # Create main window
     root = tk.Tk()
@@ -135,7 +143,7 @@ def questionaaire(previous_window,client_object,question):
     plus = canvas.create_line(center_x - 50, center_y, center_x + 50, center_y, fill="red", width=20)
     plus = canvas.create_line(center_x, center_y - 50, center_x, center_y + 50, fill="red", width=20)
 
-    question_label = tk.Label(root, text=question, bg="blue", fg="white", font=("Arial Bold", 24))
+    question_label = tk.Label(root, text=question, bg="blue", fg="white", font=("Arial Bold", 12))
     question_label.place(relx=0.15,rely=0.55)
 
     # Create buttons frame
@@ -154,4 +162,3 @@ def questionaaire(previous_window,client_object,question):
 
     # Run the event loop
     root.mainloop()
-

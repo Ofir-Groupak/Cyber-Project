@@ -3,7 +3,7 @@ import threading
 from DB_Handler import *
 from Examinor import *
 
-server_ip = "172.20.135.88"
+server_ip = "127.0.0.1"
 server_port =5555
 client_usernames_to_objects = {}
 
@@ -17,29 +17,36 @@ def init_server():
 
 def get_clients(server_socket):
     # Accept incoming client connections
-
-    while True:
-        print("Waiting for clients!")
-        client_object ,client_IP =  server_socket.accept()
-        data = client_object.recv(1024).decode().split('#')
-        username = data[0]
-        client_thread = threading.Thread(target=client_handle, args=(client_object,username))
-        client_thread.start()
+    print("Waiting for clients!")
+    client_object ,client_IP =  server_socket.accept()
+    login_info = client_object.recv(1024).decode().split('#')
+    client_thread = threading.Thread(target=client_handle, args=(client_object,login_info))
+    client_thread.start()
 
 
-def client_handle(client_object,username):
+def client_handle(client_object,login_info):
     """
     :param client_object: represents the client's object
     :param username: represents the username given by the user
     :return:None
     """
-    print(f"Accepted connection from {username}")
-    client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
-    data = client_object.recv(1024).decode()
-    examine_thread = threading.Thread(target=examine, args=(data,client_object))
-    examine_thread.start()
+    username = login_info[0]
+    password = login_info[1]
 
-    #examine(data,client_object)
+    print(check_password(username,password))
+
+    if check_password(username,password):
+
+        print(f"Accepted connection from {username}")
+        client_object.send("Correct".encode())
+        #client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
+        data = client_object.recv(1024).decode()
+        print(data)
+        examine(data,client_object)
+    else:
+        client_object.send("Try again".encode())
+        login_info = client_object.recv(1024).decode().split('#')
+        client_handle(client_object,login_info)
 
 
 def examine(first_symptom,client_object):
@@ -70,7 +77,7 @@ def examine(first_symptom,client_object):
                     return
                 break
             for potential_symptom in [x for x in symptoms if x not in current_symptoms]:
-                question = (f"do you suffer from {potential_symptom} ? answer yes/no")
+                question = (f"do you suffer from {potential_symptom} ?")
                 client_object.send(question.encode('utf-8'))
                 #print('2')
                 answer =client_object.recv(1024).decode()
@@ -106,8 +113,3 @@ def examine(first_symptom,client_object):
 if __name__=="__main__":
     server_socket = init_server()
     get_clients(server_socket)
-
-
-
-
-

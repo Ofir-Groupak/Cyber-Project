@@ -3,7 +3,7 @@ from GUI import *
 
 def start_client():
     #starts client
-    server_ip = '172.20.135.88'
+    server_ip = '127.0.0.1'
     server_port = 5555
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,6 +27,4 @@ def client_start_socket(client):
 
 if __name__ == "__main__":
     client_socket = start_client()
-    client_socket.send(input("Enter Username:").encode())
-
-    client_start_socket(client_socket)
+    login_page(client_socket)
