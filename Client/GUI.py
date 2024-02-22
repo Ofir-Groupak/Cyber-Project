@@ -114,51 +114,52 @@ def first_symptom_window(previous_window,client_object):
 def questionaaire(previous_window,client_object,question):
     previous_window.destroy()
 
+    def show_text(question):
+        if not "You have" in question:
+            question_label = tk.Label(root, text=question, bg="blue", fg="white", font=("Arial Bold", 20))
+            question_label.place(relx=0.15, rely=0.55)
+        else:
+            question_label = tk.Label(root, text=question, bg="blue", fg="white", font=("Arial Bold", 20))
+            question_label.place(relx=0.15, rely=0.55)
+            btn_no.destroy()
+            btn_yes.destroy()
     def on_yes():
         client_object.send("yes".encode())
-        question_label.grid_remove()
+        question_label.destroy()
+        result =client_object.recv(1024).decode()
+        show_text(result)
 
     def on_no():
         client_object.send("no".encode())
-        question_label.grid_remove()
+        question_label.destroy()
+        result = client_object.recv(1024).decode()
+        show_text(result)
 
-
-    # Create main window
     root = tk.Tk()
     root.title("GUI Example")
 
-    # Set window size and background color
     root.geometry("500x400")
     root.configure(bg="blue")
 
-    # Create canvas
     canvas = tk.Canvas(root, width=400, height=300, bg="blue", highlightthickness=0)
     canvas.pack()
 
-    # Calculate center coordinates for the plus sign
     center_x = canvas.winfo_reqwidth() / 2
     center_y = canvas.winfo_reqheight() / 2
 
-    # Draw red plus sign at the center
     plus = canvas.create_line(center_x - 50, center_y, center_x + 50, center_y, fill="red", width=20)
     plus = canvas.create_line(center_x, center_y - 50, center_x, center_y + 50, fill="red", width=20)
 
     question_label = tk.Label(root, text=question, bg="blue", fg="white", font=("Arial Bold", 12))
     question_label.place(relx=0.15,rely=0.55)
 
-    # Create buttons frame
     buttons_frame = tk.Frame(root, bg="blue")
     buttons_frame.pack(expand=True)
 
-    # Create Yes button
     btn_yes = tk.Button(buttons_frame, text="Yes", width=10, height=3, command=on_yes)
     btn_yes.pack(side=tk.LEFT, padx=(50, 10))
 
-    # Create No button
     btn_no = tk.Button(buttons_frame, text="No", width=10, height=3, command=on_no)
     btn_no.pack(side=tk.RIGHT, padx=(10, 50))
 
-
-
-    # Run the event loop
     root.mainloop()
