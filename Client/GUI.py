@@ -51,34 +51,9 @@ def login_page(client_object):
                              fg="white", padx=5, pady=3)
     login_button.grid(row=4, column=0, columnspan=2, pady=10, sticky="ew")
 
-    signup_button = tk.Button(frame, command=sign_up, text="Signup", font=("Segoe UI", 10, "bold"), bg="#d81159",
+    signup_button = tk.Button(frame, command= lambda : signup_page(root,client_object), text="Signup", font=("Segoe UI", 10, "bold"), bg="#d81159",
                               fg="white", padx=5, pady=3)
     signup_button.grid(row=5, column=0, columnspan=2, pady=10, sticky="ew")
-
-    root.mainloop()
-def sign_up(previous_window):
-    previous_window.destroy()
-    root = tk.Tk()
-    root.title("Signup Page")
-    root.geometry("550x400")
-
-    frame = tk.Frame(root, padx=20, pady=20)
-    frame.pack(expand=True)
-
-    title_label = tk.Label(frame, text="Signup", font=("Helvetica", 20, "bold"))
-    title_label.grid(row=0, column=0, columnspan=2, pady=10)
-
-    tk.Label(frame, text="Username:", font=("Helvetica", 12)).grid(row=1, column=0, pady=5, sticky="e")
-    username_entry = tk.Entry(frame, font=("Helvetica", 12))
-    username_entry.grid(row=1, column=1, pady=5, padx=10)
-
-    tk.Label(frame, text="Password:", font=("Helvetica", 12)).grid(row=2, column=0, pady=5, sticky="e")
-    password_entry = tk.Entry(frame, show="*", font=("Helvetica", 12))
-    password_entry.grid(row=2, column=1, pady=5, padx=10)
-
-    signup_button = tk.Button(frame, text="Signup", font=("Helvetica", 12), bg="#4CAF50", fg="white",
-                              padx=10, pady=5)
-    signup_button.grid(row=3, column=0, columnspan=2, pady=10)
 
     root.mainloop()
 
@@ -185,4 +160,73 @@ def questionaaire(previous_window,client_object,question):
     root.mainloop()
 
     # Run the event loop
+    root.mainloop()
+
+def signup_page(previous_window,client_object):
+    previous_window.destroy()
+
+    def submit_signup():
+        # Retrieve values from entry fields
+        first_name = entry_first_name.get()
+        last_name = entry_last_name.get()
+        gender = gender_var.get()
+        username = entry_username.get()
+        password = entry_password.get()
+
+        # Process the sign-up data here (e.g., store it in a database, etc.)
+
+        # For demonstration, print the retrieved values
+        print("First Name:", first_name)
+        print("Last Name:", last_name)
+        print("Gender:", gender)
+        print("Username:", username)
+        print("Password:", password)
+
+    # Create main window
+    root = tk.Tk()
+    root.title("Sign Up Page")
+    root.geometry("500x600")
+    root.configure(bg="#0e1a40")
+
+    # Title label
+    title_label = tk.Label(root, text="Sign Up", bg="#0e1a40", fg="white", font=("Segoe UI", 16, "bold"))
+    title_label.pack(pady=(20, 10))
+
+    # Labels
+    tk.Label(root, text="First Name:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.15,
+                                                                                              anchor="w")
+    tk.Label(root, text="Last Name:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.25,
+                                                                                             anchor="w")
+    tk.Label(root, text="Gender:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.35,
+                                                                                          anchor="w")
+    tk.Label(root, text="Username:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.45,
+                                                                                            anchor="w")
+    tk.Label(root, text="Password:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.55,
+                                                                                            anchor="w")
+
+    # Entry fields
+    entry_first_name = tk.Entry(root, font=("Segoe UI", 12), bg="white")
+    entry_first_name.place(relx=0.5, rely=0.15, anchor="w")
+
+    entry_last_name = tk.Entry(root, font=("Segoe UI", 12), bg="white")
+    entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
+
+    gender_var = tk.StringVar()
+    gender_var.set("Male")  # Default value
+    tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="#0e1a40", fg="white",
+                   font=("Segoe UI", 10)).place(relx=0.5, rely=0.35, anchor="w")
+    tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="#0e1a40", fg="white",
+                   font=("Segoe UI", 10)).place(relx=0.65, rely=0.35, anchor="w")
+
+    entry_username = tk.Entry(root, font=("Segoe UI", 12), bg="white")
+    entry_username.place(relx=0.5, rely=0.45, anchor="w")
+
+    entry_password = tk.Entry(root, show="*", font=("Segoe UI", 12), bg="white")
+    entry_password.place(relx=0.5, rely=0.55, anchor="w")
+
+    # Submit button
+    btn_submit = tk.Button(root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
+                           command=submit_signup)
+    btn_submit.place(relx=0.5, rely=0.7, anchor="center")
+
     root.mainloop()
