@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
+from Server import Examinor
+
+
 
 def login_page(client_object):
     def toggle_password_visibility(password_entry):
@@ -93,7 +96,7 @@ def first_symptom_window(previous_window,client_object):
                            font=("Segoe UI", 18, "bold"))
     title_label.place(relx=0.5, rely=0.6, anchor="center")
 
-    options_list = ["hello","goodbye","fever"]
+    options_list = Examinor.get_all_symptoms()
     # Create text box
     value_inside = tk.StringVar(root2)
 
@@ -111,26 +114,35 @@ def first_symptom_window(previous_window,client_object):
 
 def questionaaire(previous_window,client_object,question):
     previous_window.destroy()
-
-    def show_text(question):
-        if not "You have" in question:
-            question_label = tk.Label(root, text=question, bg="#0e1a40", fg="white", font=("Segoe UI", 12, "bold"))
+    def show_text(question1):
+        global question_label
+        try:
+            if question_label:
+                question_label.destroy()
+        except NameError:
+            pass
+        if not "You have" in question1:
+            question_label = tk.Label(root, text=question1, bg="#0e1a40", fg="white", font=("Segoe UI", 12, "bold"))
             question_label.place(relx=0.15, rely=0.55)
         else:
-            question_label = tk.Label(root, text=question, bg="#0e1a40", fg="white", font=("Segoe UI", 12, "bold"))
-            question_label.place(relx=0.3, rely=0.65)
+
+            question_label = tk.Label(root, text=question1, bg="#0e1a40", fg="#d81159", font=("Segoe UI", 14, "bold"))
+            question_label.place(relx=0.22, rely=0.65,anchor='w')
             btn_no.destroy()
             btn_yes.destroy()
 
+
     def on_yes():
-        client_object.send("yes".encode())
+        #question_label.grid_remove()
         question_label.destroy()
+        client_object.send("yes".encode())
         result = client_object.recv(1024).decode()
         show_text(result)
 
     def on_no():
-        client_object.send("no".encode())
+        #question_label.grid_remove()
         question_label.destroy()
+        client_object.send("no".encode())
         result = client_object.recv(1024).decode()
         show_text(result)
 
