@@ -61,7 +61,7 @@ def first_symptom_window(previous_window,client_object):
     previous_window.destroy()
 
     def on_enter():
-        information = entry.get()
+        information = value_inside.get()
         client_object.send(information.encode())
         question = client_object.recv(1024).decode()
         questionaaire(root2, client_object, question)
@@ -93,9 +93,13 @@ def first_symptom_window(previous_window,client_object):
                            font=("Segoe UI", 18, "bold"))
     title_label.place(relx=0.5, rely=0.6, anchor="center")
 
+    options_list = ["hello","goodbye","fever"]
     # Create text box
-    entry = tk.Entry(root2)
-    entry.place(relx=0.5, rely=0.75, anchor="center")
+    value_inside = tk.StringVar(root2)
+
+
+    question_menu = tk.OptionMenu(root2, value_inside, *options_list)
+    question_menu.place(relx=0.5, rely=0.75, anchor="center")
 
     # Create Enter button
     btn_enter = tk.Button(root2, text="Enter", width=10, font=("Segoe UI", 12, "bold"), bg="#d81159", fg="white", bd=0,
