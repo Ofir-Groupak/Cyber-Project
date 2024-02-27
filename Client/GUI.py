@@ -181,6 +181,9 @@ def questionaaire(previous_window,client_object,question):
 def signup_page(previous_window,client_object):
     previous_window.destroy()
 
+    def back_to_login():
+        root.destroy()
+        login_page(client_object)
     def submit_signup():
         # Retrieve values from entry fields
         first_name = entry_first_name.get()
@@ -280,7 +283,7 @@ def signup_page(previous_window,client_object):
     btn_submit.place(relx=0.5, rely=0.85, anchor="center")
 
     btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
-                          command=submit_signup)
+                          command=back_to_login)
     btn_login.place(relx=0.5, rely=0.95, anchor="center")
 
     root.mainloop()
