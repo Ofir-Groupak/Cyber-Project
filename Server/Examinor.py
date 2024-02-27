@@ -73,6 +73,9 @@ def remove_diseases_without_x(diseases,symptom):
 def get_all_symptoms():
     return list(dict.fromkeys(df['Symptom_1'].tolist()))
 
+def get_all_diseases():
+    return list(dict.fromkeys(df['Disease'].tolist()))
+
 
 
 

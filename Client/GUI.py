@@ -188,7 +188,9 @@ def signup_page(previous_window,client_object):
         gender = gender_var.get()
         username = entry_username.get()
         password = entry_password.get()
-        information = ["SIGNUP",first_name,last_name,gender,username,password]
+        information = ["SIGNUP",first_name,last_name,gender,username,password,f"{past_diseases_var1.get(),past_diseases_var2.get(),past_diseases_var3.get()}"]
+
+
 
         # Process the sign-up data here (e.g., store it in a database, etc.)
 
@@ -199,7 +201,10 @@ def signup_page(previous_window,client_object):
         print("Username:", username)
         print("Password:", password)
 
-    # Create main window
+        client_object.send(pickle.dumps(information))
+        root.destroy()
+        login_page(client_object)
+
     root = tk.Tk()
     root.title("Sign Up Page")
     root.geometry("500x600")
@@ -220,6 +225,8 @@ def signup_page(previous_window,client_object):
                                                                                             anchor="w")
     tk.Label(root, text="Password:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.55,
                                                                                             anchor="w")
+    tk.Label(root, text="Past Diseases:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.65,
+                                                                                                 anchor="w")
 
     # Entry fields
     entry_first_name = tk.Entry(root, font=("Segoe UI", 12), bg="white")
@@ -229,7 +236,7 @@ def signup_page(previous_window,client_object):
     entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
 
     gender_var = tk.StringVar()
-    gender_var.set("Male")  # Default v`alue
+    gender_var.set("Male")  # Default value
     tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="#0e1a40", fg="white",
                    font=("Segoe UI", 10)).place(relx=0.5, rely=0.35, anchor="w")
     tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="#0e1a40", fg="white",
@@ -241,13 +248,39 @@ def signup_page(previous_window,client_object):
     entry_password = tk.Entry(root, show="*", font=("Segoe UI", 12), bg="white")
     entry_password.place(relx=0.5, rely=0.55, anchor="w")
 
+    # Option Menus for Past Diseases
+    past_diseases_var1 = tk.StringVar(root)
+    past_diseases_var2 = tk.StringVar(root)
+    past_diseases_var3 = tk.StringVar(root)
+
+    options = []
+    options.append("None")
+    options = Examinor.get_all_diseases()
+
+
+    past_diseases_var1.set("None")
+    past_diseases_var2.set("None")
+    past_diseases_var3.set("None")
+
+    opt_menu1 = tk.OptionMenu(root, past_diseases_var1, *options)
+    opt_menu1.config(bg="white")
+    opt_menu1.place(relx=0.5, rely=0.65, anchor="w")
+
+    opt_menu2 = tk.OptionMenu(root, past_diseases_var2, *options)
+    opt_menu2.config(bg="white")
+    opt_menu2.place(relx=0.5, rely=0.7, anchor="w")
+
+    opt_menu3 = tk.OptionMenu(root, past_diseases_var3, *options)
+    opt_menu3.config(bg="white")
+    opt_menu3.place(relx=0.5, rely=0.75, anchor="w")
+
     # Submit button
     btn_submit = tk.Button(root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                            command=submit_signup)
-    btn_submit.place(relx=0.5, rely=0.7, anchor="center")
+    btn_submit.place(relx=0.5, rely=0.85, anchor="center")
 
     btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
-                           command=submit_signup)
-    btn_login.place(relx=0.5, rely=0.8, anchor="center")
+                          command=submit_signup)
+    btn_login.place(relx=0.5, rely=0.95, anchor="center")
 
     root.mainloop()
