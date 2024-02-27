@@ -9,23 +9,43 @@ server_port =5555
 client_usernames_to_objects = {}
 
 def init_server():
+    """
+    Initializes a server socket, binds it to the specified IP address and port,
+    and starts listening for incoming connections.
+
+    Returns:
+        socket: Initialized server socket object.
+    """
     # Initialize server socket
-    server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    server_socket.bind((server_ip,server_port))
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((server_ip, server_port))
     server_socket.listen()
     print("Server is up and running!")
     return server_socket
 
 def get_clients(server_socket):
+    """
+    Accepts incoming client connections, receives data from clients,
+    and spawns a new thread to handle each client's requests.
+
+    Parameters:
+        server_socket (socket): Initialized server socket object.
+    """
     # Accept incoming client connections
     print("Waiting for clients!")
-    client_object ,client_IP =  server_socket.accept()
+    client_object, client_IP = server_socket.accept()
     data = client_object.recv(1024)
     received_list = pickle.loads(data)
-    client_thread = threading.Thread(target=client_handle, args=(client_object,received_list))
+    client_thread = threading.Thread(target=client_handle, args=(client_object, received_list))
     client_thread.start()
-
 def sign_up_handle(client_object,login_info):
+    """
+    handles the client sign up
+
+    :param client_object:represents the client
+    :param login_info:list that represents the information the client sent
+    :return: None
+    """
     add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], login_info[6])
     print(f"created using {login_info}")
     data = client_object.recv(1024)
@@ -33,6 +53,8 @@ def sign_up_handle(client_object,login_info):
     client_handle(client_object,received_list)
 def client_handle(client_object,login_info):
     """
+    handles the client and his requests
+
     :param client_object: represents the client's object
     :param username: represents the username given by the user
     :return:None
