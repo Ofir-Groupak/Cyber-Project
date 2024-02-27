@@ -20,6 +20,13 @@ def login_page(client_object):
 
     The function also provides an option to toggle password visibility and a button to navigate to the signup page.
     """
+
+    def toggle_password_visibility(password_entry):
+        if show_password_var.get():
+            password_entry.config(show="")
+        else:
+            password_entry.config(show="*")
+
     root = tk.Tk()
     root.title("Login Page")
     root.geometry("550x400")
@@ -276,6 +283,8 @@ def signup_page(previous_window, client_object):
         print("Username:", username)
         print("Password:", password)
         print("Past Diseases:", past_diseases)
+
+        print(information)
 
         client_object.send(pickle.dumps(information))
         root.destroy()
