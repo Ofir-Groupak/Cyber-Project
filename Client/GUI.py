@@ -1,9 +1,9 @@
+import pickle
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 from Server import Examinor
-
-
+#new
 
 def login_page(client_object):
     def toggle_password_visibility(password_entry):
@@ -42,8 +42,8 @@ def login_page(client_object):
     show_password_checkbutton.grid(row=3, column=1, pady=5, sticky="w")
 
     def send_data():
-        information = username_entry.get() + "#" + password_entry.get()
-        client_object.send(information.encode())
+        information = ["LOGIN",username_entry.get(), password_entry.get()]
+        client_object.send(pickle.dumps(information))
         response = client_object.recv(1024).decode()
         if response == "Correct":
             first_symptom_window(root, client_object)
@@ -188,6 +188,7 @@ def signup_page(previous_window,client_object):
         gender = gender_var.get()
         username = entry_username.get()
         password = entry_password.get()
+        information = ["SIGNUP",first_name,last_name,gender,username,password]
 
         # Process the sign-up data here (e.g., store it in a database, etc.)
 
@@ -228,7 +229,7 @@ def signup_page(previous_window,client_object):
     entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
 
     gender_var = tk.StringVar()
-    gender_var.set("Male")  # Default value
+    gender_var.set("Male")  # Default v`alue
     tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="#0e1a40", fg="white",
                    font=("Segoe UI", 10)).place(relx=0.5, rely=0.35, anchor="w")
     tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="#0e1a40", fg="white",
@@ -244,5 +245,9 @@ def signup_page(previous_window,client_object):
     btn_submit = tk.Button(root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                            command=submit_signup)
     btn_submit.place(relx=0.5, rely=0.7, anchor="center")
+
+    btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
+                           command=submit_signup)
+    btn_login.place(relx=0.5, rely=0.8, anchor="center")
 
     root.mainloop()

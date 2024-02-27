@@ -1,5 +1,6 @@
 import sqlite3
 
+
 def create_table():
     conn = sqlite3.connect('users.db')
 
@@ -7,16 +8,21 @@ def create_table():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        gender TEXT NOT NULL,
         username TEXT PRIMARY KEY,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        past_diseases TEXT NOT NULL
     );
-    
+
     """)
 
     conn.commit()
     conn.close()
 
-def check_password(username , given_password):
+
+def check_password(username, given_password):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
@@ -24,7 +30,7 @@ def check_password(username , given_password):
         '''
         SELECT password FROM users
         WHERE username=?
-        ''',(username,)
+        ''', (username,)
     )
     try:
         correct_password = cursor.fetchone()[0]
@@ -38,17 +44,20 @@ def check_password(username , given_password):
     conn.close()
 
     return correct_password == given_password
-def add_user(username, password):
+
+
+def add_user(first_name, last_name, gender, username, password, past_diseases):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
-            INSERT INTO users (username, password)
-            VALUES (?, ?);
-        """,(username, password))
+            INSERT INTO users (first_name,last_name,gender,username, password,past_diseases)
+            VALUES (?,?,?,?,?,?);
+        """, (first_name, last_name, gender, username, password, past_diseases))
 
     conn.commit()
     conn.close()
+
 
 def remove_user(username):
     conn = sqlite3.connect('users.db')
@@ -57,12 +66,13 @@ def remove_user(username):
     cursor.execute("""
                 DELETE FROM users 
                 WHERE username = ?;
-                """,(username,));
+                """, (username,));
 
     conn.commit()
     conn.close()
 
-def change_password(username , password):
+
+def change_password(username, password):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
@@ -70,21 +80,18 @@ def change_password(username , password):
                 UPDATE users
                 SET password = ?
                 WHERE username = ?;
-            """, (password,username))
+            """, (password, username))
 
     conn.commit()
     conn.close()
 
 
-
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     create_table()
-    add_user('admin','1234')
-    #print(check_password('admin' ,'12345'))
-    #remove_user('admin')
-    #change_password('admin1','admin')
+    add_user('moshe', 'moshe', 'male', 'admin', '1234', 'None')
+    # print(check_password('admin' ,'12345'))
+    # remove_user('admin')
+    # change_password('admin1','admin')
 
 
 

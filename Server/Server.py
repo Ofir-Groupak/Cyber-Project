@@ -20,19 +20,31 @@ def get_clients(server_socket):
     # Accept incoming client connections
     print("Waiting for clients!")
     client_object ,client_IP =  server_socket.accept()
-    login_info = client_object.recv(1024).decode().split('#')
-    client_thread = threading.Thread(target=client_handle, args=(client_object,login_info))
+    data = client_object.recv(1024)
+    received_list = pickle.loads(data)
+    client_thread = threading.Thread(target=client_handle, args=(client_object,received_list))
     client_thread.start()
 
-
+def sign_up_handle(client_object,login_info):
+    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], login_info[6])
+    print(f"created using {login_info}")
+    data = client_object.recv(1024)
+    received_list = pickle.loads(data)
+    client_handle(client_object,received_list)
 def client_handle(client_object,login_info):
     """
     :param client_object: represents the client's object
     :param username: represents the username given by the user
     :return:None
     """
-    username = login_info[0]
-    password = login_info[1]
+
+    if login_info[0]=="SIGNUP":
+        sign_up_handle(client_object,login_info)
+        return
+
+    username = login_info[1]
+    password = login_info[2]
+    print(username,password)
 
     print(check_password(username,password))
 
