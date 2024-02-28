@@ -31,13 +31,14 @@ def get_clients(server_socket):
     Parameters:
         server_socket (socket): Initialized server socket object.
     """
-    # Accept incoming client connections
-    print("Waiting for clients!")
-    client_object, client_IP = server_socket.accept()
-    data = client_object.recv(1024)
-    received_list = pickle.loads(data)
-    client_thread = threading.Thread(target=client_handle, args=(client_object, received_list))
-    client_thread.start()
+    while True:
+        print("Waiting for clients!")
+        client_object, client_IP = server_socket.accept()
+        data = client_object.recv(1024)
+        received_list = pickle.loads(data)
+        print(received_list)
+        client_thread = threading.Thread(target=client_handle, args=(client_object, received_list))
+        client_thread.start()
 def sign_up_handle(client_object,login_info):
     """
     handles the client sign up
