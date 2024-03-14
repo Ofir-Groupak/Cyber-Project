@@ -3,7 +3,8 @@ import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 from Server import Examinor
-#new
+import requests
+from bs4 import BeautifulSoup
 
 def login_page(client_object):
     """
@@ -188,6 +189,11 @@ def questionaaire(previous_window,client_object,question):
             btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"),fg="white", text="Try again", width=10,
             height=3, command=lambda:new_examine(client_object))
             btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
+            print(question1[9:].lower())
+            btn_more_info = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
+                                      text="More Information", width=10,
+                                      height=3, command=lambda: information_page(root,question1[9:].lower(),client_object))
+            btn_more_info.pack(side=tk.RIGHT, padx=(10, 50))
 
     def on_yes():
         """
@@ -367,5 +373,52 @@ def signup_page(previous_window, client_object):
     btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                           command=back_to_login)
     btn_login.place(relx=0.5, rely=0.95, anchor="center")
+
+    root.mainloop()
+
+
+def information_page(previous_window, topic, client_object):
+    previous_window.destroy()
+
+    def get_first_paragraph(topic):
+        url = f"https://medlineplus.gov/{topic}.html"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        first_paragraph = soup.find(attrs={'id': 'topic-summary'}).text
+        return first_paragraph
+
+    def new_examine(client_object):
+        # Define the function to handle the "Try again" button click
+        pass  # Replace this with the actual functionality
+
+    root = tk.Tk()
+    root.title("MedlinePlus First Paragraph Viewer")
+    root.geometry("800x600")
+    root.configure(bg="#0e1a40")
+
+    frame = tk.Frame(root, padx=20, pady=20, bg="#0e1a40")
+    frame.pack(expand=True)
+
+    title_label = tk.Label(frame, text=f"Information about {topic}", font=("Arial", 18, "bold"), bg="#0e1a40",
+                           fg="white")
+    title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
+
+    result_text = tk.Text(frame, wrap=tk.WORD, height=15, width=70, font=("Arial", 12), bg="white", fg="#333", bd=2,
+                          relief=tk.SOLID)
+    result_text.grid(row=3, column=1, pady=5, padx=10, sticky="w")
+
+    first_paragraph = get_first_paragraph(topic)
+    result_text.config(state=tk.NORMAL)
+    result_text.delete(1.0, tk.END)
+    result_text.insert(tk.END, first_paragraph)
+    result_text.config(state=tk.DISABLED)
+
+    # Adding buttons frame
+    buttons_frame = tk.Frame(root, bg="#0e1a40")
+    buttons_frame.pack()
+
+    btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="Try again",
+                              width=10, height=3, command=lambda: new_examine(client_object))
+    btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
 
     root.mainloop()
