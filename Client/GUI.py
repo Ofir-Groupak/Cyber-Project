@@ -156,6 +156,11 @@ def questionaaire(previous_window,client_object,question):
        accordingly.
        """
     previous_window.destroy()
+
+    def new_examine(client_object):
+        data = "Try again"
+        client_object.send(data.encode())
+        first_symptom_window(root,client_object)
     def show_text(question1):
         """
                Displays the provided question or result text in the GUI window.
@@ -169,6 +174,8 @@ def questionaaire(previous_window,client_object,question):
                 question_label.destroy()
         except NameError:
             pass
+        except TclError:
+            pass
         if not "You have" in question1:
             question_label = tk.Label(root, text=question1, bg="#0e1a40", fg="white", font=("Segoe UI", 12, "bold"))
             question_label.place(relx=0.15, rely=0.55)
@@ -178,6 +185,9 @@ def questionaaire(previous_window,client_object,question):
             question_label.place(relx=0.22, rely=0.65,anchor='w')
             btn_no.destroy()
             btn_yes.destroy()
+            btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"),fg="white", text="Try again", width=10,
+            height=3, command=lambda:new_examine(client_object))
+            btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
 
     def on_yes():
         """
@@ -218,10 +228,10 @@ def questionaaire(previous_window,client_object,question):
     buttons_frame = tk.Frame(root, bg="#0e1a40")
     buttons_frame.pack(expand=True)
 
-    btn_yes = tk.Button(buttons_frame,bg="#d81159",font=("Segoe UI", 12, "bold"), text="Yes", width=10, height=3, command=on_yes)
+    btn_yes = tk.Button(buttons_frame,bg="#d81159",font=("Segoe UI", 12, "bold"),fg="white", text="Yes", width=10, height=3, command=on_yes)
     btn_yes.pack(side=tk.LEFT, padx=(50, 10))
 
-    btn_no = tk.Button(buttons_frame,bg="#d81159",font=("Segoe UI", 12, "bold"), text="No", width=10, height=3, command=on_no)
+    btn_no = tk.Button(buttons_frame,bg="#d81159",font=("Segoe UI", 12, "bold"),fg="white", text="No", width=10, height=3, command=on_no)
     btn_no.pack(side=tk.RIGHT, padx=(10, 50))
 
     root.mainloop()

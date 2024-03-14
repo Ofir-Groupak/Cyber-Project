@@ -76,15 +76,16 @@ def client_handle(client_object,login_info):
 
         print(f"Accepted connection from {username}")
         client_object.send("Correct".encode())
-        #client_object.send(f"Hello {username}!, Enter your first symptom: ".encode())
-        data = client_object.recv(1024).decode()
-        print(data)
-        examine(data,client_object)
+        first_symptom_handle(client_object)
+
     else:
         client_object.send("Try again".encode())
         login_info = client_object.recv(1024).decode().split('#')
         client_handle(client_object,login_info)
 
+def first_symptom_handle(client_object):
+    data = client_object.recv(1024).decode()
+    examine(data , client_object)
 
 def examine(first_symptom,client_object):
     """
@@ -131,7 +132,12 @@ def examine(first_symptom,client_object):
                         result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
                         print(result)
                         client_object.send(result.encode('utf-8'))
-                        return
+                        command = client_object.recv(1024).decode()
+
+                        if command=="Try again":
+                            first_symptom_handle(client_object)
+                        else:
+                            return
                 else:
                     #print('2')
                     potential_diseases_to_symptoms = remove_diseases_with_x(potential_diseases_to_symptoms,potential_symptom)
@@ -139,7 +145,12 @@ def examine(first_symptom,client_object):
                         result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
                         print(result)
                         client_object.send(result.encode('utf-8'))
-                        return
+                        command = client_object.recv(1024).decode()
+
+                        if command == "Try again":
+                            first_symptom_handle(client_object)
+                        else:
+                            return
 
             if len(potential_diseases_to_symptoms) == 1:
                 return
