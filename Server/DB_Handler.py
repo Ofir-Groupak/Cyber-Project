@@ -68,6 +68,10 @@ def add_user(first_name, last_name, gender, username, password, past_diseases):
         password (str): Password of the user.
         past_diseases (str): Past diseases of the user.
     """
+
+    past_diseases = past_diseases.replace("[","")
+    past_diseases = past_diseases.replace("]", "")
+    past_diseases = past_diseases.replace("'","")
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
@@ -76,6 +80,8 @@ def add_user(first_name, last_name, gender, username, password, past_diseases):
             VALUES (?,?,?,?,?,?);
         """, (first_name, last_name, gender, username, password, past_diseases))
 
+
+    #add_disease(username)
     conn.commit()
     conn.close()
 
@@ -119,9 +125,31 @@ def change_password(username, password):
     conn.commit()
     conn.close()
 
+def add_disease(username, disease):
+    """
+    Adds a disease to a user based on their username.
+
+    Parameters:
+        username (str): Username of the user.
+        disease (str): Disease to be added to the user.
+    """
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    cursor.execute("""
+            UPDATE users
+            SET past_diseases = past_diseases || ?
+            WHERE username = ?;
+        """, (f',{disease}', username))
+
+    conn.commit()
+    conn.close()
+
+
+
 if __name__ == "__main__":
     create_table()
-    add_user('moshe', 'moshe', 'male', 'admin', '1234', 'None')
+    add_user('moshe', 'moshe', 'male', 'admin', '1234', str(['Heart attack']))
     # print(check_password('admin' ,'12345'))
     # remove_user('admin')
     # change_password('admin1','admin')
