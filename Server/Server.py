@@ -142,7 +142,6 @@ def examine(first_symptom,client_object, username):
                             add_disease(username, disease)
                             return
                 else:
-                    #print('2')
                     potential_diseases_to_symptoms = remove_diseases_with_x(potential_diseases_to_symptoms,potential_symptom)
                     if len(potential_diseases_to_symptoms) == 1:
                         disease = list(potential_diseases_to_symptoms.keys())[0]

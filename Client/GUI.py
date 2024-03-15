@@ -376,7 +376,7 @@ def signup_page(previous_window, client_object):
 
     root.mainloop()
 
-
+#s
 def information_page(previous_window, topic, client_object):
     previous_window.destroy()
 
