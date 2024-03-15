@@ -76,18 +76,18 @@ def client_handle(client_object,login_info):
 
         print(f"Accepted connection from {username}")
         client_object.send("Correct".encode())
-        first_symptom_handle(client_object)
+        first_symptom_handle(client_object , username)
 
     else:
         client_object.send("Try again".encode())
         login_info = client_object.recv(1024).decode().split('#')
         client_handle(client_object,login_info)
 
-def first_symptom_handle(client_object):
+def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()
-    examine(data , client_object)
+    examine(data , client_object , username)
 
-def examine(first_symptom,client_object):
+def examine(first_symptom,client_object, username):
     """
     :param first_symptom: represents the symptom given to the user
     :param client_object: represents the client's object
@@ -129,27 +129,32 @@ def examine(first_symptom,client_object):
                     current_symptoms.append(potential_symptom)
                     potential_diseases_to_symptoms = remove_diseases_without_x(potential_diseases_to_symptoms,potential_symptom)
                     if len(potential_diseases_to_symptoms) == 1:
-                        result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
+                        disease = list(potential_diseases_to_symptoms.keys())[0]
+                        result = f"You have {disease}"
+
                         print(result)
                         client_object.send(result.encode('utf-8'))
                         command = client_object.recv(1024).decode()
 
                         if command=="Try again":
-                            first_symptom_handle(client_object)
+                            first_symptom_handle(client_object,username)
                         else:
+                            add_disease(username, disease)
                             return
                 else:
                     #print('2')
                     potential_diseases_to_symptoms = remove_diseases_with_x(potential_diseases_to_symptoms,potential_symptom)
                     if len(potential_diseases_to_symptoms) == 1:
-                        result = f"You have {list(potential_diseases_to_symptoms.keys())[0]}"
+                        disease = list(potential_diseases_to_symptoms.keys())[0]
+                        result = f"You have {disease}"
                         print(result)
                         client_object.send(result.encode('utf-8'))
                         command = client_object.recv(1024).decode()
 
                         if command == "Try again":
-                            first_symptom_handle(client_object)
+                            first_symptom_handle(client_object,username)
                         else:
+                            add_disease(username,disease)
                             return
 
             if len(potential_diseases_to_symptoms) == 1:
