@@ -388,8 +388,9 @@ def information_page(previous_window, topic, client_object):
         return first_paragraph
 
     def new_examine(client_object):
-        # Define the function to handle the "Try again" button click
-        pass  # Replace this with the actual functionality
+        data = "Try again"
+        client_object.send(data.encode())
+        first_symptom_window(root, client_object)
 
     root = tk.Tk()
     root.title("MedlinePlus First Paragraph Viewer")
