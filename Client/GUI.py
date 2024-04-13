@@ -381,10 +381,15 @@ def information_page(previous_window, topic, client_object):
     previous_window.destroy()
 
     def get_first_paragraph(topic):
+        topic = topic.replace(' ','')
         url = f"https://medlineplus.gov/{topic}.html"
+        print(url)
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
-        first_paragraph = soup.find(attrs={'id': 'topic-summary'}).text
+        try:
+            first_paragraph = soup.find(attrs={'id':'topsum_section'}).text
+        except AttributeError:
+            first_paragraph = f"Sorry, we were unable to get information about {topic}"
         return first_paragraph
 
     def new_examine(client_object):
@@ -393,7 +398,7 @@ def information_page(previous_window, topic, client_object):
         first_symptom_window(root, client_object)
 
     root = tk.Tk()
-    root.title("MedlinePlus First Paragraph Viewer")
+    root.title("First Paragraph Viewer")
     root.geometry("800x600")
     root.configure(bg="#0e1a40")
 
@@ -414,7 +419,6 @@ def information_page(previous_window, topic, client_object):
     result_text.insert(tk.END, first_paragraph)
     result_text.config(state=tk.DISABLED)
 
-    # Adding buttons frame
     buttons_frame = tk.Frame(root, bg="#0e1a40")
     buttons_frame.pack()
 
