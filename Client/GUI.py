@@ -419,7 +419,7 @@ def information_page(previous_window, topic, client_object):
     buttons_frame.pack()
 
     btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="Try again",
-                              width=10, height=3, command=lambda: new_examine(client_object))
+                              width=10, height=3, command=lambda:new_examine(client_object))
     btn_try_again.pack(side=tk.LEFT, padx=(50, 10) , pady=(10,10))
 
     root.mainloop()
