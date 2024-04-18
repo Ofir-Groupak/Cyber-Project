@@ -290,6 +290,24 @@ def signup_page(previous_window, client_object):
             past_diseases_var2.get(),
             past_diseases_var3.get()
         ]
+
+        if not first_name:
+            messagebox.showinfo("Error","Please enter your first name!")
+            return
+        if not last_name:
+            messagebox.showinfo("Error","Please enter your last name!")
+            return
+        if not gender:
+            messagebox.showinfo("Error", "Please enter your gender!")
+            return
+
+        if not username:
+            messagebox.showinfo("Error","Please enter your username!")
+            return
+        if not password:
+            messagebox.showinfo("Error","Please enter your password!")
+            return
+
         information = ["SIGNUP", first_name, last_name, gender, username, password, past_diseases]
 
 
@@ -331,7 +349,6 @@ def signup_page(previous_window, client_object):
     entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
 
     gender_var = tk.StringVar()
-    gender_var.set("Male")
     tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="#0e1a40", fg="white",
                    font=("Segoe UI", 10)).place(relx=0.5, rely=0.35, anchor="w")
     tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="#0e1a40", fg="white",
