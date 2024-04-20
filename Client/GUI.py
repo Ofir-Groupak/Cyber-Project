@@ -51,7 +51,8 @@ def login_page(client_object):
 
     show_password_var = tk.BooleanVar()
     show_password_checkbutton = tk.Checkbutton(frame, text="Show Password", variable=show_password_var,
-                                               font=("Segoe UI", 10, "bold"), bg="#0e1a40", fg="white",
+                                               font=("Segoe UI", 10, "bold"), bg="#0e1a40", fg="#d81159",
+                                               activebackground="#0e1a40", activeforeground="#d81159",
                                                command=lambda: toggle_password_visibility(password_entry))
     show_password_checkbutton.grid(row=3, column=1, pady=5, sticky="w")
 
@@ -349,10 +350,10 @@ def signup_page(previous_window, client_object):
     entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
 
     gender_var = tk.StringVar()
-    tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="#0e1a40", fg="white",
-                   font=("Segoe UI", 10)).place(relx=0.5, rely=0.35, anchor="w")
-    tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="#0e1a40", fg="white",
-                   font=("Segoe UI", 10)).place(relx=0.65, rely=0.35, anchor="w")
+    tk.Radiobutton(root, text="Male", variable=gender_var, value="Male", bg="white", fg="#d81159",
+                   font=("Segoe UI", 10), selectcolor="#0e1a40", indicatoron=0).place(relx=0.5, rely=0.35, anchor="w")
+    tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="white", fg="#d81159",
+                   font=("Segoe UI", 10), selectcolor="#0e1a40", indicatoron=0).place(relx=0.65, rely=0.35, anchor="w")
 
     entry_username = tk.Entry(root, font=("Segoe UI", 12), bg="white")
     entry_username.place(relx=0.5, rely=0.45, anchor="w")
