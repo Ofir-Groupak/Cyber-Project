@@ -15,6 +15,7 @@ def create_table():
         gender TEXT NOT NULL,
         username TEXT PRIMARY KEY,
         password TEXT NOT NULL,
+        doctor BOOLEAN NOT NULL,
         past_diseases TEXT NOT NULL
     );
     """)
@@ -22,6 +23,21 @@ def create_table():
     conn.commit()
     conn.close()
 
+def is_doctor(username):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+        SELECT doctor FROM users
+        WHERE username=?
+        ''', (username,)
+    )
+    try:
+        return cursor.fetchone()[0]
+    except TypeError:
+        return False
+    return False
 
 def check_password(username, given_password):
     """
@@ -56,7 +72,7 @@ def check_password(username, given_password):
     return correct_password == given_password
 
 
-def add_user(first_name, last_name, gender, username, password, past_diseases):
+def add_user(first_name, last_name, gender, username, password,doctor, past_diseases):
     """
     Adds a new user to the database with provided details including past diseases.
 
@@ -76,9 +92,9 @@ def add_user(first_name, last_name, gender, username, password, past_diseases):
     cursor = conn.cursor()
 
     cursor.execute("""
-            INSERT INTO users (first_name,last_name,gender,username, password,past_diseases)
-            VALUES (?,?,?,?,?,?);
-        """, (first_name, last_name, gender, username, password, past_diseases))
+            INSERT INTO users (first_name,last_name,gender,username, password,doctor,past_diseases)
+            VALUES (?,?,?,?,?,?,?);
+        """, (first_name, last_name, gender, username, password,doctor,past_diseases))
 
 
     #add_disease(username)
@@ -149,7 +165,8 @@ def add_disease(username, disease):
 
 if __name__ == "__main__":
     create_table()
-    add_user('moshe', 'moshe', 'male', 'admin', '1234', str(['Heart attack']))
+    #add_user('moshe', 'moshe', 'male', 'admin', '1234',"True", str(['Heart attack']))
+    print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
     # remove_user('admin')
     # change_password('admin1','admin')

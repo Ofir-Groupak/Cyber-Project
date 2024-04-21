@@ -257,7 +257,7 @@ def signup_page(previous_window, client_object):
     The previous window (previous_window) is destroyed before displaying the new window.
 
     The sign-up page includes entry fields for the client to input their first name, last name, username, password,
-    and select their gender. Additionally, the client can select past diseases from option menus.
+    select their gender, and choose their user type (doctor or regular user). Additionally, the client can select past diseases from option menus.
 
     Upon clicking the 'Submit' button, the client's registration information is sent to the server for processing.
     If the client chooses to go back to the login page, they can click the 'Login' button, which directs them to
@@ -277,7 +277,7 @@ def signup_page(previous_window, client_object):
         Processes the client's sign-up information and sends it to the server.
 
         Retrieves values from entry fields and option menus, such as first name, last name, gender, username,
-        password, and past diseases.
+        password, user type, and past diseases.
         Sends the client's sign-up information to the server using a predefined format.
         Destroys the sign-up window and navigates back to the login page.
         """
@@ -286,6 +286,7 @@ def signup_page(previous_window, client_object):
         gender = gender_var.get()
         username = entry_username.get()
         password = entry_password.get()
+        is_doctor = is_doctor_var.get()
         past_diseases = [
             past_diseases_var1.get(),
             past_diseases_var2.get(),
@@ -309,12 +310,13 @@ def signup_page(previous_window, client_object):
             messagebox.showinfo("Error","Please enter your password!")
             return
 
-        information = ["SIGNUP", first_name, last_name, gender, username, password, past_diseases]
+        information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases]
 
 
         print("First Name:", first_name)
         print("Last Name:", last_name)
         print("Gender:", gender)
+        print("Is Doctor:", is_doctor)
         print("Username:", username)
         print("Password:", password)
         print("Past Diseases:", past_diseases)
@@ -327,7 +329,7 @@ def signup_page(previous_window, client_object):
 
     root = tk.Tk()
     root.title("Sign Up Page")
-    root.geometry("500x600")
+    root.geometry("500x650")
     root.configure(bg="#0e1a40")
 
     # Title label
@@ -338,9 +340,10 @@ def signup_page(previous_window, client_object):
     tk.Label(root, text="First Name:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.15, anchor="w")
     tk.Label(root, text="Last Name:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.25, anchor="w")
     tk.Label(root, text="Gender:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.35, anchor="w")
-    tk.Label(root, text="Username:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.45, anchor="w")
-    tk.Label(root, text="Password:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.55, anchor="w")
-    tk.Label(root, text="Past Diseases:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.65, anchor="w")
+    tk.Label(root, text="Are you a doctor?", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.45, anchor="w")
+    tk.Label(root, text="Username:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.55, anchor="w")
+    tk.Label(root, text="Password:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.65, anchor="w")
+    tk.Label(root, text="Past Diseases:", bg="#0e1a40", fg="white", font=("Segoe UI", 12)).place(relx=0.1, rely=0.75, anchor="w")
 
     # Entry fields
     entry_first_name = tk.Entry(root, font=("Segoe UI", 12), bg="white")
@@ -355,11 +358,15 @@ def signup_page(previous_window, client_object):
     tk.Radiobutton(root, text="Female", variable=gender_var, value="Female", bg="white", fg="#d81159",
                    font=("Segoe UI", 10), selectcolor="#0e1a40", indicatoron=0).place(relx=0.65, rely=0.35, anchor="w")
 
+    is_doctor_var = tk.BooleanVar()
+    tk.Checkbutton(root, text="Yes", variable=is_doctor_var, onvalue=True, offvalue=False, bg="white", fg="#d81159",
+                   font=("Segoe UI", 10), selectcolor="#0e1a40").place(relx=0.5, rely=0.45, anchor="w")
+
     entry_username = tk.Entry(root, font=("Segoe UI", 12), bg="white")
-    entry_username.place(relx=0.5, rely=0.45, anchor="w")
+    entry_username.place(relx=0.5, rely=0.55, anchor="w")
 
     entry_password = tk.Entry(root, show="*", font=("Segoe UI", 12), bg="white")
-    entry_password.place(relx=0.5, rely=0.55, anchor="w")
+    entry_password.place(relx=0.5, rely=0.65, anchor="w")
 
     past_diseases_var1 = tk.StringVar(root)
     past_diseases_var2 = tk.StringVar(root)
@@ -374,25 +381,26 @@ def signup_page(previous_window, client_object):
 
     opt_menu1 = tk.OptionMenu(root, past_diseases_var1, *options)
     opt_menu1.config(bg="white")
-    opt_menu1.place(relx=0.5, rely=0.65, anchor="w")
+    opt_menu1.place(relx=0.5, rely=0.75, anchor="w")
 
     opt_menu2 = tk.OptionMenu(root, past_diseases_var2, *options)
     opt_menu2.config(bg="white")
-    opt_menu2.place(relx=0.5, rely=0.7, anchor="w")
+    opt_menu2.place(relx=0.5, rely=0.8, anchor="w")
 
     opt_menu3 = tk.OptionMenu(root, past_diseases_var3, *options)
     opt_menu3.config(bg="white")
-    opt_menu3.place(relx=0.5, rely=0.75, anchor="w")
+    opt_menu3.place(relx=0.5, rely=0.85, anchor="w")
 
     btn_submit = tk.Button(root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                            command=submit_signup)
-    btn_submit.place(relx=0.5, rely=0.85, anchor="center")
+    btn_submit.place(relx=0.5, rely=0.95, anchor="center")
 
     btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                           command=back_to_login)
-    btn_login.place(relx=0.5, rely=0.95, anchor="center")
+    btn_login.place(relx=0.5, rely=1.05, anchor="center")
 
     root.mainloop()
+
 
 #s
 def information_page(previous_window, topic, client_object):

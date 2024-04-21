@@ -48,7 +48,7 @@ def sign_up_handle(client_object,login_info):
     :return: None
     """
     print('info',login_info)
-    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]))
+    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),str(login_info[7]))
     print(f"created using {login_info}")
     data = client_object.recv(1024)
     received_list = pickle.loads(data)
