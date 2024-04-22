@@ -28,7 +28,7 @@ class MessagesGUI:
         self.message_content_text = tk.Text(self.root, width=60, height=10, wrap=tk.WORD, bg="#0e1a40", fg="white")
         self.message_content_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 10))
 
-        self.reply_button = tk.Button(self.root, text="Reply", width=10, command=self.reply , bg="#d81159", fg="white")
+        self.reply_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#d81159", fg="white")
         self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
         self.delete_button = tk.Button(self.root, text="Delete", width=10, command=self.delete, bg="#d81159", fg="white")
@@ -53,13 +53,8 @@ class MessagesGUI:
             self.message_content_text.delete('1.0', tk.END)
             self.message_content_text.insert(tk.END, f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
 
-    def reply(self):
-        selected_index = self.messages_listbox.curselection()
-        if selected_index:
-            sender = self.messages_listbox.get(selected_index).split(" - ")[0].split(": ")[1]
-            print(f"Replying to message from {sender}")
-        else:
-            print("Please select a message to reply to.")
+    def menu(self,client_object):
+        MessagesMenu(self.root,client_object)
 
     def delete(self):
         selected_index = self.messages_listbox.curselection()
@@ -92,13 +87,18 @@ class SendMessageGUI:
 
         self.send_button = tk.Button(self.root, text="Send", width=10, bg="#d81159", fg="white", font=("Helvetica", 12),
                                      command=self.send_message)
-        self.send_button.pack(pady=10)
+        self.send_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
+
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#d81159", fg="white", font=("Helvetica", 12),
+                                     command= lambda :self.menu(client_object))
+        self.menu_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def send_message(self):
         message = self.message_entry.get("1.0", tk.END)
         # Here you can add code to send the message to the doctor
         print("Message sent:", message)
-
+    def menu(self,client_object):
+        MessagesMenu(self.root,client_object)
     def run(self):
         self.root.mainloop()
 
