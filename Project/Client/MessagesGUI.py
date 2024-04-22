@@ -1,7 +1,8 @@
 import tkinter as tk
 
 class MessagesGUI:
-    def __init__(self):
+    def __init__(self,previous_window,client_object):
+        previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Messages")
         self.root.geometry("600x450")
@@ -72,7 +73,8 @@ class MessagesGUI:
         self.root.mainloop()
 
 class SendMessageGUI:
-    def __init__(self):
+    def __init__(self,previous_window,client_object):
+        previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Send Message")
         self.root.geometry("400x300")
@@ -101,4 +103,32 @@ class SendMessageGUI:
         self.root.mainloop()
 
 
+class MessagesMenu:
+    def __init__(self,previous_window,client_object):
+        previous_window.destroy()
+        self.root = tk.Tk()
+        self.root.title("Main Menu")
+        self.root.geometry("400x200")
+        self.root.configure(bg="#0e1a40")
 
+        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
+        self.title_label.pack(pady=10)
+
+        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#d81159", fg="white",
+                                        font=("Helvetica", 12), command= lambda: self.open_sender(client_object))
+        self.examine_button.pack(pady=10)
+
+        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
+                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object))
+        self.messages_button.pack(pady=10)
+
+    def open_sender(self,client_object):
+        SendMessageGUI(self.root,client_object)
+        print("Opening Examine window")
+
+    def open_messages(self,client_object):
+        MessagesGUI(self.root,client_object)
+        print("Opening Messages window")
+
+    def run(self):
+        self.root.mainloop()

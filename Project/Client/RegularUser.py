@@ -4,6 +4,7 @@ from tkinter import messagebox
 from Project.Server import Examinor
 import requests
 from bs4 import BeautifulSoup
+from MessagesGUI import *
 
 
 class LoginPageGUI:
@@ -101,7 +102,7 @@ class MainMenuGUI:
         print("Opening Examine window")
 
     def open_messages(self,client_object):
-        # Here you can add code to open the "Messages" window
+        MessagesMenu(self.root,client_object)
         print("Opening Messages window")
 
     def run(self):
