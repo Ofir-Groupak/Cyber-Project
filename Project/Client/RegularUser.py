@@ -1,6 +1,5 @@
 import pickle
 import tkinter as tk
-from tkinter import *
 from tkinter import messagebox
 from Project.Server import Examinor
 import requests
@@ -321,11 +320,12 @@ class SignUpPageGUI:
 
         self.btn_submit = tk.Button(self.root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                                     command=self.submit_signup)
-        self.btn_submit.place(relx=0.5, rely=0.95, anchor="center")
+        self.btn_submit.place(relx=0.4, rely=0.95, anchor="center")
 
         self.btn_login = tk.Button(self.root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
+                                   command=self.back_to_login
                                    )
-        self.btn_login.place(relx=0.5, rely=1.05, anchor="center")
+        self.btn_login.place(relx=0.7, rely=0.95, anchor="center")
 
         self.root.mainloop()
 
