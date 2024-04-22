@@ -76,8 +76,7 @@ class LoginPageGUI:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
     def open_signup_page(self):
-        self.root.destroy()
-        SignUpPageGUI(self.client_object)
+        SignUpPageGUI(self.root,self.client_object)
 
 class MainMenuGUI:
     def __init__(self,client_object,previous_window):

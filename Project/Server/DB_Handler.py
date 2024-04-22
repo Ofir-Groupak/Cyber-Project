@@ -5,7 +5,7 @@ def create_table():
     """
     Creates a table 'users' in the database if it doesn't exist already.
     """
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -24,7 +24,7 @@ def create_table():
     conn.close()
 
 def is_doctor(username):
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute(
@@ -50,7 +50,7 @@ def check_password(username, given_password):
     Returns:
         bool: True if the passwords match, False otherwise.
     """
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute(
@@ -88,7 +88,7 @@ def add_user(first_name, last_name, gender, username, password,doctor, past_dise
     past_diseases = past_diseases.replace("[","")
     past_diseases = past_diseases.replace("]", "")
     past_diseases = past_diseases.replace("'","")
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -109,7 +109,7 @@ def remove_user(username):
     Parameters:
         username (str): Username of the user to be removed.
     """
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -129,7 +129,7 @@ def change_password(username, password):
         username (str): Username of the user.
         password (str): New password for the user.
     """
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -149,7 +149,7 @@ def add_disease(username, disease):
         username (str): Username of the user.
         disease (str): Disease to be added to the user.
     """
-    conn = sqlite3.connect('../../Server/users.db')
+    conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""

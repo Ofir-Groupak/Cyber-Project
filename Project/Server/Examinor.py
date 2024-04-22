@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv(r'../../Server/dataset1.csv').drop_duplicates(subset=['Disease'])
+df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\DiseasesDatabases\dataset.csv').drop_duplicates(subset=['Disease'])
 
 def list_for_symptom(symptom):
     """
