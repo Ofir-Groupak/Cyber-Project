@@ -1,5 +1,5 @@
 import socket
-from GUI import *
+from RegularUser import *
 
 def start_client():
     #starts client
@@ -14,4 +14,4 @@ def start_client():
 
 if __name__ == "__main__":
     client_socket = start_client()
-    login_page(client_socket)
+    LoginPageGUI(client_socket)

@@ -2,9 +2,11 @@ import pickle
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
-from Server import Examinor
+from Project.Server import Examinor
 import requests
 from bs4 import BeautifulSoup
+
+
 
 def login_page(client_object):
     """
@@ -66,7 +68,7 @@ def login_page(client_object):
         client_object.send(pickle.dumps(information))
         response = client_object.recv(1024).decode()
         if response == "Correct":
-            first_symptom_window(root, client_object)
+            MainMenuGUI(client_object,root)
         else:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
@@ -79,7 +81,35 @@ def login_page(client_object):
     signup_button.grid(row=5, column=0, columnspan=2, pady=10, sticky="ew")
 
     root.mainloop()
+class MainMenuGUI:
+    def __init__(self,client_object,previous_window):
+        previous_window.destroy()
+        self.root = tk.Tk()
+        self.root.title("Main Menu")
+        self.root.geometry("400x200")
+        self.root.configure(bg="#0e1a40")
 
+        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
+        self.title_label.pack(pady=10)
+
+        self.examine_button = tk.Button(self.root, text="Examine", width=15, bg="#d81159", fg="white",
+                                        font=("Helvetica", 12), command= lambda: self.open_examine(client_object))
+        self.examine_button.pack(pady=10)
+
+        self.messages_button = tk.Button(self.root, text="Messages", width=15, bg="#d81159", fg="white",
+                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object))
+        self.messages_button.pack(pady=10)
+
+    def open_examine(self,client_object):
+        first_symptom_window(self.root,client_object)
+        print("Opening Examine window")
+
+    def open_messages(self,client_object):
+        # Here you can add code to open the "Messages" window
+        print("Opening Messages window")
+
+    def run(self):
+        self.root.mainloop()
 def first_symptom_window(previous_window, client_object):
     """
     Displays the second GUI window for the client to enter their first symptom.
@@ -187,8 +217,8 @@ def questionaaire(previous_window,client_object,question):
             question_label.place(relx=0.22, rely=0.65,anchor='w')
             btn_no.destroy()
             btn_yes.destroy()
-            btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"),fg="white", text="Try again", width=10,
-            height=3, command=lambda:new_examine(client_object))
+            btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"),fg="white", text="Menu", width=10,
+            height=3, command=lambda:MainMenuGUI(client_object,root))
             btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
             print(question1[9:].lower())
             btn_more_info = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
@@ -396,7 +426,7 @@ def signup_page(previous_window, client_object):
     btn_submit.place(relx=0.5, rely=0.95, anchor="center")
 
     btn_login = tk.Button(root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
-                          command=back_to_login)
+                          command=lambda :MainMenuGUI(root,client_object))
     btn_login.place(relx=0.5, rely=1.05, anchor="center")
 
     root.mainloop()
@@ -449,7 +479,7 @@ def information_page(previous_window, topic, client_object):
     buttons_frame.pack()
 
     btn_try_again = tk.Button(buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="Try again",
-                              width=10, height=3, command=lambda:new_examine(client_object))
+                              width=10, height=3, command=lambda:new_examine(client_object,root))
     btn_try_again.pack(side=tk.LEFT, padx=(50, 10) , pady=(10,10))
 
     root.mainloop()

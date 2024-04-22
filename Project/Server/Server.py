@@ -1,7 +1,7 @@
 import socket
 import threading
-from DB_Handler import *
-from Examinor import *
+from Project.Server.DB_Handler import *
+from Project.Server.Examinor import *
 import pickle
 
 server_ip = "127.0.0.1"
