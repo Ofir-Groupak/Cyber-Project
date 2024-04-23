@@ -76,12 +76,19 @@ def client_handle(client_object,login_info):
 
         print(f"Accepted connection from {username}")
         client_object.send("Correct".encode())
+        menu_handle(client_object,username)
         first_symptom_handle(client_object , username)
 
     else:
         client_object.send("Try again".encode())
         login_info = client_object.recv(1024).decode().split('#')
         client_handle(client_object,login_info)
+
+def menu_handle(client_object,username):
+    data = client_object.recv(1024).decode()
+
+    if "examine" in data:
+        first_symptom_handle(client_object,username)
 
 def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()

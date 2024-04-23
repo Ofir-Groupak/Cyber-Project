@@ -80,6 +80,7 @@ class LoginPageGUI:
 
 class MainMenuGUI:
     def __init__(self,client_object,previous_window):
+        self.client_object = client_object
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Main Menu")
@@ -98,7 +99,8 @@ class MainMenuGUI:
         self.messages_button.pack(pady=10)
 
     def open_examine(self,client_object):
-        FirstSymptomWindowGUI(self.root,client_object)
+        self.client_object.send("examine".encode())
+        FirstSymptomWindowGUI(self.root,self.client_object)
         print("Opening Examine window")
 
     def open_messages(self,client_object):
@@ -313,11 +315,13 @@ class SignUpPageGUI:
 
         self.opt_menu2 = tk.OptionMenu(self.root, self.past_diseases_var2, *self.options)
         self.opt_menu2.config(bg="white")
-        self.opt_menu2.place(relx=0.5, rely=0.8, anchor="w")
+        self.opt_menu2.place(relx=0.6, rely=0.75, anchor="w")
 
         self.opt_menu3 = tk.OptionMenu(self.root, self.past_diseases_var3, *self.options)
+        self.opt_menu3.setvar("None")
         self.opt_menu3.config(bg="white")
-        self.opt_menu3.place(relx=0.5, rely=0.85, anchor="w")
+        self.opt_menu3.place(relx=0.7, rely=0.75, anchor="w")
+
 
         self.btn_submit = tk.Button(self.root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                                     command=self.submit_signup)
@@ -359,20 +363,20 @@ class SignUpPageGUI:
         ]
 
         if not first_name:
-            messagebox.showinfo("Error","Please enter your first name!")
+            messagebox.showinfo("Error", "Please enter your first name!")
             return
         if not last_name:
-            messagebox.showinfo("Error","Please enter your last name!")
+            messagebox.showinfo("Error", "Please enter your last name!")
             return
         if not gender:
             messagebox.showinfo("Error", "Please enter your gender!")
             return
 
         if not username:
-            messagebox.showinfo("Error","Please enter your username!")
+            messagebox.showinfo("Error", "Please enter your username!")
             return
         if not password:
-            messagebox.showinfo("Error","Please enter your password!")
+            messagebox.showinfo("Error", "Please enter your password!")
             return
 
         information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases]
@@ -390,6 +394,7 @@ class SignUpPageGUI:
         self.client_object.send(pickle.dumps(information))
         self.root.destroy()
         LoginPageGUI(self.client_object)
+
 
 class InformationPageGUI:
     def __init__(self, previous_window, topic, client_object):
