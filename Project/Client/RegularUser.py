@@ -221,6 +221,7 @@ class QuestionnaireWindowGUI:
                                            font=("Segoe UI", 12, "bold"))
             self.question_label.place(relx=0.15, rely=0.55)
         else:
+
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#d81159",
                                            font=("Segoe UI", 14, "bold"))
             self.question_label.place(relx=0.22, rely=0.65, anchor='w')
