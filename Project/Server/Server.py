@@ -3,6 +3,7 @@ import threading
 from Project.Server.DB_Handler import *
 from Project.Server.Examinor import *
 import pickle
+from Messenger import *
 
 server_ip = "127.0.0.1"
 server_port =5555
@@ -77,7 +78,7 @@ def client_handle(client_object,login_info):
         print(f"Accepted connection from {username}")
         client_object.send("Correct".encode())
         menu_handle(client_object,username)
-        first_symptom_handle(client_object , username)
+        #first_symptom_handle(client_object , username)
 
     else:
         client_object.send("Try again".encode())
@@ -86,9 +87,20 @@ def client_handle(client_object,login_info):
 
 def menu_handle(client_object,username):
     data = client_object.recv(1024).decode()
-
+    print(data)
     if "examine" in data:
         first_symptom_handle(client_object,username)
+    if "messages" in data:
+        messages_handle(client_object,username)
+
+def messages_handle(client_object,username):
+
+    data = client_object.recv(1024).decode()
+    print(data)
+    if "view messages" in data:
+        print('222222222222222222')
+        client_object.send(pickle.dumps(get_all_messages_for_user(username)))
+        print('1111111111111111')
 
 def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()

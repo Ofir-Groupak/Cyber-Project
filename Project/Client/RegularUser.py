@@ -67,11 +67,12 @@ class LoginPageGUI:
         Upon successful authentication, navigates to the first symptom window.
         Displays an error message if authentication fails.
         """
-        information = ["LOGIN", self.username_entry.get(), self.password_entry.get()]
+        username = self.username_entry.get()
+        information = ["LOGIN", username, self.password_entry.get()]
         self.client_object.send(pickle.dumps(information))
         response = self.client_object.recv(1024).decode()
         if response == "Correct":
-            MainMenuGUI(self.client_object, self.root)
+            MainMenuGUI(self.client_object, self.root,username)
         else:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
@@ -79,7 +80,8 @@ class LoginPageGUI:
         SignUpPageGUI(self.root,self.client_object)
 
 class MainMenuGUI:
-    def __init__(self,client_object,previous_window):
+    def __init__(self,client_object,previous_window,username):
+        self.username = username
         self.client_object = client_object
         previous_window.destroy()
         self.root = tk.Tk()
@@ -104,7 +106,8 @@ class MainMenuGUI:
         print("Opening Examine window")
 
     def open_messages(self,client_object):
-        MessagesMenu(self.root,client_object)
+        self.client_object.send("messages".encode())
+        MessagesMenu(self.root,client_object,self.username)
         print("Opening Messages window")
 
     def run(self):

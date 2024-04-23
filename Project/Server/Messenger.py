@@ -43,7 +43,7 @@ def get_all_messages_for_user(user):
         """,(user,)
     )
     all_messages = []
-    message_pattern = ["sender :","subject :","message :"]
+    message_pattern = ["sender","subject","message"]
     for message in cursor.fetchall():
         all_messages.append(dict(zip(message_pattern,message)))
 
@@ -55,5 +55,5 @@ def get_all_messages_for_user(user):
 
 if __name__=="__main__":
     create_table()
-    #add_message("moshe","moshe","hello","nigga")
+    add_message("moshe","admin","hello","nigga")
     get_all_messages_for_user("moshe")

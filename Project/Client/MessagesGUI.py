@@ -1,7 +1,12 @@
+import pickle
 import tkinter as tk
 
 class MessagesGUI:
-    def __init__(self,previous_window,client_object):
+    def __init__(self,previous_window,client_object,username):
+        self.username = username
+        data = client_object.recv(1024)
+        self.messages = pickle.loads(data)
+        print(self.messages)
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Messages")
@@ -35,12 +40,11 @@ class MessagesGUI:
         self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
-        # Simulated messages
-        self.messages = [
-            {"sender": "User1", "subject": "Question about prescription", "message": "Hello, doctor! I have a question about my prescription."},
-            {"sender": "User2", "subject": "Appointment Request", "message": "Dear Doctor, I would like to schedule an appointment."},
-            {"sender": "User3", "subject": "Feedback", "message": "Hi, I just wanted to give some feedback on my recent visit."},
-        ]
+        # self.messages = [
+        #     {"sender": "User1", "subject": "Question about prescription", "message": "Hello, doctor! I have a question about my prescription."},
+        #     {"sender": "User2", "subject": "Appointment Request", "message": "Dear Doctor, I would like to schedule an appointment."},
+        #     {"sender": "User3", "subject": "Feedback", "message": "Hi, I just wanted to give some feedback on my recent visit."},
+        # ]
 
         for message in self.messages:
             self.messages_listbox.insert(tk.END, f"From: {message['sender']} - Subject: {message['subject']}")
@@ -104,7 +108,7 @@ class SendMessageGUI:
 
 
 class MessagesMenu:
-    def __init__(self,previous_window,client_object):
+    def __init__(self,previous_window,client_object,username):
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Main Menu")
@@ -119,15 +123,16 @@ class MessagesMenu:
         self.examine_button.pack(pady=10)
 
         self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
-                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object))
+                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object,username))
         self.messages_button.pack(pady=10)
 
     def open_sender(self,client_object):
         SendMessageGUI(self.root,client_object)
         print("Opening Examine window")
 
-    def open_messages(self,client_object):
-        MessagesGUI(self.root,client_object)
+    def open_messages(self,client_object,username):
+        client_object.send("view messages".encode())
+        MessagesGUI(self.root,client_object,username)
         print("Opening Messages window")
 
     def run(self):
