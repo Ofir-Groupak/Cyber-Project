@@ -94,13 +94,22 @@ def menu_handle(client_object,username):
         messages_handle(client_object,username)
 
 def messages_handle(client_object,username):
-
+    print("in messages handle")
     data = client_object.recv(1024).decode()
     print(data)
     if "view messages" in data:
-        print('222222222222222222')
-        client_object.send(pickle.dumps(get_all_messages_for_user(username)))
-        print('1111111111111111')
+        view_messages_handle(client_object,username)
+    if "menu" in data:
+        menu_handle(client_object,username)
+
+def view_messages_handle(client_object,username):
+    print("view messages handle")
+
+    client_object.send(pickle.dumps(get_all_messages_for_user(username)))
+    data = client_object.recv(1024).decode()
+
+    if "menu" in data:
+        messages_handle(client_object,username)
 
 def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()

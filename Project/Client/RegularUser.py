@@ -523,6 +523,7 @@ class MessagesGUI:
             self.message_content_text.insert(tk.END, f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
 
     def menu(self,client_object):
+        client_object.send("menu".encode())
         MessagesMenu(self.root,client_object,self.username)
 
     def delete(self):
@@ -596,6 +597,7 @@ class MessagesMenu:
         self.messages_button.pack(pady=10)
 
     def back_to_menu(self,client_object,username):
+        client_object.send("menu".encode())
         MainMenuGUI(client_object,self.root,username)
     def open_sender(self,client_object):
         SendMessageGUI(self.root,client_object)
@@ -607,6 +609,8 @@ class MessagesMenu:
         print("Opening Messages window")
     def run(self):
         self.root.mainloop()
+
+
 
 
 
