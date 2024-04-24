@@ -498,11 +498,15 @@ class MessagesGUI:
         self.message_content_text = tk.Text(self.root, width=60, height=10, wrap=tk.WORD, bg="#0e1a40", fg="white")
         self.message_content_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 10))
 
-        self.reply_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#d81159", fg="white")
-        self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#d81159", fg="white")
+        self.menu_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
         self.delete_button = tk.Button(self.root, text="Delete", width=10, command=self.delete, bg="#d81159", fg="white")
         self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
+
+        self.reply_button = tk.Button(self.root, text="Reply", width=10, command=lambda: self.reply_message(client_object),
+                                      bg="#d81159", fg="white")
+        self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
         # self.messages = [
@@ -514,6 +518,11 @@ class MessagesGUI:
         for message in self.messages:
             self.messages_listbox.insert(tk.END, f"From: {message['sender']} - Subject: {message['subject']}")
 
+
+    def reply_message(self,client_object):
+        selected_index = self.messages_listbox.curselection()
+        print(selected_index)
+        SendMessageGUI(self.root,client_object,self.username)
     def show_message_content(self, event):
         selection = self.messages_listbox.curselection()
         if selection:
@@ -538,37 +547,47 @@ class MessagesGUI:
         self.root.mainloop()
 
 class SendMessageGUI:
-    def __init__(self,previous_window,client_object):
+    def __init__(self, previous_window,client_object,username):
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Send Message")
-        self.root.geometry("400x300")
+        self.root.geometry("400x350")
         self.root.configure(bg="#0e1a40")
 
         self.title_label = tk.Label(self.root, text="Send Message", bg="#0e1a40", fg="white",
                                     font=("Helvetica", 16, "bold"))
         self.title_label.pack(pady=10)
 
+        self.subject_label = tk.Label(self.root, text="Subject:", bg="#0e1a40", fg="white", font=("Helvetica", 12))
+        self.subject_label.pack(pady=5)
+
+        self.subject_entry = tk.Entry(self.root, width=30, bg="white", fg="black", font=("Helvetica", 12))
+        self.subject_entry.pack(pady=5)
+
         self.message_label = tk.Label(self.root, text="Message:", bg="#0e1a40", fg="white", font=("Helvetica", 12))
         self.message_label.pack(pady=5)
 
-        self.message_entry = tk.Text(self.root, width=40, height=10, bg="white", fg="black")
+        self.message_entry = tk.Text(self.root, width=40, height=8, bg="white", fg="black")
         self.message_entry.pack(pady=5)
 
-        self.send_button = tk.Button(self.root, text="Send", width=10, bg="#d81159", fg="white", font=("Helvetica", 12),
-                                     command=self.send_message)
+        self.send_button = tk.Button(self.root, text="Send", width=10, bg="#d81159", fg="white",
+                                     font=("Helvetica", 12), command=self.send_message)
         self.send_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
-        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#d81159", fg="white", font=("Helvetica", 12),
-                                     command= lambda :self.menu(client_object))
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#d81159", fg="white",
+                                     font=("Helvetica", 12), command=lambda: self.menu(client_object,username))
         self.menu_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def send_message(self):
+        subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
         # Here you can add code to send the message to the doctor
-        print("Message sent:", message)
-    def menu(self,client_object):
-        MessagesMenu(self.root,client_object)
+        print("Subject:", subject)
+        print("Message:", message)
+
+    def menu(self, client_object,username):
+        MessagesMenu(self.root, client_object,username)
+
     def run(self):
         self.root.mainloop()
 
@@ -609,8 +628,6 @@ class MessagesMenu:
         print("Opening Messages window")
     def run(self):
         self.root.mainloop()
-
-
 
 
 
