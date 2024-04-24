@@ -161,11 +161,11 @@ def examine(first_symptom,client_object, username):
                         add_disease(username, disease)
 
                         if action[1]=="yes":
-                            symptoms =""
+                            final_symptoms =""
                             for symptom in current_symptoms:
-                                symptoms+=(str(symptom)[1:len(symptom)]) +", "
-                            symptoms = symptoms[1:len(symptoms) - 2]
-                            add_message(username, get_most_available_doctor(),f"{username} Diagnosis",f"Symptoms : {str(symptoms)},\nResult : {disease}")
+                                final_symptoms+=(str(symptom)[1:len(symptom)]) +", "
+                            print("sending!!!!!!!")
+                            add_message(username, get_most_available_doctor(),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0]=="Information":
                             information_page_handle(client_object)
                         else:
@@ -184,12 +184,12 @@ def examine(first_symptom,client_object, username):
                         add_disease(username, disease)
 
                         if action[1] == "yes":
-                            symptoms = ""
+                            final_symptoms = ""
                             for symptom in current_symptoms:
-                                symptoms+=(str(symptom)[1:len(symptom)]) +", "
-                            symptoms = symptoms[1:len(symptoms) - 2]
+                                final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
+                            print("sending!!!!!!!")
                             add_message(username, get_most_available_doctor(), f"{username} Diagnosis",
-                                        f"Symptoms : {str(symptoms)},\nResult : {disease}")
+                                        f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0] == "Information":
                             information_page_handle(client_object)
                         else:
