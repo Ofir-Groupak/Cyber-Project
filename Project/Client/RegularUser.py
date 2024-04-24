@@ -239,12 +239,12 @@ class QuestionnaireWindowGUI:
             self.btn_more_info.pack(side=tk.RIGHT, padx=(10, 50))
 
     def back_to_menu(self):
-        response = messagebox.askquestion("Confirmation", "Are you sure you want to proceed?")
+        response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
         self.client_object.send(pickle.dumps(["Menu",response]))
         MainMenuGUI(self.client_object, self.root,self.username)
 
     def go_to_info(self,disease):
-        response = messagebox.askquestion("Confirmation", "Are you sure you want to proceed?")
+        response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
         self.client_object.send(pickle.dumps(["Information",response]))
         InformationPageGUI(self.root, disease,self.client_object)
 
