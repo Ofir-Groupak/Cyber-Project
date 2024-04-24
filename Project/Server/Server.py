@@ -86,6 +86,7 @@ def client_handle(client_object,login_info):
         client_handle(client_object,login_info)
 
 def menu_handle(client_object,username):
+    print("in menu handle")
     data = client_object.recv(1024).decode()
     print(data)
     if "examine" in data:
@@ -96,26 +97,28 @@ def menu_handle(client_object,username):
 def messages_handle(client_object,username):
     print("in messages handle")
     data = client_object.recv(1024).decode()
-    print(data)
+    print('1',data)
     if "view messages" in data:
+        client_object.send(pickle.dumps(get_all_messages_for_user(username)))
         view_messages_handle(client_object,username)
     if "menu" in data:
         menu_handle(client_object,username)
 
 def view_messages_handle(client_object,username):
-    print("view messages handle")
+    print("in view messages handle")
 
-    client_object.send(pickle.dumps(get_all_messages_for_user(username)))
     data = client_object.recv(1024).decode()
 
     if "menu" in data:
         messages_handle(client_object,username)
 
 def first_symptom_handle(client_object , username):
+    print("in first symptom handle")
     data = client_object.recv(1024).decode()
     examine(data , client_object , username)
 
 def information_page_handle(client_object):
+    print("in information page handle")
     data = client_object.recv(1024).decode()
 
 def examine(first_symptom,client_object, username):
@@ -124,6 +127,7 @@ def examine(first_symptom,client_object, username):
     :param client_object: represents the client's object
     :return: None
     """
+    print("in examine")
     current_symptoms = []
     current_symptoms.append(first_symptom)
     potential_diseases = list_for_symptom(first_symptom)
