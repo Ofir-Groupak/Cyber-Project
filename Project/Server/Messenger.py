@@ -1,4 +1,5 @@
 import sqlite3
+from DB_Handler import *
 def create_table():
     """
     Creates a table 'users' in the database if it doesn't exist already.
@@ -52,6 +53,9 @@ def get_all_messages_for_user(user):
     conn.close()
 
     return all_messages
+
+def get_most_available_doctor():
+
 
 if __name__=="__main__":
     create_table()

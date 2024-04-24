@@ -106,6 +106,7 @@ def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()
     examine(data , client_object , username)
 
+def information_page_handle(client_object):
 def examine(first_symptom,client_object, username):
     """
     :param first_symptom: represents the symptom given to the user
@@ -153,8 +154,11 @@ def examine(first_symptom,client_object, username):
 
                         print(result)
                         client_object.send(result.encode('utf-8'))
-                        command = client_object.recv(1024).decode()
+                        command = client_object.recv(1024)
+                        action = pickle.loads(command)
 
+                        if action[1]=="yes":
+                            add_message(username, ,f"{username} Diagnosis",f"Symptoms : {current_symptoms},\n Result : {disease}")
                         if command=="Try again":
                             first_symptom_handle(client_object,username)
                         else:
@@ -167,7 +171,10 @@ def examine(first_symptom,client_object, username):
                         result = f"You have {disease}"
                         print(result)
                         client_object.send(result.encode('utf-8'))
-                        command = client_object.recv(1024).decode()
+                        print('2')
+                        command = client_object.recv(1024)
+                        action = pickle.loads(command)
+                        print(current_symptoms,action)
 
                         if command == "Try again":
                             first_symptom_handle(client_object,username)

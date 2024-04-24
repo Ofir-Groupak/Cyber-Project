@@ -161,15 +161,35 @@ def add_disease(username, disease):
     conn.commit()
     conn.close()
 
+def get_all_doctors():
+    conn = sqlite3.connect('../Server/users.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+        SELECT username FROM users
+        WHERE doctor=?
+        ''', ("True",)
+    )
+    doctors = []
+    for item in cursor.fetchall():
+        item = str(item)
+        doctors.append(item[2:len(item)-3])
+
+    conn.commit()
+    conn.close()
+
+    return doctors
 
 
 if __name__ == "__main__":
     create_table()
-    #add_user('moshe', 'moshe', 'male', 'admin', '1234',"True", str(['Heart attack']))
+    #add_user('Avi', 'levy', 'male', 'Avi', 'avi',"False", str(['Heart attack']))
     print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
     # remove_user('admin')
     # change_password('admin1','admin')
+    print(get_all_doctors())
 
 
 

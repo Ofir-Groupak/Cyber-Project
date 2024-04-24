@@ -101,7 +101,7 @@ class MainMenuGUI:
 
     def open_examine(self,client_object):
         self.client_object.send("examine".encode())
-        FirstSymptomWindowGUI(self.root,self.client_object)
+        FirstSymptomWindowGUI(self.root,self.client_object,self.username)
         print("Opening Examine window")
 
     def open_messages(self,client_object):
@@ -112,7 +112,8 @@ class MainMenuGUI:
     def run(self):
         self.root.mainloop()
 class FirstSymptomWindowGUI:
-    def __init__(self, previous_window, client_object):
+    def __init__(self, previous_window, client_object,username):
+        self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
 
@@ -158,10 +159,11 @@ class FirstSymptomWindowGUI:
         information = self.value_inside.get()
         self.client_object.send(information.encode())
         question = self.client_object.recv(1024).decode()
-        QuestionnaireWindowGUI(self.root, self.client_object, question)
+        QuestionnaireWindowGUI(self.root, self.client_object, question,self.username)
 
 class QuestionnaireWindowGUI:
-    def __init__(self, previous_window, client_object, question):
+    def __init__(self, previous_window, client_object, question,username):
+        self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
         self.question = question
@@ -228,14 +230,24 @@ class QuestionnaireWindowGUI:
             self.btn_yes.destroy()
             self.btn_try_again = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
                                            text="Menu", width=10,
-                                           height=3, command=lambda: MainMenuGUI(self.client_object, self.root))
+                                           height=3, command= lambda : self.back_to_menu())
             self.btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
             print(question1[9:].lower())
             self.btn_more_info = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
                                            text="More Information", width=10,
-                                           height=3, command=lambda: InformationPageGUI(self.root, question1[9:].lower(),
-                                                                                      self.client_object))
+                                           height=3, command=lambda: self.go_to_info(question1[9:].lower()))
             self.btn_more_info.pack(side=tk.RIGHT, padx=(10, 50))
+
+    def back_to_menu(self):
+        response = messagebox.askquestion("Confirmation", "Are you sure you want to proceed?")
+        self.client_object.send(pickle.dumps(["Menu",response]))
+        MainMenuGUI(self.client_object, self.root,self.username)
+
+    def go_to_info(self,disease):
+        response = messagebox.askquestion("Confirmation", "Are you sure you want to proceed?")
+        self.client_object.send(pickle.dumps(["Information",response]))
+        InformationPageGUI(self.root, disease,self.client_object)
+
 
     def on_yes(self):
         """
@@ -453,7 +465,6 @@ class InformationPageGUI:
         data = "Try again"
         self.client_object.send(data.encode())
         FirstSymptomWindowGUI(self.root, self.client_object)
-
 
 class MessagesGUI:
     def __init__(self,previous_window,client_object,username):
