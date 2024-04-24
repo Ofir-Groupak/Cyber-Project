@@ -55,9 +55,36 @@ def get_all_messages_for_user(user):
     return all_messages
 
 def get_most_available_doctor():
+    dict = {}
+    doctors = get_all_doctors()
+
+
+    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\messages.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+            SELECT receiver from messages 
+        ''')
+
+    names = []
+
+    for name in cursor.fetchall():
+        name = str(name)[2:len(name)-4]
+        names.append(name)
+
+    for doctor in doctors:
+        dict[doctor] = names.count(doctor)
+
+    print(dict)
+    minnimum = min(dict.values())
+    most_available_doctor = [key for key in dict if dict[key]==minnimum][0]
+    return most_available_doctor
+
+
 
 
 if __name__=="__main__":
     create_table()
-    add_message("moshe","admin","hello","nigga")
-    get_all_messages_for_user("moshe")
+    # add_message("moshe","admin","hello","nigga")
+    # get_all_messages_for_user("moshe")

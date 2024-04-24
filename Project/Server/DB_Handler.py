@@ -184,10 +184,10 @@ def get_all_doctors():
 
 if __name__ == "__main__":
     create_table()
-    #add_user('Avi', 'levy', 'male', 'Avi', 'avi',"False", str(['Heart attack']))
+    #add_user('Doc', 'doc', 'male', 'Doc', '123',"True", str(['Heart attack']))
     print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
-    # remove_user('admin')
+    remove_user('Doc')
     # change_password('admin1','admin')
     print(get_all_doctors())
 
