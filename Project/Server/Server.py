@@ -107,10 +107,13 @@ def messages_handle(client_object,username):
 def view_messages_handle(client_object,username):
     print("in view messages handle")
 
-    data = client_object.recv(1024).decode()
-
-    if "menu" in data:
+    data = client_object.recv(1024)
+    data = pickle.loads(data)
+    print(data)
+    if "menu" in data[0]:
         messages_handle(client_object,username)
+    if "reply" in data[0]:
+        print("replying")
 
 def first_symptom_handle(client_object , username):
     print("in first symptom handle")
