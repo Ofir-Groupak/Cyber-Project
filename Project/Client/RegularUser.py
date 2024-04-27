@@ -173,7 +173,7 @@ class QuestionnaireWindowGUI:
 
         self.root = tk.Tk()
         self.root.title("GUI Example")
-        self.root.geometry("500x400")
+        self.root.geometry("550x400")
         self.root.configure(bg="#0e1a40")
 
         self.canvas = tk.Canvas(self.root, width=400, height=300, bg="#0e1a40", highlightthickness=0)
@@ -188,7 +188,7 @@ class QuestionnaireWindowGUI:
                                             fill="red", width=20)
 
         self.question_label = tk.Label(self.root, text=self.question, bg="#0e1a40", fg="white",
-                                       font=("Segoe UI", 12, "bold"))
+                                       font=("Segoe UI", 16, "bold"))
         self.question_label.place(relx=0.15, rely=0.55)
 
         self.buttons_frame = tk.Frame(self.root, bg="#0e1a40")
@@ -220,7 +220,7 @@ class QuestionnaireWindowGUI:
             pass
         if not "You have" in question1:
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="white",
-                                           font=("Segoe UI", 12, "bold"))
+                                           font=("Segoe UI", 16, "bold"))
             self.question_label.place(relx=0.15, rely=0.55)
             symptom = question1[18:len(question1)-2]
             print(symptom)

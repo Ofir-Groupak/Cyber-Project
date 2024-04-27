@@ -174,7 +174,7 @@ def examine(first_symptom,client_object, username):
                     return
                 break
             for potential_symptom in [x for x in symptoms if x not in current_symptoms]:
-                question = (f"Do you suffer from {potential_symptom} ?").replace("_"," ")
+                question = (f"Do you suffer from{potential_symptom} ?").replace("_"," ")
                 client_object.send(question.encode('utf-8'))
                 print(f'sending {question}')
                 answer =client_object.recv(1024).decode()
