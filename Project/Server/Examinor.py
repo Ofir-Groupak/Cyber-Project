@@ -82,8 +82,24 @@ def get_all_diseases():
     """
     return list(dict.fromkeys(df['Disease'].tolist()))
 
+def get_advice_for_disease(disease):
+    """
 
+    :param disease: represents a string with disease
+    :return: all the symptoms for that disease
+    """
 
+    df = pd.read_csv(
+        r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\DiseasesDatabases\symptom_precaution.csv').drop_duplicates(
+        subset=['Disease'])
+
+    advices = []
+    for advice in [x for x in df.itertuples() if x[1]==disease]:
+        print(advice)
+        for i in range(2,6):
+            advices.append(advice[i])
+
+    return [x for x in advices if not pd.isna(x)]
 
 
 

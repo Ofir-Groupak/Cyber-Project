@@ -139,9 +139,11 @@ def first_symptom_handle(client_object , username):
     data = client_object.recv(1024).decode()
     examine(data , client_object , username)
 
-def information_page_handle(client_object):
+def information_page_handle(client_object,result,username):
     print("in information page handle")
+    client_object.send(pickle.dumps(get_advice_for_disease(result)))
     data = client_object.recv(1024).decode()
+    menu_handle(client_object,username)
 
 def examine(first_symptom,client_object, username):
     """
@@ -202,7 +204,7 @@ def examine(first_symptom,client_object, username):
                             print("sending!!!!!!!")
                             add_message(username, get_most_available_doctor(),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0]=="Information":
-                            information_page_handle(client_object)
+                            information_page_handle(client_object,disease,username)
                         else:
                             menu_handle(client_object,username)
 
@@ -226,7 +228,7 @@ def examine(first_symptom,client_object, username):
                             add_message(username, get_most_available_doctor(), f"{username} Diagnosis",
                                         f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0] == "Information":
-                            information_page_handle(client_object)
+                            information_page_handle(client_object,disease,username)
                         else:
                             menu_handle(client_object, username)
 

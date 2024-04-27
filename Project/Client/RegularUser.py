@@ -4,7 +4,6 @@ from tkinter import messagebox
 from Project.Server import Examinor
 import requests
 from bs4 import BeautifulSoup
-import wikipedia
 
 
 
@@ -225,9 +224,7 @@ class QuestionnaireWindowGUI:
             self.question_label.place(relx=0.15, rely=0.55)
             symptom = question1[18:len(question1)-2]
             print(symptom)
-            self.information = tk.Label(self.root,text=wikipedia.summary(symptom,sentences=1), bg="#0e1a40", fg="white",
-                                           font=("Segoe UI", 12, "bold"))
-            self.information.place(relx=0.15, rely=0.75)
+
         else:
 
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#d81159",
@@ -253,7 +250,7 @@ class QuestionnaireWindowGUI:
     def go_to_info(self,disease):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
         self.client_object.send(pickle.dumps(["Information",response]))
-        InformationPageGUI(self.root, disease,self.client_object)
+        DiseaseReportGUI(self.root,disease,self.client_object,self.username)
 
 
     def on_yes(self):
@@ -417,61 +414,69 @@ class SignUpPageGUI:
         self.root.destroy()
         LoginPageGUI(self.client_object)
 
-class InformationPageGUI:
-    def __init__(self, previous_window, topic, client_object):
-        self.previous_window = previous_window
-        self.topic = topic
-        self.client_object = client_object
-
-        self.previous_window.destroy()
-
+class DiseaseReportGUI:
+    def __init__(self,previous_window, disease_name,client_object,username):
+        previous_window.destroy()
         self.root = tk.Tk()
-        self.root.title("First Paragraph Viewer")
-        self.root.geometry("800x600")
+        self.root.title(f"Report for {disease_name}")
+        self.root.geometry("700x750")
         self.root.configure(bg="#0e1a40")
 
-        self.frame = tk.Frame(self.root, padx=20, pady=20, bg="#0e1a40")
-        self.frame.pack(expand=True)
+        self.client_object = client_object
+        self.advices = client_object.recv(1024)
+        self.advices = pickle.loads(self.advices)
+        self.username = username
 
-        self.title_label = tk.Label(self.frame, text=f"Information about {self.topic}", font=("Arial", 18, "bold"), bg="#0e1a40",
-                           fg="white")
-        self.title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
+        self.title_label = tk.Label(self.root, text=f"Report for {disease_name}", bg="#0e1a40", fg="white",
+                                    font=("Helvetica", 20, "bold"))
+        self.title_label.pack(pady=20)
 
-        self.result_text = tk.Text(self.frame, wrap=tk.WORD, height=15, width=70, font=("Arial", 12), bg="white", fg="#333", bd=2,
-                          relief=tk.SOLID)
-        self.result_text.grid(row=3, column=1, pady=5, padx=10, sticky="w")
+        self.report_text = tk.Text(self.root, wrap="word", bg="white", fg="#0e1a40", font=("Helvetica", 14), bd=0)
+        self.report_text.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        self.report_text.insert(tk.END,self.fetch_report(disease_name))
 
-        self.first_paragraph = self.get_first_paragraph(self.topic)
-        self.result_text.config(state=tk.NORMAL)
-        self.result_text.delete(1.0, tk.END)
-        self.result_text.insert(tk.END, self.first_paragraph)
-        self.result_text.config(state=tk.DISABLED)
 
-        self.buttons_frame = tk.Frame(self.root, bg="#0e1a40")
-        self.buttons_frame.pack()
 
-        self.btn_try_again = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="Try again",
-                              width=10, height=3, command=self.new_examine)
-        self.btn_try_again.pack(side=tk.LEFT, padx=(50, 10) , pady=(10,10))
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#d81159", fg="white",
+                                     font=("Helvetica", 12), command=self.show_menu)
+        self.menu_button.pack(pady=10)
 
         self.root.mainloop()
 
-    def get_first_paragraph(self, topic):
-        topic = topic.replace(' ','')
-        url = f"https://medlineplus.gov/{topic}.html"
-        print(url)
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        try:
-            first_paragraph = soup.find(attrs={'id':'topsum_section'}).text
-        except AttributeError:
-            first_paragraph = f"Sorry, we were unable to get information about {topic}"
-        return first_paragraph
+    def fetch_report(self, disease_name):
 
-    def new_examine(self):
-        data = "Try again"
-        self.client_object.send(data.encode())
-        FirstSymptomWindowGUI(self.root, self.client_object)
+        url = f"https://en.wikipedia.org/wiki/{disease_name}"
+
+        response = requests.get(url)
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        content_div = soup.find(id="mw-content-text")
+        paragraphs = content_div.find_all('p')
+
+        report = ""
+
+        for i in range(1, 3):
+            try:
+                report += paragraphs[i].get_text() + "\n\n"
+            except Exception as e:
+                print(disease_name)
+
+        report+="Our Advices :" + "\n"
+
+        number = 1
+        for advice in self.advices:
+            report+=str(number)+ "- " +advice + "\n"
+            number = int(number) + 1
+
+        if report == "Error: list index out of range" or report=="":
+            print(disease_name)
+        return report
+
+    def show_menu(self):
+        self.client_object.send("menu".encode())
+        MainMenuGUI(self.client_object,self.root,self.username)
+        print("Menu button clicked")
+
 
 class MessagesGUI:
     def __init__(self,previous_window,client_object,username):
