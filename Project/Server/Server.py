@@ -132,10 +132,7 @@ def view_messages_handle(client_object,username):
     if "menu" in data[0]:
         messages_handle(client_object,username)
     if "reply" in data[0]:
-        print("in reply")
-        data = client_object.recv(1024)
-        data = pickle.loads(data)
-        add_message(username,data[0],data[1],data[2])
+        send_message_handle(client_object,username)
 
 def first_symptom_handle(client_object , username):
     print("in first symptom handle")

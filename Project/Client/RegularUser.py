@@ -4,6 +4,8 @@ from tkinter import messagebox
 from Project.Server import Examinor
 import requests
 from bs4 import BeautifulSoup
+import wikipedia
+
 
 
 class LoginPageGUI:
@@ -221,6 +223,11 @@ class QuestionnaireWindowGUI:
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="white",
                                            font=("Segoe UI", 12, "bold"))
             self.question_label.place(relx=0.15, rely=0.55)
+            symptom = question1[18:len(question1)-2]
+            print(symptom)
+            self.information = tk.Label(self.root,text=wikipedia.summary(symptom,sentences=1), bg="#0e1a40", fg="white",
+                                           font=("Segoe UI", 12, "bold"))
+            self.information.place(relx=0.15, rely=0.75)
         else:
 
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#d81159",
