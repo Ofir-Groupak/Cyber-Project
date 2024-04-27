@@ -233,7 +233,26 @@ def examine(first_symptom,client_object, username):
                             menu_handle(client_object, username)
 
             if len(potential_diseases_to_symptoms) == 1:
-                return
+                disease = list(potential_diseases_to_symptoms.keys())[0]
+                result = f"You have {disease}"
+
+                print(result)
+                client_object.send(result.encode('utf-8'))
+                command = client_object.recv(1024)
+                action = pickle.loads(command)
+                add_disease(username, disease)
+
+                if action[1] == "yes":
+                    final_symptoms = ""
+                    for symptom in current_symptoms:
+                        final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
+                    print("sending!!!!!!!")
+                    add_message(username, get_most_available_doctor(), f"{username} Diagnosis",
+                                f"Symptoms : {final_symptoms},\nResult : {disease}")
+                if action[0] == "Information":
+                    information_page_handle(client_object, disease, username)
+                else:
+                    menu_handle(client_object, username)
 
 
 
