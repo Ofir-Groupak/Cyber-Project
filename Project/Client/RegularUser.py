@@ -549,8 +549,13 @@ class MessagesGUI:
     def run(self):
         self.root.mainloop()
 
+
+from tkinter import messagebox
+
+
 class SendMessageGUI:
     def __init__(self, previous_window, client_object, username, recipient):
+        self.client_object = client_object
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Send Message")
@@ -581,11 +586,11 @@ class SendMessageGUI:
         self.message_entry = tk.Text(self.root, width=34, height=3, bg="white", fg="black")
         self.message_entry.grid(row=3, column=1, pady=7, rowspan=3, ipady=10)
 
-        self.send_button = tk.Button(self.root, text="Send",height=2, width=10, bg="#d81159", fg="white",
+        self.send_button = tk.Button(self.root, text="Send", height=1, width=10, bg="#d81159", fg="white",
                                      font=("Helvetica", 12), command=self.send_message)
         self.send_button.grid(row=7, column=0, padx=5, pady=5)
 
-        self.menu_button = tk.Button(self.root, text="Menu",height=2, width=10, bg="#d81159", fg="white",
+        self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#d81159", fg="white",
                                      font=("Helvetica", 12), command=lambda: self.menu(client_object, username))
         self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
@@ -593,12 +598,20 @@ class SendMessageGUI:
         recipient = self.recipient_entry.get()
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
-        # Here you can add code to send the message to the doctor
+        message_pattern = [recipient, subject, message]
+        self.client_object.send(pickle.dumps(message_pattern))
         print("Recipient:", recipient)
         print("Subject:", subject)
         print("Message:", message)
 
+        self.recipient_entry.delete(0, tk.END)
+        self.subject_entry.delete(0, tk.END)
+        self.message_entry.delete("1.0", tk.END)
+
+        messagebox.showinfo("Success", "Message sent successfully!")
+
     def menu(self, client_object, username):
+        client_object.send(pickle.dumps(["menu"]))
         MessagesMenu(self.root, client_object, username)
 
     def run(self):
@@ -617,7 +630,7 @@ class MessagesMenu:
         self.title_label.pack(pady=10)
 
         self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#d81159", fg="white",
-                                        font=("Helvetica", 12), command= lambda: self.open_sender(client_object))
+                                        font=("Helvetica", 12), command= lambda: self.open_sender(client_object,username))
         self.examine_button.pack(pady=10)
 
         self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
@@ -632,8 +645,9 @@ class MessagesMenu:
     def back_to_menu(self,client_object,username):
         client_object.send("menu".encode())
         MainMenuGUI(client_object,self.root,username)
-    def open_sender(self,client_object):
-        SendMessageGUI(self.root,client_object)
+    def open_sender(self,client_object,username):
+        client_object.send("send message".encode())
+        SendMessageGUI(self.root,client_object,username,'')
         print("Opening Examine window")
 
     def open_messages(self,client_object,username):
