@@ -163,7 +163,7 @@ class FirstSymptomWindowGUI:
         QuestionnaireWindowGUI(self.root, self.client_object, question,self.username)
 
 class QuestionnaireWindowGUI:
-    def __init__(self, previous_window, client_object, question,username):
+    def __init__(self, previous_window, client_object, question, username):
         self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
@@ -172,8 +172,8 @@ class QuestionnaireWindowGUI:
         self.previous_window.destroy()
 
         self.root = tk.Tk()
-        self.root.title("GUI Example")
-        self.root.geometry("550x400")
+        self.root.title("Questionnaire")
+        self.root.geometry("600x400")
         self.root.configure(bg="#0e1a40")
 
         self.canvas = tk.Canvas(self.root, width=400, height=300, bg="#0e1a40", highlightthickness=0)
@@ -189,16 +189,16 @@ class QuestionnaireWindowGUI:
 
         self.question_label = tk.Label(self.root, text=self.question, bg="#0e1a40", fg="white",
                                        font=("Segoe UI", 16, "bold"))
-        self.question_label.place(relx=0.15, rely=0.55)
+        self.question_label.pack(pady=20)
 
-        self.buttons_frame = tk.Frame(self.root, bg="#0e1a40")
-        self.buttons_frame.pack(expand=True)
+        self.btn_frame = tk.Frame(self.root, bg="#0e1a40")
+        self.btn_frame.pack(expand=True)
 
-        self.btn_yes = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
+        self.btn_yes = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
                                  text="Yes", width=10, height=3, command=self.on_yes)
         self.btn_yes.pack(side=tk.LEFT, padx=(50, 10))
 
-        self.btn_no = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="No",
+        self.btn_no = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="No",
                                 width=10, height=3, command=self.on_no)
         self.btn_no.pack(side=tk.RIGHT, padx=(10, 50))
 
@@ -212,52 +212,47 @@ class QuestionnaireWindowGUI:
             question1 (str): The question or result text to be displayed.
         """
         try:
-            if self.question_label:
-                self.question_label.destroy()
-        except NameError:
-            pass
+            self.question_label.destroy()
         except tk.TclError:
             pass
         if not "You have" in question1:
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="white",
                                            font=("Segoe UI", 16, "bold"))
-            self.question_label.place(relx=0.15, rely=0.55)
-            symptom = question1[18:len(question1)-2]
+            self.question_label.pack(pady=20)
+            symptom = question1[18:len(question1) - 2]
             print(symptom)
 
         else:
 
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#d81159",
                                            font=("Segoe UI", 14, "bold"))
-            self.question_label.place(relx=0.22, rely=0.65, anchor='w')
+            self.question_label.pack(pady=20)
             self.btn_no.destroy()
             self.btn_yes.destroy()
-            self.btn_try_again = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
+            self.btn_try_again = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
                                            text="Menu", width=10,
-                                           height=3, command= lambda : self.back_to_menu())
+                                           height=3, command=lambda: self.back_to_menu())
             self.btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
             print(question1[9:].lower())
-            self.btn_more_info = tk.Button(self.buttons_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
-                                           text="More Information", width=10,
+            self.btn_more_info = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
+                                           text="More Information", width=15,
                                            height=3, command=lambda: self.go_to_info(question1[9:].lower()))
             self.btn_more_info.pack(side=tk.RIGHT, padx=(10, 50))
 
     def back_to_menu(self):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
-        self.client_object.send(pickle.dumps(["Menu",response]))
-        MainMenuGUI(self.client_object, self.root,self.username)
+        self.client_object.send(pickle.dumps(["Menu", response]))
+        MainMenuGUI(self.client_object, self.root, self.username)
 
-    def go_to_info(self,disease):
+    def go_to_info(self, disease):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
-        self.client_object.send(pickle.dumps(["Information",response]))
-        DiseaseReportGUI(self.root,disease,self.client_object,self.username)
-
+        self.client_object.send(pickle.dumps(["Information", response]))
+        DiseaseReportGUI(self.root, disease, self.client_object, self.username)
 
     def on_yes(self):
         """
         Sends the client's 'Yes' response to the server and displays the result accordingly.
         """
-        self.question_label.destroy()
         self.client_object.send("yes".encode())
         result = self.client_object.recv(1024).decode()
         self.show_text(result)
@@ -266,11 +261,9 @@ class QuestionnaireWindowGUI:
         """
         Sends the client's 'No' response to the server and displays the result accordingly.
         """
-        self.question_label.destroy()
         self.client_object.send("no".encode())
         result = self.client_object.recv(1024).decode()
         self.show_text(result)
-
 class SignUpPageGUI:
     def __init__(self, previous_window, client_object):
         self.previous_window = previous_window
