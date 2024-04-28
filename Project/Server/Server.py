@@ -90,9 +90,11 @@ def client_handle(client_object):
         print(f"Accepted connection from {username}")
         response = ["Correct",is_doctor(username)]
         client_object.send(pickle.dumps(response))
-        menu_handle(client_object,username)
-        #first_symptom_handle(client_object , username)
 
+        if not is_doctor(username):
+            menu_handle(client_object,username)
+        else:
+            messages_handle(client_object,username)
     else:
         client_object.send("Try again".encode())
         login_info = client_object.recv(1024).decode().split('#')

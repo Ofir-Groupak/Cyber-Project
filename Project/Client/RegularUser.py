@@ -558,11 +558,12 @@ class MessagesGUI:
         self.username = username
         data = client_object.recv(1024)
         self.messages = pickle.loads(data)
-        print(self.messages)
+
+
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Messages")
-        self.root.geometry("600x450")
+        self.root.geometry("600x500")
         self.root.configure(bg="#0e1a40")
 
         self.title_label = tk.Label(self.root, text="Messages", font=("Helvetica", 16, "bold"), bg="#0e1a40", fg="white")
@@ -577,6 +578,11 @@ class MessagesGUI:
         self.scrollbar = tk.Scrollbar(self.messages_frame, orient=tk.VERTICAL, command=self.messages_listbox.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.messages_listbox.config(yscrollcommand=self.scrollbar.set)
+
+        if self.messages==[]:
+            self.msg_label = tk.Label(self.root, text="You don't have any messages yet!", font=("Helvetica", 16, "bold"), bg="#0e1a40",
+                                        fg="white")
+            self.msg_label.pack(pady=10)
 
         self.load_messages()
 
