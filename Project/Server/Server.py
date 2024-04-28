@@ -35,12 +35,9 @@ def get_clients(server_socket):
     while True:
         print("Waiting for clients!")
         client_object, client_IP = server_socket.accept()
-        data = client_object.recv(1024)
-        received_list = pickle.loads(data)
-        print(received_list)
-        client_thread = threading.Thread(target=client_handle, args=(client_object, received_list))
+        client_thread = threading.Thread(target=client_handle, args=(client_object,))
         client_thread.start()
-def sign_up_handle(client_object,login_info):
+def sign_up_handle(client_object):
     """
     handles the client sign up
 
@@ -48,13 +45,22 @@ def sign_up_handle(client_object,login_info):
     :param login_info:list that represents the information the client sent
     :return: None
     """
-    print('info',login_info)
+    print("in sign up handle")
+    options = [get_all_diseases(),get_all_doctors(),get_most_available_doctor()]
+    client_object.send(pickle.dumps(options))
+
+    login_info = client_object.recv(1024)
+    login_info = pickle.loads(login_info)
+
+    if "LOGIN"==login_info[0]:
+        client_handle(client_object)
+
     add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),str(login_info[7]))
     print(f"created using {login_info}")
     data = client_object.recv(1024)
     received_list = pickle.loads(data)
     client_handle(client_object,received_list)
-def client_handle(client_object,login_info):
+def client_handle(client_object):
     """
     handles the client and his requests
 
@@ -62,9 +68,13 @@ def client_handle(client_object,login_info):
     :param username: represents the username given by the user
     :return:None
     """
+    print("in client handle")
+
+    login_info = client_object.recv(1024)
+    login_info = pickle.loads(login_info)
 
     if login_info[0]=="SIGNUP":
-        sign_up_handle(client_object,login_info)
+        sign_up_handle(client_object)
         return
 
     username = login_info[1]

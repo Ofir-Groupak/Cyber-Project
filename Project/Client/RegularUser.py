@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-
 class LoginPageGUI:
     def __init__(self, client_object):
         self.client_object = client_object
@@ -77,6 +76,7 @@ class LoginPageGUI:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
     def open_signup_page(self):
+        self.client_object.send(pickle.dumps(["SIGNUP"]))
         SignUpPageGUI(self.root,self.client_object)
 
 class MainMenuGUI:
@@ -264,11 +264,23 @@ class QuestionnaireWindowGUI:
         self.client_object.send("no".encode())
         result = self.client_object.recv(1024).decode()
         self.show_text(result)
+import tkinter as tk
+from tkinter import messagebox
+import pickle
+
+import tkinter as tk
+from tkinter import messagebox
+import pickle
+
 class SignUpPageGUI:
     def __init__(self, previous_window, client_object):
         self.previous_window = previous_window
         self.client_object = client_object
-        self.options = Examinor.get_all_diseases()
+        options = self.client_object.recv(1024)
+        options = pickle.loads(options)
+        self.options = options[0]
+        self.doctors = options[1]
+        print(self.doctors)
         self.options.insert(0, "None")
         self.past_diseases_var1 = tk.StringVar()
         self.past_diseases_var2 = tk.StringVar()
@@ -278,7 +290,7 @@ class SignUpPageGUI:
 
         self.root = tk.Tk()
         self.root.title("Sign Up Page")
-        self.root.geometry("500x650")
+        self.root.geometry("500x750")
         self.root.configure(bg="#0e1a40")
 
         # Title label
@@ -309,7 +321,7 @@ class SignUpPageGUI:
 
         self.is_doctor_var = tk.BooleanVar()
         tk.Checkbutton(self.root, text="Yes", variable=self.is_doctor_var, onvalue=True, offvalue=False, bg="white", fg="#d81159",
-                       font=("Segoe UI", 10), selectcolor="#0e1a40").place(relx=0.5, rely=0.45, anchor="w")
+                       font=("Segoe UI", 10), selectcolor="#0e1a40", command=self.toggle_doctor_option).place(relx=0.5, rely=0.45, anchor="w")
 
         self.entry_username = tk.Entry(self.root, font=("Segoe UI", 12), bg="white")
         self.entry_username.place(relx=0.5, rely=0.55, anchor="w")
@@ -334,15 +346,35 @@ class SignUpPageGUI:
         self.opt_menu3.config(bg="white")
         self.opt_menu3.place(relx=0.7, rely=0.75, anchor="w")
 
+        # Doctor Selection
+        self.doctor_label = tk.Label(self.root, text="Doctor:", bg="#0e1a40", fg="white", font=("Segoe UI", 12))
+        self.doctor_label.place(relx=0.1, rely=0.85, anchor="w")
+
+        self.doctor_var = tk.StringVar()
+        self.doctor_var.set("")
+
+        self.doctor_entry = tk.Entry(self.root, textvariable=self.doctor_var, font=("Segoe UI", 12), bg="white",width=17,
+                                     state="normal")
+        self.doctor_entry.place(relx=0.5, rely=0.85, anchor="w")
+
+        self.doctor_listbox = tk.Listbox(self.root, selectmode="single", font=("Segoe UI", 10), bg="white", bd=0,width=21,
+                                         relief="flat", height=2)
+        self.doctor_listbox.place(relx=0.5, rely=0.89, anchor="w")
+        self.doctor_listbox.bind("<<ListboxSelect>>", self.on_select)
+
+        self.search_doctor()
+
+        self.btn_search_doctor = tk.Button(self.root, text="Search", width=8, font=("Segoe UI", 10), bg="#d81159", fg="white", bd=0,
+                                           command=self.search_doctor)
+        self.btn_search_doctor.place(relx=0.8, rely=0.85, anchor="w")
 
         self.btn_submit = tk.Button(self.root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
                                     command=self.submit_signup)
-        self.btn_submit.place(relx=0.4, rely=0.95, anchor="center")
+        self.btn_submit.place(relx=0.4, rely=0.97, anchor="center")
 
         self.btn_login = tk.Button(self.root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
-                                   command=self.back_to_login
-                                   )
-        self.btn_login.place(relx=0.7, rely=0.95, anchor="center")
+                                   command=self.back_to_login)
+        self.btn_login.place(relx=0.7, rely=0.97, anchor="center")
 
         self.root.mainloop()
 
@@ -350,8 +382,45 @@ class SignUpPageGUI:
         """
         Destroys the current window and navigates back to the login page.
         """
+        self.client_object.send(pickle.dumps(["LOGIN"]))
         self.root.destroy()
         LoginPageGUI(self.client_object)
+
+    def toggle_doctor_option(self):
+        """
+        Toggles the doctor selection option based on whether the user is a doctor or not.
+        """
+        if not self.is_doctor_var.get():
+            self.doctor_entry.config(state="normal")
+        else:
+            self.doctor_entry.delete(0,'end')
+            self.doctor_entry.insert(0,'None')
+            self.doctor_entry.config(state="disabled")
+            self.doctor_listbox.config(state="disabled")
+
+    def search_doctor(self):
+        """
+        Filters the doctor options based on the letters typed by the user.
+        If the search query is empty, display all doctors.
+        """
+        search_query = self.doctor_var.get().lower()
+        if search_query:
+            filtered_options = [option for option in self.doctors if search_query in option.lower()]
+        else:
+            filtered_options = self.doctors
+        self.doctor_listbox.delete(0, 'end')
+        for option in filtered_options:
+            self.doctor_listbox.insert('end', option)
+
+    def on_select(self, event):
+        """
+        Function to handle selection of doctor from the listbox.
+        """
+        selected = self.doctor_listbox.curselection()
+        if selected:
+            index = selected[0]
+            value = self.doctor_listbox.get(index)
+            self.doctor_var.set(value)
 
     def submit_signup(self):
         """
@@ -373,6 +442,7 @@ class SignUpPageGUI:
             self.past_diseases_var2.get(),
             self.past_diseases_var3.get()
         ]
+        selected_doctor = self.doctor_var.get()
 
         if not first_name:
             messagebox.showinfo("Error", "Please enter your first name!")
@@ -391,7 +461,7 @@ class SignUpPageGUI:
             messagebox.showinfo("Error", "Please enter your password!")
             return
 
-        information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases]
+        information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases, selected_doctor]
 
         print("First Name:", first_name)
         print("Last Name:", last_name)
@@ -400,8 +470,7 @@ class SignUpPageGUI:
         print("Username:", username)
         print("Password:", password)
         print("Past Diseases:", past_diseases)
-
-        print(information)
+        print("Selected Doctor:", selected_doctor)
 
         self.client_object.send(pickle.dumps(information))
         self.root.destroy()
@@ -470,7 +539,6 @@ class DiseaseReportGUI:
         MainMenuGUI(self.client_object,self.root,self.username)
         print("Menu button clicked")
 
-
 class MessagesGUI:
     def __init__(self,previous_window,client_object,username):
         self.client_object = client_object
@@ -515,12 +583,6 @@ class MessagesGUI:
         self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
-        # self.messages = [
-        #     {"sender": "User1", "subject": "Question about prescription", "message": "Hello, doctor! I have a question about my prescription."},
-        #     {"sender": "User2", "subject": "Appointment Request", "message": "Dear Doctor, I would like to schedule an appointment."},
-        #     {"sender": "User3", "subject": "Feedback", "message": "Hi, I just wanted to give some feedback on my recent visit."},
-        # ]
-
         for message in self.messages:
             self.messages_listbox.insert(tk.END, f"From: {message['sender']} - Subject: {message['subject']}")
 
@@ -530,7 +592,7 @@ class MessagesGUI:
         message_to_reply = self.messages[selected_index[0]]
         data = ["reply",message_to_reply]
         self.client_object.send(pickle.dumps(data))
-        SendMessageGUI(self.root,client_object,self.username,message_to_reply['sender'])
+        SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
     def show_message_content(self, event):
         selection = self.messages_listbox.curselection()
         if selection:
@@ -554,14 +616,13 @@ class MessagesGUI:
     def run(self):
         self.root.mainloop()
 
-
-from tkinter import messagebox
-
-
 class SendMessageGUI:
     def __init__(self, previous_window, client_object, username, recipient):
         self.client_object = client_object
-        previous_window.destroy()
+        try:
+            previous_window.destroy()
+        except AttributeError:
+            pass
         self.root = tk.Tk()
         self.root.title("Send Message")
         self.root.geometry("500x250")
@@ -621,7 +682,6 @@ class SendMessageGUI:
 
     def run(self):
         self.root.mainloop()
-
 
 class MessagesMenu:
     def __init__(self,previous_window,client_object,username):
