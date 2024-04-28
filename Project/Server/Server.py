@@ -91,7 +91,8 @@ def client_handle(client_object):
         response = ["Correct",is_doctor(username)]
         client_object.send(pickle.dumps(response))
 
-        if not is_doctor(username):
+        if is_doctor(username)=="False":
+            print("menu")
             menu_handle(client_object,username)
         else:
             messages_handle(client_object,username)
