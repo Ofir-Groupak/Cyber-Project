@@ -21,38 +21,38 @@ class LoginPageGUI:
         self.frame = tk.Frame(self.root, padx=20, pady=20, bg="#0e1a40")
         self.frame.pack(expand=True)
 
-        self.title_label = tk.Label(self.frame, text="Login", font=("Segoe UI", 20, "bold"), bg="#0e1a40", fg="white")
+        self.title_label = tk.Label(self.frame, text="Login", font=("Segoe UI", 24, "bold"), bg="#0e1a40", fg="white")
         self.title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky="ew")
 
-        self.username_label = tk.Label(self.frame, text="Username:", font=("Segoe UI", 12, "bold"), bg="#0e1a40",
+        self.username_label = tk.Label(self.frame, text="Username:", font=("Segoe UI", 16, "bold"), bg="#0e1a40",
                                        fg="white")
         self.username_label.grid(row=1, column=0, pady=5, sticky="e")
 
-        self.username_entry = tk.Entry(self.frame, font=("Segoe UI", 12))
+        self.username_entry = tk.Entry(self.frame, font=("Segoe UI", 16))
         self.username_entry.grid(row=1, column=1, pady=5, padx=10, sticky="w")
 
-        self.password_label = tk.Label(self.frame, text="Password:", font=("Segoe UI", 12, "bold"), bg="#0e1a40",
+        self.password_label = tk.Label(self.frame, text="Password:", font=("Segoe UI", 16, "bold"), bg="#0e1a40",
                                        fg="white")
         self.password_label.grid(row=2, column=0, pady=5, sticky="e")
 
-        self.password_entry = tk.Entry(self.frame, show="*", font=("Segoe UI", 12))
+        self.password_entry = tk.Entry(self.frame, show="*", font=("Segoe UI", 16))
         self.password_entry.grid(row=2, column=1, pady=5, padx=10, sticky="w")
 
         self.show_password_var = tk.BooleanVar()
         self.show_password_checkbutton = tk.Checkbutton(self.frame, text="Show Password",
                                                         variable=self.show_password_var,
-                                                        font=("Segoe UI", 10, "bold"), bg="#0e1a40", fg="#d81159",
+                                                        font=("Segoe UI", 16, "bold"), bg="#0e1a40", fg="#d81159",
                                                         activebackground="#0e1a40", activeforeground="#d81159",
                                                         command=self.toggle_password_visibility)
         self.show_password_checkbutton.grid(row=3, column=1, pady=5, sticky="w")
 
-        self.login_button = tk.Button(self.frame, text="Login", command=self.send_data, font=("Segoe UI", 10, "bold"),
+        self.login_button = tk.Button(self.frame, text="Login", command=self.send_data, font=("Segoe UI", 12, "bold"),
                                       bg="#d81159",
                                       fg="white", padx=5, pady=3)
         self.login_button.grid(row=4, column=0, columnspan=2, pady=10, sticky="ew")
 
         self.signup_button = tk.Button(self.frame, command=self.open_signup_page, text="Signup",
-                                       font=("Segoe UI", 10, "bold"), bg="#d81159", fg="white", padx=5, pady=3)
+                                       font=("Segoe UI", 12, "bold"), bg="#d81159", fg="white", padx=5, pady=3)
         self.signup_button.grid(row=5, column=0, columnspan=2, pady=10, sticky="ew")
 
         self.root.mainloop()
