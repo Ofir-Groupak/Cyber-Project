@@ -1,7 +1,6 @@
 import pickle
 import tkinter as tk
 from tkinter import messagebox
-from Project.Server import Examinor
 import requests
 from bs4 import BeautifulSoup
 
@@ -158,7 +157,7 @@ class FirstSymptomWindowGUI:
                                     font=("Segoe UI", 18, "bold"))
         self.title_label.place(relx=0.5, rely=0.6, anchor="center")
 
-        self.options_list = Examinor.get_all_symptoms()
+        self.options_list = pickle.loads(client_object.recv(1024))
 
         self.value_inside = tk.StringVar(self.root)
         self.question_menu = tk.OptionMenu(self.root, self.value_inside, *self.options_list)
@@ -655,9 +654,16 @@ class SendMessageGUI:
                                         font=("Helvetica", 12))
         self.recipient_label.grid(row=1, column=0, sticky='E', pady=5)
 
-        self.recipient_entry = tk.Entry(self.root, width=30, bg="white", fg="black", font=("Helvetica", 12))
-        self.recipient_entry.insert(tk.END, recipient)  # Default text
-        self.recipient_entry.grid(row=1, column=1, pady=5)
+        self.options = pickle.loads(self.client_object.recv(1024))
+        self.recipient_var = tk.StringVar(self.root)
+
+        self.recipient_var.set(recipient)
+
+        self.opt_menu1 = tk.OptionMenu(self.root, self.recipient_var, *self.options)
+        self.opt_menu1.config(bg="white")
+
+
+        self.opt_menu1.grid(row=1, column=1, pady=5)
 
         self.subject_label = tk.Label(self.root, text="Subject:", bg="#0e1a40", fg="white", font=("Helvetica", 12))
         self.subject_label.grid(row=2, column=0, sticky='E', pady=5)

@@ -1,6 +1,5 @@
 import socket
 import threading
-from Project.Server.DB_Handler import *
 from Project.Server.Examinor import *
 import pickle
 from Messenger import *
@@ -130,8 +129,19 @@ def messages_handle(client_object,username):
 def send_message_handle(client_object,username):
     print("in send message handle")
 
+    options = []
+    if is_doctor(username) == "False":
+        options.append(get_doctor_for_user(username))
+
+    else:
+        options = get_all_patients(username)
+
+    client_object.send(pickle.dumps(options))
+
     data = client_object.recv(1024)
     data = pickle.loads(data)
+
+
 
     while "menu"!=data[0]:
 
@@ -156,6 +166,7 @@ def view_messages_handle(client_object,username):
 
 def first_symptom_handle(client_object , username):
     print("in first symptom handle")
+    client_object.send(pickle.dumps(get_all_symptoms()))
     data = client_object.recv(1024).decode()
     examine(data , client_object , username)
 

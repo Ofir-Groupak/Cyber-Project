@@ -201,6 +201,29 @@ def get_doctor_for_user(username):
     return doctor
 
 
+def get_all_patients(doctor):
+    conn = sqlite3.connect('../Server/users.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+        SELECT username FROM users
+        WHERE doctor=?
+        ''', (doctor,)
+    )
+
+    patients = []
+    for patient in cursor.fetchall():
+        patients.append(patient[0])
+
+
+    conn.commit()
+    conn.close()
+
+    return patients
+
+
+
 if __name__ == "__main__":
     create_table()
     #add_user('Doc', 'doc', 'male', '', '',"False", str(['Heart attack']))
@@ -209,8 +232,7 @@ if __name__ == "__main__":
     #remove_user('user')
     # change_password('admin1','admin')
     #print(get_all_doctors())
-    print(get_doctor_for_user('doc'))
-
+    print(get_all_patients('doc'))
 
 
 
