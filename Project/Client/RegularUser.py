@@ -7,7 +7,11 @@ from bs4 import BeautifulSoup
 
 
 class LoginPageGUI:
-    def __init__(self, client_object):
+    def __init__(self, client_object,previous_window=None):
+
+        if previous_window:
+            previous_window.destroy()
+
         self.client_object = client_object
 
         self.root = tk.Tk()
@@ -69,9 +73,15 @@ class LoginPageGUI:
         username = self.username_entry.get()
         information = ["LOGIN", username, self.password_entry.get()]
         self.client_object.send(pickle.dumps(information))
-        response = self.client_object.recv(1024).decode()
-        if response == "Correct":
-            MainMenuGUI(self.client_object, self.root,username)
+        response = self.client_object.recv(1024)
+        response = pickle.loads(response)
+        print(response)
+        if response[0] == "Correct":
+
+            if response[1]=="True":
+                DoctorMenu(self.root,self.client_object,username)
+            else:
+                MainMenuGUI(self.client_object, self.root,username)
         else:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
@@ -100,6 +110,14 @@ class MainMenuGUI:
                                          font=("Helvetica", 12), command=lambda: self.open_messages(client_object))
         self.messages_button.pack(pady=10)
 
+        self.logout_button = tk.Button(self.root, text="Logout", width=15, bg="#d81159", fg="white",
+                                         font=("Helvetica", 12), command=lambda: self.logout(client_object))
+        self.logout_button.pack(pady=10)
+
+
+    def logout(self,client_object):
+        client_object.send("LOGOUT".encode())
+        LoginPageGUI(client_object,self.root)
     def open_examine(self,client_object):
         self.client_object.send("examine".encode())
         FirstSymptomWindowGUI(self.root,self.client_object,self.username)
@@ -265,10 +283,6 @@ class QuestionnaireWindowGUI:
         result = self.client_object.recv(1024).decode()
         self.show_text(result)
 
-
-import tkinter as tk
-from tkinter import messagebox
-import pickle
 
 class SignUpPageGUI:
     def __init__(self, previous_window, client_object):
@@ -720,6 +734,44 @@ class MessagesMenu:
         print("Opening Messages window")
     def run(self):
         self.root.mainloop()
+
+class DoctorMenu:
+    def __init__(self,previous_window,client_object,username):
+        previous_window.destroy()
+        self.root = tk.Tk()
+        self.root.title("Main Menu")
+        self.root.geometry("400x200")
+        self.root.configure(bg="#0e1a40")
+
+        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
+        self.title_label.pack(pady=10)
+
+        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#d81159", fg="white",
+                                        font=("Helvetica", 12), command= lambda: self.open_sender(client_object,username))
+        self.examine_button.pack(pady=10)
+
+        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
+                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object,username))
+        self.messages_button.pack(pady=10)
+
+        self.logout_button = tk.Button(self.root, text="Logout", width=15, bg="#d81159", fg="white",
+                                       font=("Helvetica", 12), command=lambda: self.logout(client_object))
+        self.logout_button.pack(pady=10)
+
+    def logout(self, client_object):
+        client_object.send("LOGOUT".encode())
+        LoginPageGUI(client_object,self.root)
+    def open_messages(self,client_object,username):
+        client_object.send("view messages".encode())
+        MessagesGUI(self.root,client_object,username)
+        print("Opening Messages window")
+    def open_sender(self,client_object,username):
+        client_object.send("send message".encode())
+        SendMessageGUI(self.root,client_object,username,'')
+        print("Opening Examine window")
+    def run(self):
+        self.root.mainloop()
+
 
 
 

@@ -30,7 +30,7 @@ def is_doctor(username):
 
     cursor.execute(
         '''
-        SELECT doctor FROM users
+        SELECT is_doctor FROM users
         WHERE username=?
         ''', (username,)
     )

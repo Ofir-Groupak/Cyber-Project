@@ -88,7 +88,8 @@ def client_handle(client_object):
     if check_password(username,password):
 
         print(f"Accepted connection from {username}")
-        client_object.send("Correct".encode())
+        response = ["Correct",is_doctor(username)]
+        client_object.send(pickle.dumps(response))
         menu_handle(client_object,username)
         #first_symptom_handle(client_object , username)
 
@@ -105,6 +106,8 @@ def menu_handle(client_object,username):
         first_symptom_handle(client_object,username)
     if "messages" in data:
         messages_handle(client_object,username)
+    if "LOGOUT" in data:
+        client_handle(client_object)
 
 def messages_handle(client_object,username):
     print("in messages handle")
@@ -117,6 +120,8 @@ def messages_handle(client_object,username):
         menu_handle(client_object,username)
     if "send message" in data:
         send_message_handle(client_object,username)
+    if "LOGOUT" in data:
+        client_handle(client_object)
 
 
 def send_message_handle(client_object,username):
