@@ -264,9 +264,7 @@ class QuestionnaireWindowGUI:
         self.client_object.send("no".encode())
         result = self.client_object.recv(1024).decode()
         self.show_text(result)
-import tkinter as tk
-from tkinter import messagebox
-import pickle
+
 
 import tkinter as tk
 from tkinter import messagebox
@@ -392,6 +390,7 @@ class SignUpPageGUI:
         """
         if not self.is_doctor_var.get():
             self.doctor_entry.config(state="normal")
+            self.doctor_listbox.config(state="normal")
         else:
             self.doctor_entry.delete(0,'end')
             self.doctor_entry.insert(0,'None')

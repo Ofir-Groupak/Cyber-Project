@@ -88,3 +88,4 @@ if __name__=="__main__":
     create_table()
     # add_message("moshe","admin","hello","nigga")
     # get_all_messages_for_user("moshe")
+

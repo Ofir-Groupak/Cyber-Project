@@ -46,20 +46,21 @@ def sign_up_handle(client_object):
     :return: None
     """
     print("in sign up handle")
-    options = [get_all_diseases(),get_all_doctors(),get_most_available_doctor()]
+    print(get_all_doctors())
+    options = [get_all_diseases(),get_all_doctors(),None]
     client_object.send(pickle.dumps(options))
 
     login_info = client_object.recv(1024)
     login_info = pickle.loads(login_info)
+    print(login_info)
 
     if "LOGIN"==login_info[0]:
         client_handle(client_object)
 
-    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),str(login_info[7]))
+    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),str(login_info[7]),login_info[8])
     print(f"created using {login_info}")
-    data = client_object.recv(1024)
-    received_list = pickle.loads(data)
-    client_handle(client_object,received_list)
+
+    client_handle(client_object)
 def client_handle(client_object):
     """
     handles the client and his requests
@@ -72,6 +73,7 @@ def client_handle(client_object):
 
     login_info = client_object.recv(1024)
     login_info = pickle.loads(login_info)
+    print(login_info)
 
     if login_info[0]=="SIGNUP":
         sign_up_handle(client_object)
@@ -181,7 +183,22 @@ def examine(first_symptom,client_object, username):
                     result = f"You have {potential_disease}"
                     print(result)
                     client_object.send(result.encode('utf-8'))
-                    return
+
+                    command = client_object.recv(1024)
+                    action = pickle.loads(command)
+                    add_disease(username, disease)
+
+                    if action[1] == "yes":
+                        final_symptoms = ""
+                        for symptom in current_symptoms:
+                            final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
+                        print("sending!!!!!!!")
+                        add_message(username, get_doctor_for_user(username), f"{username} Diagnosis",
+                                    f"Symptoms : {final_symptoms},\nResult : {disease}")
+                    if action[0] == "Information":
+                        information_page_handle(client_object, disease, username)
+                    else:
+                        menu_handle(client_object, username)
                 break
             for potential_symptom in [x for x in symptoms if x not in current_symptoms]:
                 question = (f"Do you suffer from{potential_symptom} ?").replace("_"," ")
@@ -212,7 +229,7 @@ def examine(first_symptom,client_object, username):
                             for symptom in current_symptoms:
                                 final_symptoms+=(str(symptom)[1:len(symptom)]) +", "
                             print("sending!!!!!!!")
-                            add_message(username, get_most_available_doctor(),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
+                            add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0]=="Information":
                             information_page_handle(client_object,disease,username)
                         else:
@@ -235,8 +252,7 @@ def examine(first_symptom,client_object, username):
                             for symptom in current_symptoms:
                                 final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
                             print("sending!!!!!!!")
-                            add_message(username, get_most_available_doctor(), f"{username} Diagnosis",
-                                        f"Symptoms : {final_symptoms},\nResult : {disease}")
+                            add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
                         if action[0] == "Information":
                             information_page_handle(client_object,disease,username)
                         else:
@@ -257,8 +273,7 @@ def examine(first_symptom,client_object, username):
                     for symptom in current_symptoms:
                         final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
                     print("sending!!!!!!!")
-                    add_message(username, get_most_available_doctor(), f"{username} Diagnosis",
-                                f"Symptoms : {final_symptoms},\nResult : {disease}")
+                    add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
                 if action[0] == "Information":
                     information_page_handle(client_object, disease, username)
                 else:

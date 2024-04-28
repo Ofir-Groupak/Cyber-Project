@@ -15,8 +15,9 @@ def create_table():
         gender TEXT NOT NULL,
         username TEXT PRIMARY KEY,
         password TEXT NOT NULL,
-        doctor BOOLEAN NOT NULL,
-        past_diseases TEXT NOT NULL
+        is_doctor BOOLEAN NOT NULL,
+        past_diseases TEXT NOT NULL,
+        doctor TEXT NOT NULL
     );
     """)
 
@@ -72,7 +73,7 @@ def check_password(username, given_password):
     return correct_password == given_password
 
 
-def add_user(first_name, last_name, gender, username, password,doctor, past_diseases):
+def add_user(first_name, last_name, gender, username, password,is_doctor, past_diseases,doctor):
     """
     Adds a new user to the database with provided details including past diseases.
 
@@ -92,9 +93,9 @@ def add_user(first_name, last_name, gender, username, password,doctor, past_dise
     cursor = conn.cursor()
 
     cursor.execute("""
-            INSERT INTO users (first_name,last_name,gender,username, password,doctor,past_diseases)
-            VALUES (?,?,?,?,?,?,?);
-        """, (first_name, last_name, gender, username, password,doctor,past_diseases))
+            INSERT INTO users (first_name,last_name,gender,username, password,is_doctor,past_diseases,doctor)
+            VALUES (?,?,?,?,?,?,?,?);
+        """, (first_name, last_name, gender, username, password,is_doctor,past_diseases,doctor))
 
 
     #add_disease(username)
@@ -168,7 +169,7 @@ def get_all_doctors():
     cursor.execute(
         '''
         SELECT username FROM users
-        WHERE doctor=?
+        WHERE is_doctor=?
         ''', ("True",)
     )
     doctors = []
@@ -181,15 +182,34 @@ def get_all_doctors():
 
     return doctors
 
+def get_doctor_for_user(username):
+    conn = sqlite3.connect('../Server/users.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        '''
+        SELECT doctor FROM users
+        WHERE username=?
+        ''',(username,)
+    )
+
+    doctor = cursor.fetchone()[0]
+
+    conn.commit()
+    conn.close()
+
+    return doctor
+
 
 if __name__ == "__main__":
     create_table()
-    add_user('Doc', 'doc', 'male', '', '',"False", str(['Heart attack']))
-    print(is_doctor("admin1"))
+    #add_user('Doc', 'doc', 'male', '', '',"False", str(['Heart attack']))
+    #print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
-    remove_user('Doc')
+    #remove_user('user')
     # change_password('admin1','admin')
-    print(get_all_doctors())
+    #print(get_all_doctors())
+    print(get_doctor_for_user('doc'))
 
 
 
