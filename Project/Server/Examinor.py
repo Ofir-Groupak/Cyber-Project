@@ -1,3 +1,4 @@
+import pandas
 import pandas as pd
 
 df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\DiseasesDatabases\dataset.csv')
@@ -41,7 +42,8 @@ def possible_scenarios_for_disease(disease):
         for i in range(2,17):
             if line[i]!=None:
                 symptoms.append(line[i])
-        scenarios.append(symptoms)
+        if symptoms not in scenarios:
+            scenarios.append(symptoms)
         symptoms=[]
 
     return scenarios
@@ -57,35 +59,29 @@ def get_symptoms_for_disease(disease):
             symptoms.append(symptom[i])
 
     return [x for x in symptoms if not pd.isna(x)]
-def remove_diseases_with_x(diseases,symptom):
+def remove_scenarios_with_x(scenarios,symptom):
     """
     :param diseases: represents a dictionary with diseases and their symptoms
     :param symptom:represents a given stirng with symptom
     :return: a dictionary without diseases with certain symptom
     """
-    updated_diseases = {}
-    for disease in diseases.keys():
-        if symptom in diseases[disease]:
-            print(f"Removing {disease} due to {symptom}")
-            continue
-        updated_diseases[disease] = get_symptoms_for_disease(disease)
+    updated_scenarios = []
+    for scenario in scenarios:
+        if symptom not in scenario:
+            updated_scenarios.append(scenario)
+    return updated_scenarios
 
-    return updated_diseases
-
-def remove_diseases_without_x(diseases,symptom):
+def remove_scenarios_without_x(scenarios, symptom):
     """
     :param diseases: represents a dictionary with diseases and their symptoms
     :param symptom:represents a given stirng with symptom
     :return: a dictionary with diseases with certain symptom
     """
-    updated_diseases = {}
-    for disease in diseases.keys():
-        if symptom in diseases[disease]:
-            updated_diseases[disease] = get_symptoms_for_disease(disease)
-        else:
-            print(f"Removing {disease} due to not having {symptom}")
-
-    return updated_diseases
+    updated_scenarios = []
+    for scenario in scenarios:
+        if symptom in scenario:
+            updated_scenarios.append(scenario)
+    return updated_scenarios
 
 def get_all_symptoms():
     """
@@ -120,16 +116,36 @@ def get_advice_for_disease(disease):
 
 
 def get_disease_by_symptoms(symptoms):
+    # Read the Excel file into a DataFrame
 
-    for disease in get_all_diseases():
+    # Iterate over each row in the DataFrame
+    for index, row in df.iterrows():
+        disease_symptoms = row[1:]  # Exclude the first column (disease name)
 
-        if symptoms in possible_scenarios_for_disease(disease):
-            return disease
+        # Check if all symptoms for the current disease are present in the input symptoms
+        if all(symptom in symptoms for symptom in disease_symptoms):
+            return row[0]  # Return the disease name
 
-    return None
+    return "Unknown"  # Return "Unknown" if no matching disease is found
+
+def get_next_symptom(scenario,user_symptoms):
 
 
+    print('1',[x for x in scenario if not pd.isna(x)])
+    for symptom in [x for x in scenario if not pd.isna(x)]:
+        print(symptom)
+        if not pandas.isna(symptom) and symptom not in user_symptoms:
+            return symptom
+    return ""
 
+def get_diseases_by_scenarios(scenarios):
+
+    diseases = []
+    for scenario in scenarios:
+        #print(scenario)
+        diseases.append(get_disease_by_symptoms(scenario))
+
+    return list(dict.fromkeys(diseases))
 
 
 

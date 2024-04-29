@@ -181,25 +181,46 @@ def examine(first_symptom,client_object, username):
     print("in examine")
 
     user_symptoms = [first_symptom]
+    asked_symptoms = [first_symptom]
     potential_diseases = get_history_of_diseases(username)
     potential_diseases.extend(get_diseases_with_symptom(first_symptom))
     possible_scenarios = []
-    print(potential_diseases)
-    for potential_disease in potential_diseases:
-       possible_scenarios.append(possible_scenarios_for_disease(potential_disease))
-
-    #print(possible_scenarios)
-    for i in possible_scenarios:
-        print('1',get_disease_by_symptoms(i))
-    # print(potential_diseases)
-    # print(possible_scenarios[0][0])
-    # print(possible_scenarios[0] in possible_scenarios_for_disease('Common Cold'))
+    for potential_disease in list(dict.fromkeys(potential_diseases)):
+       possible_scenarios.extend(possible_scenarios_for_disease(potential_disease))
 
 
+    print(f"Potential Diseases : {list(dict.fromkeys(potential_diseases))}")
+    lst = []
 
+    for scenario in possible_scenarios:
 
+        print(len(possible_scenarios))
+        print(get_diseases_by_scenarios(possible_scenarios))
 
+        potential_symptom = get_next_symptom(scenario,asked_symptoms)
+        if potential_symptom=="":
+            print('22222222',possible_scenarios)
+            continue
 
+        asked_symptoms.append(potential_symptom)
+        question = f"Do you suffer from{potential_symptom}?".replace("_"," ")
+
+        # client_object.send(question.encode('utf-8'))
+        # answer = client_object.recv(1024).decode()
+
+        answer = input(question)
+
+        if answer=="yes":
+            possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)
+            user_symptoms.append(potential_symptom)
+
+        else:
+            possible_scenarios = remove_scenarios_with_x(possible_scenarios,potential_symptom)
+
+        if len((get_diseases_by_scenarios(possible_scenarios)))==1:
+            result = get_disease_by_symptoms(possible_scenarios[0])
+            break
+    print(result)
 
 if __name__=="__main__":
     #server_socket = init_server()
@@ -207,6 +228,6 @@ if __name__=="__main__":
     # print(get_all_diseases())
     # print(get_symptoms_for_disease('Malaria'))
 
-    examine('acidity',None,None)
+    examine('skin_rash',None,None)
     #print(get_diseases_with_symptom('acidity'))
     # #print(possible_scenarios_for_disease('Common Cold'))
