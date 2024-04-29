@@ -1,18 +1,20 @@
 import pandas as pd
 
-df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\DiseasesDatabases\dataset.csv').drop_duplicates(subset=['Disease'])
+df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\DiseasesDatabases\dataset.csv')
 
-def list_for_symptom(symptom):
+def get_diseases_with_symptom(symptom):
     """
     :param symptom:represents a string to a symptom
     :return:list of that symptom
     """
     lst = []
+
     for disease in df.itertuples():
         for i in range(2,17):
             try:
-                if disease[i].find(symptom) != -1:
-                    lst.append(disease[1])
+                if not pd.isna(disease[i]):
+                    if disease[i].find(symptom)!=-1:
+                        lst.append(disease[1])
             except AttributeError:
                 continue
     return lst
@@ -26,6 +28,23 @@ def get_index_for_disease(illness):
         if disease[1] == illness:
             return disease[0]
     return -1
+def possible_scenarios_for_disease(disease):
+    """
+
+    :param disease: represents a string with disease
+    :return: all the symptoms for that disease
+    """
+    symptoms = []
+    scenarios = []
+
+    for line in [x for x in df.itertuples() if x[1]==disease]:
+        for i in range(2,17):
+            if line[i]!=None:
+                symptoms.append(line[i])
+        scenarios.append(symptoms)
+        symptoms=[]
+
+    return scenarios
 def get_symptoms_for_disease(disease):
     """
 
@@ -33,13 +52,11 @@ def get_symptoms_for_disease(disease):
     :return: all the symptoms for that disease
     """
     symptoms = []
-    #all_symptoms = df.iloc[get_index_for_disease(disease)]
     for symptom in [x for x in df.itertuples() if x[1]==disease]:
         for i in range(2,17):
             symptoms.append(symptom[i])
 
     return [x for x in symptoms if not pd.isna(x)]
-
 def remove_diseases_with_x(diseases,symptom):
     """
     :param diseases: represents a dictionary with diseases and their symptoms
@@ -95,7 +112,6 @@ def get_advice_for_disease(disease):
 
     advices = []
     for advice in [x for x in df.itertuples() if x[1]==disease]:
-        print(advice)
         for i in range(2,6):
             advices.append(advice[i])
 
@@ -103,8 +119,14 @@ def get_advice_for_disease(disease):
 
 
 
+def get_disease_by_symptoms(symptoms):
 
+    for disease in get_all_diseases():
 
+        if symptoms in possible_scenarios_for_disease(disease):
+            return disease
+
+    return None
 
 
 

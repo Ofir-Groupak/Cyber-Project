@@ -222,7 +222,26 @@ def get_all_patients(doctor):
 
     return patients
 
+def get_history_of_diseases(username):
+    conn = sqlite3.connect('../Server/users.db')
+    cursor = conn.cursor()
 
+    cursor.execute(
+        '''
+        SELECT past_diseases FROM users
+        WHERE username=?
+        ''', (username,)
+    )
+    diseases = []
+    try:
+        diseases = list(cursor.fetchone()[0].split(","))
+    except TypeError:
+        return []
+
+    conn.commit()
+    conn.close()
+
+    return diseases
 
 if __name__ == "__main__":
     create_table()
@@ -232,7 +251,8 @@ if __name__ == "__main__":
     #remove_user('user')
     # change_password('admin1','admin')
     #print(get_all_doctors())
-    print(get_all_patients('doc'))
+    #print(get_all_patients('doc'))
+    print(get_history_of_diseases('user'))
 
 
 

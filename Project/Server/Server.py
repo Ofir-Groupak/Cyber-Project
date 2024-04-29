@@ -177,130 +177,36 @@ def information_page_handle(client_object,result,username):
     menu_handle(client_object,username)
 
 def examine(first_symptom,client_object, username):
-    """
-    :param first_symptom: represents the symptom given to the user
-    :param client_object: represents the client's object
-    :return: None
-    """
+
     print("in examine")
-    current_symptoms = []
-    current_symptoms.append(first_symptom)
-    potential_diseases = list_for_symptom(first_symptom)
-    potential_diseases_to_symptoms = {}
 
-    for disease in potential_diseases:
-        potential_diseases_to_symptoms[disease] = get_symptoms_for_disease(disease)
+    user_symptoms = [first_symptom]
+    potential_diseases = get_history_of_diseases(username)
+    potential_diseases.extend(get_diseases_with_symptom(first_symptom))
+    possible_scenarios = []
+    print(potential_diseases)
+    for potential_disease in potential_diseases:
+       possible_scenarios.append(possible_scenarios_for_disease(potential_disease))
 
-    while True:
-        #print(potential_diseases_to_symptoms.keys())
-        for potential_disease in potential_diseases_to_symptoms.keys():
-            print(f"Currently examines for {potential_disease}")
-            try:
-                symptoms = potential_diseases_to_symptoms[potential_disease]
-            except KeyError:
-                if not potential_diseases_to_symptoms:
-                    result = f"You have {potential_disease}"
-                    print(result)
-                    client_object.send(result.encode('utf-8'))
+    #print(possible_scenarios)
+    for i in possible_scenarios:
+        print('1',get_disease_by_symptoms(i))
+    # print(potential_diseases)
+    # print(possible_scenarios[0][0])
+    # print(possible_scenarios[0] in possible_scenarios_for_disease('Common Cold'))
 
-                    command = client_object.recv(1024)
-                    action = pickle.loads(command)
-                    add_disease(username, disease)
 
-                    if action[1] == "yes":
-                        final_symptoms = ""
-                        for symptom in current_symptoms:
-                            final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
-                        print("sending!!!!!!!")
-                        add_message(username, get_doctor_for_user(username), f"{username} Diagnosis",
-                                    f"Symptoms : {final_symptoms},\nResult : {disease}")
-                    if action[0] == "Information":
-                        information_page_handle(client_object, disease, username)
-                    else:
-                        menu_handle(client_object, username)
-                break
-            for potential_symptom in [x for x in symptoms if x not in current_symptoms]:
-                question = (f"Do you suffer from{potential_symptom} ?").replace("_"," ")
-                client_object.send(question.encode('utf-8'))
-                print(f'sending {question}')
-                answer =client_object.recv(1024).decode()
-                #print('3')
-                if answer =='no':
-                    answer=False
-                else:
-                    answer=True
 
-                if answer:
-                    current_symptoms.append(potential_symptom)
-                    potential_diseases_to_symptoms = remove_diseases_without_x(potential_diseases_to_symptoms,potential_symptom)
-                    if len(potential_diseases_to_symptoms) == 1:
-                        disease = list(potential_diseases_to_symptoms.keys())[0]
-                        result = f"You have {disease}"
-
-                        print(result)
-                        client_object.send(result.encode('utf-8'))
-                        command = client_object.recv(1024)
-                        action = pickle.loads(command)
-                        add_disease(username, disease)
-
-                        if action[1]=="yes":
-                            final_symptoms =""
-                            for symptom in current_symptoms:
-                                final_symptoms+=(str(symptom)[1:len(symptom)]) +", "
-                            print("sending!!!!!!!")
-                            add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
-                        if action[0]=="Information":
-                            information_page_handle(client_object,disease,username)
-                        else:
-                            menu_handle(client_object,username)
-
-                else:
-                    potential_diseases_to_symptoms = remove_diseases_with_x(potential_diseases_to_symptoms,potential_symptom)
-                    if len(potential_diseases_to_symptoms) == 1:
-                        disease = list(potential_diseases_to_symptoms.keys())[0]
-                        result = f"You have {disease}"
-
-                        print(result)
-                        client_object.send(result.encode('utf-8'))
-                        command = client_object.recv(1024)
-                        action = pickle.loads(command)
-                        add_disease(username, disease)
-
-                        if action[1] == "yes":
-                            final_symptoms = ""
-                            for symptom in current_symptoms:
-                                final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
-                            print("sending!!!!!!!")
-                            add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
-                        if action[0] == "Information":
-                            information_page_handle(client_object,disease,username)
-                        else:
-                            menu_handle(client_object, username)
-
-            if len(potential_diseases_to_symptoms) == 1:
-                disease = list(potential_diseases_to_symptoms.keys())[0]
-                result = f"You have {disease}"
-
-                print(result)
-                client_object.send(result.encode('utf-8'))
-                command = client_object.recv(1024)
-                action = pickle.loads(command)
-                add_disease(username, disease)
-
-                if action[1] == "yes":
-                    final_symptoms = ""
-                    for symptom in current_symptoms:
-                        final_symptoms += (str(symptom)[1:len(symptom)]) + ", "
-                    print("sending!!!!!!!")
-                    add_message(username, get_doctor_for_user(username),f"{username} Diagnosis",f"Symptoms : {final_symptoms},\nResult : {disease}")
-                if action[0] == "Information":
-                    information_page_handle(client_object, disease, username)
-                else:
-                    menu_handle(client_object, username)
 
 
 
 
 if __name__=="__main__":
-    server_socket = init_server()
-    get_clients(server_socket)
+    #server_socket = init_server()
+    #get_clients(server_socket)
+    # print(get_all_diseases())
+    # print(get_symptoms_for_disease('Malaria'))
+
+    examine('acidity',None,None)
+    #print(get_diseases_with_symptom('acidity'))
+    # #print(possible_scenarios_for_disease('Common Cold'))
