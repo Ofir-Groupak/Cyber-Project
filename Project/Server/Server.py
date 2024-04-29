@@ -228,6 +228,6 @@ if __name__=="__main__":
     # print(get_all_diseases())
     # print(get_symptoms_for_disease('Malaria'))
 
-    examine('skin_rash',None,None)
+    examine('itching',None,None)
     #print(get_diseases_with_symptom('acidity'))
     # #print(possible_scenarios_for_disease('Common Cold'))
