@@ -186,38 +186,40 @@ def examine(first_symptom,client_object, username):
     possible_scenarios = []
     for potential_disease in list(dict.fromkeys(potential_diseases)):
        possible_scenarios.extend(possible_scenarios_for_disease(potential_disease))
+    possible_scenarios = remove_scenarios_without_x(possible_scenarios,first_symptom)
 
 
+    result = ""
     print(f"Potential Diseases : {list(dict.fromkeys(potential_diseases))}")
     lst = []
+    while result=="":
+        for scenario in possible_scenarios:
 
-    for scenario in possible_scenarios:
+            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario} \n all {possible_scenarios}")
+            print(get_diseases_by_scenarios(possible_scenarios))
 
-        print(len(possible_scenarios))
-        print(get_diseases_by_scenarios(possible_scenarios))
+            potential_symptom = get_next_symptom(scenario,asked_symptoms)
+            if (potential_symptom=="" and get_diseases_by_scenarios(possible_scenarios)):
 
-        potential_symptom = get_next_symptom(scenario,asked_symptoms)
-        if potential_symptom=="" and get_diseases_by_scenarios(possible_scenarios):
-            print('22222222',possible_scenarios)
-            continue
+                    print(f"moving to next scenario : {possible_scenarios}")
+                    continue
 
-        asked_symptoms.append(potential_symptom)
-        question = f"Do you suffer from{potential_symptom}?".replace("_"," ")
 
-        client_object.send(question.encode('utf-8'))
-        answer = client_object.recv(1024).decode()
+            asked_symptoms.append(potential_symptom)
+            question = f"Do you suffer from{potential_symptom}?".replace("_"," ")
 
-        #answer = input(question)
+            client_object.send(question.encode('utf-8'))
+            answer = client_object.recv(1024).decode()
 
-        if answer=="yes":
-            possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)
-            user_symptoms.append(potential_symptom)
+            if answer=="yes":
+                possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)
+                user_symptoms.append(potential_symptom)
 
-        else:
-            possible_scenarios = remove_scenarios_with_x(possible_scenarios,potential_symptom)
+            else:
+                possible_scenarios = remove_scenarios_with_x(possible_scenarios,potential_symptom)
 
-        if len((get_diseases_by_scenarios(possible_scenarios)))==1:
-            result = get_disease_by_symptoms(possible_scenarios[0])
+            if len((get_diseases_by_scenarios(possible_scenarios)))==1:
+                result = get_disease_by_symptoms(possible_scenarios[0])
             break
 
     disease = result

@@ -686,7 +686,7 @@ class SendMessageGUI:
         self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
     def send_message(self):
-        recipient = self.recipient_entry.get()
+        recipient = self.recipient_var.get()
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
         message_pattern = [recipient, subject, message]
@@ -695,7 +695,6 @@ class SendMessageGUI:
         print("Subject:", subject)
         print("Message:", message)
 
-        self.recipient_entry.delete(0, tk.END)
         self.subject_entry.delete(0, tk.END)
         self.message_entry.delete("1.0", tk.END)
 

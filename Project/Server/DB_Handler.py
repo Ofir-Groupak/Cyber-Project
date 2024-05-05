@@ -154,10 +154,16 @@ def add_disease(username, disease):
     cursor = conn.cursor()
 
     cursor.execute("""
-            UPDATE users
-            SET past_diseases = past_diseases || ?
-            WHERE username = ?;
-        """, (f',{disease}', username))
+                SELECT past_diseases FROM users
+                WHERE username = ?;
+            """, (username,))
+
+    if disease not in cursor.fetchone():
+        cursor.execute("""
+                UPDATE users
+                SET past_diseases = past_diseases || ?
+                WHERE username = ?;
+            """, (f',{disease}', username))
 
     conn.commit()
     conn.close()

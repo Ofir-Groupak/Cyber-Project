@@ -67,7 +67,7 @@ def remove_scenarios_with_x(scenarios,symptom):
     """
     updated_scenarios = []
     for scenario in scenarios:
-        if symptom not in scenario:
+        if symptom not in [x for x in scenario if not pandas.isna(x)]:
             updated_scenarios.append(scenario)
     return updated_scenarios
 
@@ -78,8 +78,10 @@ def remove_scenarios_without_x(scenarios, symptom):
     :return: a dictionary with diseases with certain symptom
     """
     updated_scenarios = []
+    print(scenarios)
     for scenario in scenarios:
-        if symptom in scenario:
+        print(scenario)
+        if symptom in [x for x in scenario if not pandas.isna(x)]:
             updated_scenarios.append(scenario)
     return updated_scenarios
 
@@ -130,11 +132,11 @@ def get_disease_by_symptoms(symptoms):
 
 def get_next_symptom(scenario,user_symptoms):
 
-
+    print(scenario)
     print('1',[x for x in scenario if not pd.isna(x)])
     for symptom in [x for x in scenario if not pd.isna(x)]:
-        print(symptom)
         if not pandas.isna(symptom) and symptom not in user_symptoms:
+            print(symptom)
             return symptom
     return ""
 
