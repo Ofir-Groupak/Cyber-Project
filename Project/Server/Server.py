@@ -96,9 +96,8 @@ def client_handle(client_object):
         else:
             messages_handle(client_object,username)
     else:
-        client_object.send("Try again".encode())
-        login_info = client_object.recv(1024).decode().split('#')
-        client_handle(client_object,login_info)
+        client_object.send(pickle.dumps("Try again".encode()))
+        client_handle(client_object)
 
 def menu_handle(client_object,username):
     print("in menu handle")
@@ -198,17 +197,17 @@ def examine(first_symptom,client_object, username):
         print(get_diseases_by_scenarios(possible_scenarios))
 
         potential_symptom = get_next_symptom(scenario,asked_symptoms)
-        if potential_symptom=="":
+        if potential_symptom=="" and get_diseases_by_scenarios(possible_scenarios):
             print('22222222',possible_scenarios)
             continue
 
         asked_symptoms.append(potential_symptom)
         question = f"Do you suffer from{potential_symptom}?".replace("_"," ")
 
-        # client_object.send(question.encode('utf-8'))
-        # answer = client_object.recv(1024).decode()
+        client_object.send(question.encode('utf-8'))
+        answer = client_object.recv(1024).decode()
 
-        answer = input(question)
+        #answer = input(question)
 
         if answer=="yes":
             possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)
@@ -220,14 +219,32 @@ def examine(first_symptom,client_object, username):
         if len((get_diseases_by_scenarios(possible_scenarios)))==1:
             result = get_disease_by_symptoms(possible_scenarios[0])
             break
-    print(result)
+
+    disease = result
+    result = f"You have {disease}"
+    client_object.send(result.encode())
+
+    action = client_object.recv(1024)
+    action = pickle.loads(action)
+    add_disease(username, disease)
+
+    if action[1]=="yes":
+        final_symptoms = ','.join(asked_symptoms)
+        add_message(username, get_doctor_for_user(username), f"{username} Diagnosis",
+                    f"Symptoms : {final_symptoms},\nResult : {disease}")
+
+    if action[0] == "Information":
+        information_page_handle(client_object, disease, username)
+    else:
+        menu_handle(client_object, username)
+
 
 if __name__=="__main__":
-    #server_socket = init_server()
-    #get_clients(server_socket)
+    server_socket = init_server()
+    get_clients(server_socket)
     # print(get_all_diseases())
     # print(get_symptoms_for_disease('Malaria'))
 
-    examine('itching',None,None)
+    #examine('itching',None,None)
     #print(get_diseases_with_symptom('acidity'))
     # #print(possible_scenarios_for_disease('Common Cold'))
