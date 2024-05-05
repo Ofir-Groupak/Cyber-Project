@@ -130,8 +130,6 @@ def get_disease_by_symptoms(symptoms):
 
 def get_next_symptom(scenario,user_symptoms):
 
-    print(scenario)
-    print('1',[x for x in scenario if not pd.isna(x)])
     for symptom in [x for x in scenario if not pd.isna(x)]:
         if not pandas.isna(symptom) and symptom not in user_symptoms:
             print(symptom)
