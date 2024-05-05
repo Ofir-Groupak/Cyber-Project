@@ -195,7 +195,7 @@ def examine(first_symptom,client_object, username):
     while result=="":
         for scenario in possible_scenarios:
 
-            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario} \n all {possible_scenarios}")
+            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
             print(get_diseases_by_scenarios(possible_scenarios))
 
             potential_symptom = get_next_symptom(scenario,asked_symptoms)

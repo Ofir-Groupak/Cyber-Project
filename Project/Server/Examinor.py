@@ -78,9 +78,7 @@ def remove_scenarios_without_x(scenarios, symptom):
     :return: a dictionary with diseases with certain symptom
     """
     updated_scenarios = []
-    print(scenarios)
     for scenario in scenarios:
-        print(scenario)
         if symptom in [x for x in scenario if not pandas.isna(x)]:
             updated_scenarios.append(scenario)
     return updated_scenarios
