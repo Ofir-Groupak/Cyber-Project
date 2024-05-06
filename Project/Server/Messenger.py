@@ -4,7 +4,7 @@ def create_table():
     """
     Creates a table 'users' in the database if it doesn't exist already.
     """
-    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\messages.db')
+    conn = sqlite3.connect(r'../Server/messages.db')
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -20,7 +20,7 @@ def create_table():
     conn.close()
 
 def add_message(sender,receiver,subject,message):
-    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\messages.db')
+    conn = sqlite3.connect(r'../Server/messages.db')
     cursor = conn.cursor()
 
 
@@ -35,7 +35,7 @@ def add_message(sender,receiver,subject,message):
 
 def get_all_messages_for_user(user):
 
-    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\messages.db')
+    conn = sqlite3.connect(r'../Server/messages.db')
     cursor = conn.cursor()
 
     cursor.execute(
@@ -59,7 +59,7 @@ def get_most_available_doctor():
     doctors = get_all_doctors()
 
 
-    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\messages.db')
+    conn = sqlite3.connect(r'../Server/messages.db')
     cursor = conn.cursor()
 
     cursor.execute(

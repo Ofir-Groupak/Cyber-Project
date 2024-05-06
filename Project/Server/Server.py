@@ -4,7 +4,7 @@ from Project.Server.Examinor import *
 import pickle
 from Messenger import *
 
-server_ip = "127.0.0.1"
+server_ip = "172.20.137.60"
 server_port =5555
 client_usernames_to_objects = {}
 
@@ -195,8 +195,8 @@ def examine(first_symptom,client_object, username):
     while result=="":
         for scenario in possible_scenarios:
 
-            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
-            print(get_diseases_by_scenarios(possible_scenarios))
+            # print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
+            # print(get_diseases_by_scenarios(possible_scenarios))
 
             potential_symptom = get_next_symptom(scenario,asked_symptoms)
             if (potential_symptom=="" and get_diseases_by_scenarios(possible_scenarios)):

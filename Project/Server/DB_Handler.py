@@ -5,7 +5,7 @@ def create_table():
     """
     Creates a table 'users' in the database if it doesn't exist already.
     """
-    conn = sqlite3.connect(r'C:\Users\Ofir\PycharmProjects\Cyber-Project2\Project\Server\users.db')
+    conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
