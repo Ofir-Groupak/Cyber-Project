@@ -34,7 +34,7 @@ def init_server():
     # Generate RSA key pair for the server
     server_private_key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=2048,
+        key_size=4096,
         backend=default_backend()
     )
     server_public_key = server_private_key.public_key()
@@ -225,8 +225,10 @@ def view_messages_handle(client_object,username):
 
 def first_symptom_handle(client_object , username):
     print("in first symptom handle")
-    client_object.send(pickle.dumps(get_all_symptoms()))
-    data = client_object.recv(1024).decode()
+    data = encrypt_with_public_key(pickle.dumps(get_all_symptoms()),client_object)
+    client_object.send(data)
+    data = client_object.recv(1024)
+    data = decrypt_with_private_key(data).decode()
     examine(data , client_object , username)
 
 def information_page_handle(client_object,result,username):
@@ -268,8 +270,10 @@ def examine(first_symptom,client_object, username):
             asked_symptoms.append(potential_symptom)
             question = f"Do you suffer from{potential_symptom}?".replace("_"," ")
 
-            client_object.send(question.encode('utf-8'))
-            answer = client_object.recv(1024).decode()
+            data = encrypt_with_public_key(question.encode(),client_object)
+            client_object.send(data)
+            answer = client_object.recv(2048)
+            answer = decrypt_with_private_key(data).decode()
 
             if answer=="yes":
                 possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)

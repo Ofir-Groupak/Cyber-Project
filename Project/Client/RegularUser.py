@@ -167,7 +167,10 @@ class FirstSymptomWindowGUI:
                                     font=("Segoe UI", 18, "bold"))
         self.title_label.place(relx=0.5, rely=0.6, anchor="center")
 
-        self.options_list = pickle.loads(client_object.recv(1024))
+
+        data = client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key)
+        self.options_list = pickle.loads(data)
 
         self.value_inside = tk.StringVar(self.root)
         self.question_menu = tk.OptionMenu(self.root, self.value_inside, *self.options_list)
@@ -185,8 +188,11 @@ class FirstSymptomWindowGUI:
         Sends the selected symptom to the server and proceeds to the questionnaire window.
         """
         information = self.value_inside.get()
-        self.client_object.send(information.encode())
-        question = self.client_object.recv(1024).decode()
+        data = encrypt_with_public_key(information.encode(),server_public_key)
+        self.client_object.send(data)
+
+        question = self.client_object.recv(1024)
+        question = decrypt_with_private_key(question,client_private_key)
         QuestionnaireWindowGUI(self.root, self.client_object, question,self.username)
 
 class QuestionnaireWindowGUI:
@@ -280,16 +286,20 @@ class QuestionnaireWindowGUI:
         """
         Sends the client's 'Yes' response to the server and displays the result accordingly.
         """
-        self.client_object.send("yes".encode())
-        result = self.client_object.recv(1024).decode()
+        data = encrypt_with_public_key("yes".encode(),server_public_key)
+        self.client_object.send(data)
+        result = self.client_object.recv(1024)
+        result = decrypt_with_private_key(data,client_private_key).decode()
         self.show_text(result)
 
     def on_no(self):
         """
         Sends the client's 'No' response to the server and displays the result accordingly.
         """
-        self.client_object.send("no".encode())
-        result = self.client_object.recv(1024).decode()
+        data = encrypt_with_public_key("no".encode(),server_public_key)
+        self.client_object.send(data)
+        result = self.client_object.recv(1024)
+        result = decrypt_with_private_key(data,client_private_key).decode()
         self.show_text(result)
 
 

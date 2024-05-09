@@ -25,7 +25,7 @@ def start_client():
     # Generate RSA key pair for the server
     client_private_key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=2048,
+        key_size=4096,
         backend=default_backend()
     )
     client_public_key = client_private_key.public_key()

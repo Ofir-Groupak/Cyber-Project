@@ -87,7 +87,10 @@ def get_all_symptoms():
     """
     :return: all the symptoms
     """
-    return list(dict.fromkeys(df['Symptom_1'].tolist()))
+    lst = list(dict.fromkeys(df['Symptom_1'].tolist()))
+    del lst[15:]
+    return lst
+
 
 def get_all_diseases():
     """
