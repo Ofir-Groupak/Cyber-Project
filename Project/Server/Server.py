@@ -120,6 +120,8 @@ def client_handle(client_object):
     print("in client handle")
 
     login_info = client_object.recv(1024)
+    print(login_info)
+    login_info = decrypt_with_private_key(login_info)
     login_info = pickle.loads(login_info)
     print(login_info)
 

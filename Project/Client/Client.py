@@ -15,6 +15,7 @@ def start_client():
     client_socket.connect((server_ip, server_port))
 
     server_public_key_pem = client_socket.recv(2048)
+    global server_public_key
     server_public_key = serialization.load_pem_public_key(
         server_public_key_pem,
         backend=default_backend()
@@ -33,9 +34,28 @@ def start_client():
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     ))
 
-    return client_socket
+    return client_socket , server_public_key
 
+def decrypt_with_private_key(data):
+    return client_private_key.decrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+
+def encrypt_with_public_key(data,server_public_key):
+    return server_public_key.encrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
 
 if __name__ == "__main__":
     client_socket = start_client()
-    LoginPageGUI(client_socket)
+    LoginPageGUI(client_socket[0],client_socket[1])

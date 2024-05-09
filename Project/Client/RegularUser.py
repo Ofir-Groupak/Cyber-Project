@@ -3,11 +3,13 @@ import tkinter as tk
 from tkinter import messagebox
 import requests
 from bs4 import BeautifulSoup
-
+from Client import *
 
 class LoginPageGUI:
-    def __init__(self, client_object,previous_window=None):
+    def __init__(self, client_object,server_key,previous_window=None):
 
+        global server_public_key
+        server_public_key = server_key
         if previous_window:
             previous_window.destroy()
 
@@ -85,7 +87,8 @@ class LoginPageGUI:
             messagebox.showinfo("Error", "Incorrect password, Try Again!")
 
     def open_signup_page(self):
-        self.client_object.send(pickle.dumps(["SIGNUP"]))
+        data = encrypt_with_public_key(pickle.dumps(["SIGNUP"]),server_public_key)
+        self.client_object.send(data)
         SignUpPageGUI(self.root,self.client_object)
 
 class MainMenuGUI:
