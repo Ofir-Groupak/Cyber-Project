@@ -34,9 +34,9 @@ def start_client():
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     ))
 
-    return client_socket , server_public_key
+    return client_socket , server_public_key , client_private_key
 
-def decrypt_with_private_key(data):
+def decrypt_with_private_key(data,client_private_key):
     return client_private_key.decrypt(
         data,
         padding.OAEP(
@@ -58,4 +58,4 @@ def encrypt_with_public_key(data,server_public_key):
 
 if __name__ == "__main__":
     client_socket = start_client()
-    LoginPageGUI(client_socket[0],client_socket[1])
+    LoginPageGUI(client_socket[0],client_socket[1],client_socket[2])

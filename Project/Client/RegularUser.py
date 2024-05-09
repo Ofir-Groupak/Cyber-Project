@@ -6,10 +6,13 @@ from bs4 import BeautifulSoup
 from Client import *
 
 class LoginPageGUI:
-    def __init__(self, client_object,server_key,previous_window=None):
+    def __init__(self, client_object,server_key,client_key,previous_window=None):
 
         global server_public_key
         server_public_key = server_key
+
+        global client_private_key
+        client_private_key = client_key
         if previous_window:
             previous_window.destroy()
 
@@ -73,7 +76,8 @@ class LoginPageGUI:
         """
         username = self.username_entry.get()
         information = ["LOGIN", username, self.password_entry.get()]
-        self.client_object.send(pickle.dumps(information))
+        data = encrypt_with_public_key(pickle.dumps(information),server_public_key)
+        self.client_object.send(data)
         response = self.client_object.recv(1024)
         response = pickle.loads(response)
         print(response)
@@ -118,15 +122,18 @@ class MainMenuGUI:
 
 
     def logout(self,client_object):
-        client_object.send("LOGOUT".encode())
-        LoginPageGUI(client_object,self.root)
+        data = encrypt_with_public_key("LOGOUT".encode(),server_public_key)
+        client_object.send(data)
+        LoginPageGUI(client_object,server_public_key,client_private_key,self.root)
     def open_examine(self,client_object):
-        self.client_object.send("examine".encode())
+        data = encrypt_with_public_key("examine".encode(), server_public_key)
+        client_object.send(data)
         FirstSymptomWindowGUI(self.root,self.client_object,self.username)
         print("Opening Examine window")
 
     def open_messages(self,client_object):
-        self.client_object.send("messages".encode())
+        data = encrypt_with_public_key("messages".encode(), server_public_key)
+        client_object.send(data)
         MessagesMenu(self.root,client_object,self.username)
         print("Opening Messages window")
 
@@ -291,6 +298,7 @@ class SignUpPageGUI:
         self.previous_window = previous_window
         self.client_object = client_object
         options = self.client_object.recv(1024)
+        options = decrypt_with_private_key(options,client_private_key)
         options = pickle.loads(options)
         self.options = options[0]
         self.doctors = options[1]
@@ -396,9 +404,10 @@ class SignUpPageGUI:
         """
         Destroys the current window and navigates back to the login page.
         """
-        self.client_object.send(pickle.dumps(["LOGIN"]))
+        data = encrypt_with_public_key(pickle.dumps(["LOGIN"]),server_public_key)
+        self.client_object.send(data)
         self.root.destroy()
-        LoginPageGUI(self.client_object)
+        LoginPageGUI(self.client_object,server_public_key,client_private_key)
 
     def toggle_doctor_option(self):
         """
@@ -476,7 +485,7 @@ class SignUpPageGUI:
             messagebox.showinfo("Error", "Please enter your password!")
             return
 
-        information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases, selected_doctor]
+
 
         print("First Name:", first_name)
         print("Last Name:", last_name)
@@ -487,9 +496,11 @@ class SignUpPageGUI:
         print("Past Diseases:", past_diseases)
         print("Selected Doctor:", selected_doctor)
 
-        self.client_object.send(pickle.dumps(information))
+        information = ["SIGNUP", first_name, last_name, gender, username, password, is_doctor, past_diseases, selected_doctor]
+        data = encrypt_with_public_key(pickle.dumps(information), server_public_key)
+        self.client_object.send(data)
         self.root.destroy()
-        LoginPageGUI(self.client_object)
+        LoginPageGUI(self.client_object,server_public_key,client_private_key)
 
 class DiseaseReportGUI:
     def __init__(self,previous_window, disease_name,client_object,username):
@@ -559,6 +570,7 @@ class MessagesGUI:
         self.client_object = client_object
         self.username = username
         data = client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key)
         self.messages = pickle.loads(data)
 
 
@@ -657,7 +669,9 @@ class SendMessageGUI:
                                         font=("Helvetica", 12))
         self.recipient_label.grid(row=1, column=0, sticky='E', pady=5)
 
-        self.options = pickle.loads(self.client_object.recv(1024))
+        data = self.client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key)
+        self.options = pickle.loads(data)
         self.recipient_var = tk.StringVar(self.root)
 
         self.recipient_var.set(recipient)
@@ -693,7 +707,8 @@ class SendMessageGUI:
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
         message_pattern = [recipient, subject, message]
-        self.client_object.send(pickle.dumps(message_pattern))
+        message_pattern = encrypt_with_public_key(pickle.dumps(message_pattern),server_public_key)
+        self.client_object.send(message_pattern)
         print("Recipient:", recipient)
         print("Subject:", subject)
         print("Message:", message)
@@ -704,6 +719,7 @@ class SendMessageGUI:
         messagebox.showinfo("Success", "Message sent successfully!")
 
     def menu(self, client_object, username):
+        data = encrypt_with_public_key("menu".encode(),server_public_key)
         client_object.send(pickle.dumps(["menu"]))
         MessagesMenu(self.root, client_object, username)
 
@@ -735,15 +751,17 @@ class MessagesMenu:
         self.messages_button.pack(pady=10)
 
     def back_to_menu(self,client_object,username):
-        client_object.send("menu".encode())
+        data = encrypt_with_public_key("menu".encode(),server_public_key)
+        client_object.send(data)
         MainMenuGUI(client_object,self.root,username)
     def open_sender(self,client_object,username):
-        client_object.send("send message".encode())
+        data = encrypt_with_public_key("send messages".encode(), server_public_key)
+        client_object.send(data)
         SendMessageGUI(self.root,client_object,username,'')
-        print("Opening Examine window")
 
     def open_messages(self,client_object,username):
-        client_object.send("view messages".encode())
+        data = encrypt_with_public_key("view messages".encode(), server_public_key)
+        client_object.send(data)
         MessagesGUI(self.root,client_object,username)
         print("Opening Messages window")
     def run(self):
@@ -773,14 +791,17 @@ class DoctorMenu:
         self.logout_button.pack(pady=10)
 
     def logout(self, client_object):
-        client_object.send("LOGOUT".encode())
-        LoginPageGUI(client_object,self.root)
+        data = encrypt_with_public_key("LOGOUT".encode(),server_public_key)
+        client_object.send(data)
+        LoginPageGUI(client_object,server_public_key,client_private_key,self.root)
     def open_messages(self,client_object,username):
-        client_object.send("view messages".encode())
+        data = encrypt_with_public_key("view messages".encode(),server_public_key)
+        client_object.send(data)
         MessagesGUI(self.root,client_object,username)
         print("Opening Messages window")
     def open_sender(self,client_object,username):
-        client_object.send("send message".encode())
+        data = encrypt_with_public_key("send messages".encode(),server_public_key)
+        client_object.send(data)
         SendMessageGUI(self.root,client_object,username,'')
         print("Opening Examine window")
     def run(self):

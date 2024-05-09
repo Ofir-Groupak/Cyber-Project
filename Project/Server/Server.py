@@ -51,6 +51,7 @@ def decrypt_with_private_key(data):
     )
 
 def encrypt_with_public_key(data,client_object):
+    print(object_to_keys, type(object_to_keys[client_object]))
     return object_to_keys[client_object].encrypt(
         data,
         padding.OAEP(
@@ -96,9 +97,11 @@ def sign_up_handle(client_object):
     print("in sign up handle")
     print(get_all_doctors())
     options = [get_all_diseases(),get_all_doctors(),None]
-    client_object.send(pickle.dumps(options))
+    client_object.send(encrypt_with_public_key(pickle.dumps(options),client_object))
+
 
     login_info = client_object.recv(1024)
+    login_info = decrypt_with_private_key(login_info)
     login_info = pickle.loads(login_info)
     print(login_info)
 
@@ -152,7 +155,8 @@ def client_handle(client_object):
 
 def menu_handle(client_object,username):
     print("in menu handle")
-    data = client_object.recv(1024).decode()
+    data = client_object.recv(1024)
+    data = decrypt_with_private_key(data).decode()
     print(data)
     if "examine" in data:
         first_symptom_handle(client_object,username)
@@ -163,10 +167,12 @@ def menu_handle(client_object,username):
 
 def messages_handle(client_object,username):
     print("in messages handle")
-    data = client_object.recv(1024).decode()
+    data = client_object.recv(1024)
+    data = decrypt_with_private_key(data).decode()
     print('1',data)
     if "view messages" in data:
-        client_object.send(pickle.dumps(get_all_messages_for_user(username)))
+        data = encrypt_with_public_key(pickle.dumps(get_all_messages_for_user(username)),client_object)
+        client_object.send(data)
         view_messages_handle(client_object,username)
     if "menu" in data:
         menu_handle(client_object,username)
@@ -186,9 +192,11 @@ def send_message_handle(client_object,username):
     else:
         options = get_all_patients(username)
 
-    client_object.send(pickle.dumps(options))
+    options = encrypt_with_public_key(pickle.dumps(options),client_object)
+    client_object.send(options)
 
     data = client_object.recv(1024)
+    data = decrypt_with_private_key(data)
     data = pickle.loads(data)
 
 

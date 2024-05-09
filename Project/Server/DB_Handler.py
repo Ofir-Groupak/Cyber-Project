@@ -251,7 +251,7 @@ def get_history_of_diseases(username):
 
 if __name__ == "__main__":
     create_table()
-    #add_user('Doc', 'doc', 'male', '', '',"False", str(['Heart attack']))
+    add_user('Doc', 'doc', 'male', 'doc', 'doc',"False", str(['Heart attack']))
     #print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
     #remove_user('user')
