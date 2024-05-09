@@ -274,22 +274,24 @@ class QuestionnaireWindowGUI:
 
     def back_to_menu(self):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
-        self.client_object.send(pickle.dumps(["Menu", response]))
+        data = encrypt_with_public_key(pickle.dumps(["Menu", response]),server_public_key)
+        self.client_object.send(data)
         MainMenuGUI(self.client_object, self.root, self.username)
 
     def go_to_info(self, disease):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
-        self.client_object.send(pickle.dumps(["Information", response]))
+        data = encrypt_with_public_key(pickle.dumps(["Information", response]), server_public_key)
+        self.client_object.send(data)
         DiseaseReportGUI(self.root, disease, self.client_object, self.username)
 
     def on_yes(self):
         """
         Sends the client's 'Yes' response to the server and displays the result accordingly.
         """
-        data = encrypt_with_public_key("yes".encode(),server_public_key)
+        data = encrypt_with_public_key("yes".encode(), server_public_key)
         self.client_object.send(data)
         result = self.client_object.recv(1024)
-        result = decrypt_with_private_key(data,client_private_key).decode()
+        result = decrypt_with_private_key(result, client_private_key).decode()
         self.show_text(result)
 
     def on_no(self):
@@ -299,7 +301,7 @@ class QuestionnaireWindowGUI:
         data = encrypt_with_public_key("no".encode(),server_public_key)
         self.client_object.send(data)
         result = self.client_object.recv(1024)
-        result = decrypt_with_private_key(data,client_private_key).decode()
+        result = decrypt_with_private_key(result,client_private_key).decode()
         self.show_text(result)
 
 
@@ -522,6 +524,7 @@ class DiseaseReportGUI:
 
         self.client_object = client_object
         self.advices = client_object.recv(1024)
+        self.advices = decrypt_with_private_key(self.advices,client_private_key)
         self.advices = pickle.loads(self.advices)
         self.username = username
 
@@ -571,7 +574,8 @@ class DiseaseReportGUI:
         return report
 
     def show_menu(self):
-        self.client_object.send("menu".encode())
+        data = encrypt_with_public_key("menu".encode(),server_public_key)
+        self.client_object.send(data)
         MainMenuGUI(self.client_object,self.root,self.username)
         print("Menu button clicked")
 

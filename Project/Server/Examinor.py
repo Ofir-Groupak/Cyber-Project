@@ -108,7 +108,7 @@ def get_advice_for_disease(disease):
     """
 
     df = pd.read_csv(
-        r'C:\Users\student\PycharmProjects\Cyber-Project1\Project\Server\DiseasesDatabases\symptom_precaution.csv').drop_duplicates(
+        r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\DiseasesDatabases\symptom_precaution.csv').drop_duplicates(
         subset=['Disease'])
 
     advices = []

@@ -233,8 +233,10 @@ def first_symptom_handle(client_object , username):
 
 def information_page_handle(client_object,result,username):
     print("in information page handle")
-    client_object.send(pickle.dumps(get_advice_for_disease(result)))
-    data = client_object.recv(1024).decode()
+    data = encrypt_with_public_key(pickle.dumps(get_advice_for_disease(result)),client_object)
+    client_object.send(data)
+    data = client_object.recv(1024)
+    data = decrypt_with_private_key(data)
     menu_handle(client_object,username)
 
 def examine(first_symptom,client_object, username):
@@ -272,8 +274,10 @@ def examine(first_symptom,client_object, username):
 
             data = encrypt_with_public_key(question.encode(),client_object)
             client_object.send(data)
-            answer = client_object.recv(2048)
-            answer = decrypt_with_private_key(data).decode()
+
+
+            answer = client_object.recv(1024)
+            answer = decrypt_with_private_key(answer)
 
             if answer=="yes":
                 possible_scenarios = remove_scenarios_without_x(possible_scenarios,potential_symptom)
@@ -288,9 +292,11 @@ def examine(first_symptom,client_object, username):
 
     disease = result
     result = f"You have {disease}"
-    client_object.send(result.encode())
+    result = encrypt_with_public_key(result.encode(),client_object)
+    client_object.send(result)
 
     action = client_object.recv(1024)
+    action = decrypt_with_private_key(action)
     action = pickle.loads(action)
     add_disease(username, disease)
 
