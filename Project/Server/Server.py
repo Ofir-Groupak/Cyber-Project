@@ -3,10 +3,18 @@ import threading
 from Project.Server.Examinor import *
 import pickle
 from Messenger import *
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
-server_ip = "172.20.137.60"
-server_port =5555
+
+server_ip = "127.0.0.1"
+server_port =4444
 client_usernames_to_objects = {}
+object_to_keys = {}
+
 
 def init_server():
     """
@@ -21,7 +29,36 @@ def init_server():
     server_socket.bind((server_ip, server_port))
     server_socket.listen()
     print("Server is up and running!")
+
+    global server_private_key, server_public_key
+    # Generate RSA key pair for the server
+    server_private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )
+    server_public_key = server_private_key.public_key()
+
     return server_socket
+def decrypt_with_private_key(data):
+    return server_private_key.decrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+
+def encrypt_with_public_key(data,client_object):
+    return object_to_keys[client_object].encrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
 
 def get_clients(server_socket):
     """
@@ -34,6 +71,18 @@ def get_clients(server_socket):
     while True:
         print("Waiting for clients!")
         client_object, client_IP = server_socket.accept()
+
+        client_object.send(server_public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    ))
+        client_public_key_pem=client_object.recv(2048)
+        client_public_key = serialization.load_pem_public_key(
+            client_public_key_pem,
+            backend=default_backend()
+        )
+        global object_to_keys
+        object_to_keys[client_object] = client_public_key
         client_thread = threading.Thread(target=client_handle, args=(client_object,))
         client_thread.start()
 def sign_up_handle(client_object):
@@ -244,6 +293,7 @@ def examine(first_symptom,client_object, username):
 if __name__=="__main__":
     server_socket = init_server()
     get_clients(server_socket)
+
     # print(get_all_diseases())
     # print(get_symptoms_for_disease('Malaria'))
 
