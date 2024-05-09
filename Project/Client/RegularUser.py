@@ -624,7 +624,8 @@ class MessagesGUI:
         selected_index = self.messages_listbox.curselection()
         message_to_reply = self.messages[selected_index[0]]
         data = ["reply",message_to_reply]
-        self.client_object.send(pickle.dumps(data))
+        data = encrypt_with_public_key(pickle.dumps(data),server_public_key)
+        self.client_object.send(data)
         SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
     def show_message_content(self, event):
         selection = self.messages_listbox.curselection()
@@ -635,7 +636,8 @@ class MessagesGUI:
             self.message_content_text.insert(tk.END, f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
 
     def menu(self,client_object):
-        self.client_object.send(pickle.dumps(["menu"]))
+        data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
+        self.client_object.send(pickle.dumps(data))
         MessagesMenu(self.root,client_object,self.username)
 
     def delete(self):

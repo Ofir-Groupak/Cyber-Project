@@ -215,6 +215,7 @@ def view_messages_handle(client_object,username):
     print("in view messages handle")
 
     data = client_object.recv(1024)
+    data = decrypt_with_private_key(data)
     data = pickle.loads(data)
     print(data)
     if "menu" in data[0]:
