@@ -175,6 +175,7 @@ def messages_handle(client_object,username):
         client_object.send(data)
         view_messages_handle(client_object,username)
     if "menu" in data:
+
         menu_handle(client_object,username)
     if "send message" in data:
         send_message_handle(client_object,username)
@@ -203,11 +204,23 @@ def send_message_handle(client_object,username):
 
     while "menu"!=data[0]:
 
-        add_message(username, data[0], data[1], data[2])
-        data = client_object.recv(1024)
-        data = pickle.loads(data)
+        try:
 
-    messages_handle(client_object,username)
+            add_message(username, data[0], data[1], data[2])
+            data = client_object.recv(1024)
+            data = pickle.loads(data)
+        except IndexError:
+            break
+
+    if is_doctor(username):
+        data = encrypt_with_public_key("DOCTOR".encode(), client_object)
+        client_object.send(data)
+        messages_handle(client_object, username)
+
+    else:
+        data = encrypt_with_public_key("MENU".encode(), client_object)
+        client_object.send(data)
+        menu_handle(client_object, username)
 
 
 
@@ -215,11 +228,21 @@ def view_messages_handle(client_object,username):
     print("in view messages handle")
 
     data = client_object.recv(1024)
+    print(data)
     data = decrypt_with_private_key(data)
     data = pickle.loads(data)
     print(data)
     if "menu" in data[0]:
-        messages_handle(client_object,username)
+        if is_doctor(username):
+            data = encrypt_with_public_key("DOCTOR".encode(), client_object)
+            client_object.send(data)
+            messages_handle(client_object, username)
+
+        else:
+            data = encrypt_with_public_key("MENU".encode(), client_object)
+            client_object.send(data)
+            menu_handle(client_object, username)
+
     if "reply" in data[0]:
         send_message_handle(client_object,username)
 

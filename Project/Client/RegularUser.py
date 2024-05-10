@@ -651,8 +651,15 @@ class MessagesGUI:
 
     def menu(self,client_object):
         data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
-        self.client_object.send(pickle.dumps(data))
-        MessagesMenu(self.root,client_object,self.username)
+        self.client_object.send((data))
+
+        data = self.client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key)
+        print(data)
+        if "DOCTOR" in data.decode():
+            DoctorMenu(self.root,client_object,self.username)
+        else:
+            MessagesMenu(self.root,client_object,self.username)
 
     def delete(self):
         selected_index = self.messages_listbox.curselection()
@@ -676,6 +683,7 @@ class SendMessageGUI:
         self.root.title("Send Message")
         self.root.geometry("500x250")
         self.root.configure(bg="#0e1a40")
+        self.username = username
 
         self.title_label = tk.Label(self.root, text="Send Message", bg="#0e1a40", fg="white",
                                     font=("Helvetica", 16, "bold"))
@@ -735,9 +743,17 @@ class SendMessageGUI:
         messagebox.showinfo("Success", "Message sent successfully!")
 
     def menu(self, client_object, username):
-        data = encrypt_with_public_key("menu".encode(),server_public_key)
-        client_object.send(pickle.dumps(["menu"]))
-        MessagesMenu(self.root, client_object, username)
+        data = encrypt_with_public_key(pickle.dumps(["data"]),server_public_key)
+        client_object.send(data)
+
+
+        data = self.client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key)
+        print(data)
+        if "DOCTOR" in data.decode():
+            DoctorMenu(self.root,client_object,self.username)
+        else:
+            MessagesMenu(self.root,client_object,self.username)
 
     def run(self):
         self.root.mainloop()
