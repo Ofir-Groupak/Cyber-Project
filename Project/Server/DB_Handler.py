@@ -1,4 +1,46 @@
 import sqlite3
+from cryptography.fernet import Fernet
+import base64
+import os
+
+
+
+
+
+
+def encrypt_data(data):
+    key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+
+    """
+    Encrypts the given data using the Fernet encryption algorithm.
+
+    Parameters:
+        data (bytes): The data to be encrypted as bytes.
+        key (str): The encryption key as a base64 encoded string.
+
+    Returns:
+        bytes: The encrypted data.
+    """
+    f = Fernet(key)
+    encrypted_data = f.encrypt(data.encode())
+    return encrypted_data
+
+def decrypt_data(encrypted_data):
+    key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+
+    """
+    Decrypts the given encrypted data using the Fernet encryption algorithm.
+
+    Parameters:
+        encrypted_data (bytes): The encrypted data as bytes.
+        key (str): The encryption key as a base64 encoded string.
+
+    Returns:
+        bytes: The decrypted data.
+    """
+    f = Fernet(key)
+    decrypted_data = f.decrypt(encrypted_data)
+    return decrypted_data.decode()
 
 
 def create_table():
@@ -60,15 +102,16 @@ def check_password(username, given_password):
         WHERE username=?
         ''', (username,)
     )
+
+
     try:
-        correct_password = cursor.fetchone()[0]
+        correct_password = decrypt_data(cursor.fetchone()[0])
+
+
     except TypeError:
         conn.commit()
         conn.close()
         return False
-
-    conn.commit()
-    conn.close()
 
     return correct_password == given_password
 
@@ -89,6 +132,12 @@ def add_user(first_name, last_name, gender, username, password,is_doctor, past_d
     past_diseases = past_diseases.replace("[","")
     past_diseases = past_diseases.replace("]", "")
     past_diseases = past_diseases.replace("'","")
+
+    password = encrypt_data(password)
+    past_diseases = encrypt_data(past_diseases)
+    first_name = encrypt_data(first_name)
+    last_name = encrypt_data(last_name)
+
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -133,6 +182,7 @@ def change_password(username, password):
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
+    password = encrypt_data(password)
     cursor.execute("""
                 UPDATE users
                 SET password = ?
@@ -157,13 +207,23 @@ def add_disease(username, disease):
                 SELECT past_diseases FROM users
                 WHERE username = ?;
             """, (username,))
+    curr_diseases = get_history_of_diseases(username)
+    print('a',curr_diseases)
 
-    if disease not in cursor.fetchone():
+
+    if disease not in curr_diseases:
+        curr_diseases.append(disease)
+        curr_diseases = str(curr_diseases)
+        curr_diseases = curr_diseases.replace("[", "")
+        curr_diseases = curr_diseases.replace("]", "")
+        curr_diseases = curr_diseases.replace("'", "")
+        curr_diseases = encrypt_data(curr_diseases)
         cursor.execute("""
                 UPDATE users
-                SET past_diseases = past_diseases || ?
+                SET past_diseases = ?
                 WHERE username = ?;
-            """, (f',{disease}', username))
+            """, (curr_diseases, username,))
+        print("UPDATED!")
 
     conn.commit()
     conn.close()
@@ -240,7 +300,9 @@ def get_history_of_diseases(username):
     )
     diseases = []
     try:
-        diseases = list(cursor.fetchone()[0].split(","))
+        curr_diseases = cursor.fetchone()[0].decode()
+        curr_diseases = decrypt_data(curr_diseases)
+        diseases = list(curr_diseases.split(","))
     except TypeError:
         return []
 
@@ -251,16 +313,16 @@ def get_history_of_diseases(username):
 
 if __name__ == "__main__":
     create_table()
-    add_user('Doc', 'doc', 'male', 'doc', 'doc',"False", str(['Heart attack']))
+    #add_user('e', 'e', 'Male', 'e', 'e',"False", str(['Heart attack']),'a')
     #print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
     #remove_user('user')
     # change_password('admin1','admin')
     #print(get_all_doctors())
     #print(get_all_patients('doc'))
-    print(get_history_of_diseases('user'))
-
-
+    #print(check_password('doc','doc'))
+    add_disease('a','Common Cold')
+    print(get_history_of_diseases('a'))
 
 
 
