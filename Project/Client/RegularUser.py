@@ -84,7 +84,7 @@ class LoginPageGUI:
         if response[0] == "Correct":
 
             if response[1]=="True":
-                DoctorMenu(self.root,self.client_object,username)
+                MainMenuGUI(self.client_object, self.root,username)
             else:
                 MainMenuGUI(self.client_object, self.root,username)
         else:
@@ -104,14 +104,14 @@ class MainMenuGUI:
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Main Menu")
-        self.root.geometry("800x600")
+        self.root.geometry("800x650")
         self.root.configure(bg="#0e1a40")
 
         # Adding Magen David
         self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 30))
         self.magen_david_label.pack(fill=tk.X)
 
-        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 20, "bold"))
+        self.title_label = tk.Label(self.root, text=f"Hello {username}!", bg="#0e1a40", fg="white", font=("Helvetica", 30, "bold"))
         self.title_label.pack(pady=20)
 
         # Creating a thin red line using Canvas
@@ -119,28 +119,49 @@ class MainMenuGUI:
         self.line_canvas.create_line(0, 0, 800, 0, fill="white", width=1)
         self.line_canvas.pack(fill=tk.X)
 
-        # Frame for organizing buttons
+
+        data = client_object.recv(1024)
+        data = decrypt_with_private_key(data , client_private_key).decode()
         self.button_frame = tk.Frame(self.root, bg="#0e1a40")
         self.button_frame.pack(pady=20)
 
         # Adding Examine Button (to the left, top)
-        self.examine_button = tk.Button(self.button_frame, text="Examine", width=25, height=4, bg="#CB2525", fg="white",
-                                        font=("Helvetica", 16), command=lambda: self.open_examine(client_object))
-        self.examine_button.grid(row=0, column=0, padx=20, pady=20)
+        if data == "False":
+            self.examine_button = tk.Button(self.button_frame, text="Examine", width=25, height=4, bg="#CB2525", fg="white",
+                                            font=("Helvetica", 16), command=lambda: self.open_examine(client_object))
+            self.examine_button.grid(row=0, column=0, padx=20, pady=20)
 
-        # Adding Send Message Button (to the right, top)
-        self.send_message_button = tk.Button(self.button_frame, text="Send Message", width=25, height=4, bg="#CB2525", fg="white",
-                                             font=("Helvetica", 16))  # Add command for sending message
-        self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
+            self.send_message_button = tk.Button(self.button_frame, text="Send Message", width=25, height=4,
+                                                 bg="#CB2525", fg="white",
+                                                 font=("Helvetica", 16),
+                                                 command=lambda: self.send_messages(client_object))
+            self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
 
-        # Adding View Messages Button (to the left, bottom)
-        self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4, bg="#CB2525", fg="white",
-                                              font=("Helvetica", 16), command=lambda: self.open_messages(client_object))
-        self.view_messages_button.grid(row=1, column=0, padx=20, pady=20)
+            # Adding View Messages Button (to the left, bottom)
+            self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4,
+                                                  bg="#CB2525", fg="white",
+                                                  font=("Helvetica", 16),
+                                                  command=lambda: self.open_messages(client_object))
+            self.view_messages_button.grid(row=1, column=1, padx=20, pady=20)
 
-        self.logout_button = tk.Button(self.button_frame, text="Logout", width=25, height=4, bg="#CB2525", fg="white",
-                                       font=("Helvetica", 16), command=lambda: self.logout(client_object))
-        self.logout_button.grid(row=1, column=1, padx=20, pady=20)
+            self.logout_button = tk.Button(self.button_frame, text="Logout", width=25, height=4, bg="#CB2525",
+                                           fg="white",
+                                           font=("Helvetica", 16), command=lambda: self.logout(client_object))
+            self.logout_button.grid(row=1, column=0, padx=20, pady=20)
+
+        else:
+            self.send_message_button = tk.Button(self.button_frame, text="Send Message", width=25, height=4, bg="#CB2525", fg="white",
+                                                 font=("Helvetica", 16), command=lambda:self.send_messages(client_object) )
+            self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
+
+            # Adding View Messages Button (to the left, bottom)
+            self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4, bg="#CB2525", fg="white",
+                                                  font=("Helvetica", 16), command=lambda: self.open_messages(client_object))
+            self.view_messages_button.grid(row=1, column=1, padx=20, pady=20)
+
+            self.logout_button = tk.Button(self.button_frame, text="Logout", width=25, height=4, bg="#CB2525", fg="white",
+                                           font=("Helvetica", 16), command=lambda: self.logout(client_object))
+            self.logout_button.grid(row=2, column=1, padx=20, pady=20)
 
     def logout(self, client_object):
         data = encrypt_with_public_key("logout".encode(), server_public_key)
@@ -159,7 +180,7 @@ class MainMenuGUI:
     def send_messages(self,client_object):
         data = encrypt_with_public_key("send messages".encode(), server_public_key)
         client_object.send(data)
-        SendMessageGUI(self.root, self.client_object, self.username)
+        SendMessageGUI(self.root, self.client_object, self.username,"")
     def run(self):
         self.root.mainloop()
 class FirstSymptomWindowGUI:
@@ -673,9 +694,9 @@ class MessagesGUI:
         data = decrypt_with_private_key(data , client_private_key)
         print(data)
         if "DOCTOR" in data.decode():
-            MainMenuGUI(self.root,client_object,self.username)
+            MainMenuGUI(client_object,self.root,self.username)
         else:
-            MessagesGUI(self.root,client_object,self.username)
+            MainMenuGUI(client_object,self.root,self.username)
 
     def delete(self):
         selected_index = self.messages_listbox.curselection()
@@ -767,9 +788,9 @@ class SendMessageGUI:
         data = decrypt_with_private_key(data , client_private_key)
         print(data)
         if "DOCTOR" in data.decode():
-            MainMenuGUI(self.root,client_object,self.username)
+            MainMenuGUI(client_object,self.root,self.username)
         else:
-            MainMenuGUI(self.root,client_object,self.username)
+            MainMenuGUI(client_object,self.root,self.username)
 
     def run(self):
         self.root.mainloop()
@@ -801,7 +822,8 @@ class MessagesMenu:
     def back_to_menu(self,client_object,username):
         data = encrypt_with_public_key("menu".encode(),server_public_key)
         client_object.send(data)
-        MainMenuGUI(client_object,self.root,username)
+        MainMenuGUI(client_object, self.root, self.username)
+
     def open_sender(self,client_object,username):
         data = encrypt_with_public_key("send messages".encode(), server_public_key)
         client_object.send(data)
@@ -810,7 +832,7 @@ class MessagesMenu:
     def open_messages(self,client_object,username):
         data = encrypt_with_public_key("view messages".encode(), server_public_key)
         client_object.send(data)
-        MessagesGUI(self.root,client_object,username)
+        MainMenuGUI(client_object, self.root, self.username)
         print("Opening Messages window")
     def run(self):
         self.root.mainloop()

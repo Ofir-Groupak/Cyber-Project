@@ -159,12 +159,17 @@ def client_handle(client_object):
 
 def menu_handle(client_object, username):
     print("in menu handle")
+
+    custom_menu = str(is_doctor(username))
+    data = encrypt_with_public_key(custom_menu.encode(),client_object)
+    client_object.send(data)
+
     data = client_object.recv(1024)
     data = decrypt_with_private_key(data).decode()
     print(data)
     if "examine" in data:
         first_symptom_handle(client_object, username)
-    if "view messages" in data:
+    if "open messages" in data:
         data = encrypt_with_public_key(pickle.dumps(get_all_messages_for_user(username)), client_object)
         client_object.send(data)
         view_messages_handle(client_object, username)
@@ -241,7 +246,7 @@ def view_messages_handle(client_object, username):
         if is_doctor(username):
             data = encrypt_with_public_key("DOCTOR".encode(), client_object)
             client_object.send(data)
-            messages_handle(client_object, username)
+            menu_handle(client_object, username)
 
         else:
             data = encrypt_with_public_key("MENU".encode(), client_object)
