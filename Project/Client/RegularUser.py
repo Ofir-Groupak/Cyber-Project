@@ -46,18 +46,18 @@ class LoginPageGUI:
         self.show_password_var = tk.BooleanVar()
         self.show_password_checkbutton = tk.Checkbutton(self.frame, text="Show Password",
                                                         variable=self.show_password_var,
-                                                        font=("Segoe UI", 16, "bold"), bg="#0e1a40", fg="#d81159",
-                                                        activebackground="#0e1a40", activeforeground="#d81159",
+                                                        font=("Segoe UI", 16, "bold"), bg="#0e1a40", fg="#CB2525",
+                                                        activebackground="#0e1a40", activeforeground="#CB2525",
                                                         command=self.toggle_password_visibility)
         self.show_password_checkbutton.grid(row=3, column=1, pady=5, sticky="w")
 
         self.login_button = tk.Button(self.frame, text="Login", command=self.send_data, font=("Segoe UI", 12, "bold"),
-                                      bg="#d81159",
+                                      bg="#CB2525",
                                       fg="white", padx=5, pady=3)
         self.login_button.grid(row=4, column=0, columnspan=2, pady=10, sticky="ew")
 
         self.signup_button = tk.Button(self.frame, command=self.open_signup_page, text="Signup",
-                                       font=("Segoe UI", 12, "bold"), bg="#d81159", fg="white", padx=5, pady=3)
+                                       font=("Segoe UI", 12, "bold"), bg="#CB2525", fg="white", padx=5, pady=3)
         self.signup_button.grid(row=5, column=0, columnspan=2, pady=10, sticky="ew")
 
         self.root.mainloop()
@@ -95,52 +95,75 @@ class LoginPageGUI:
         self.client_object.send(data)
         SignUpPageGUI(self.root,self.client_object)
 
+import tkinter as tk
+
 class MainMenuGUI:
-    def __init__(self,client_object,previous_window,username):
+    def __init__(self, client_object, previous_window, username):
         self.username = username
         self.client_object = client_object
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title("Main Menu")
-        self.root.geometry("400x200")
+        self.root.geometry("800x600")
         self.root.configure(bg="#0e1a40")
 
-        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
-        self.title_label.pack(pady=10)
+        # Adding Magen David
+        self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 30))
+        self.magen_david_label.pack(fill=tk.X)
 
-        self.examine_button = tk.Button(self.root, text="Examine", width=15, bg="#d81159", fg="white",
-                                        font=("Helvetica", 12), command= lambda: self.open_examine(client_object))
-        self.examine_button.pack(pady=10)
+        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 20, "bold"))
+        self.title_label.pack(pady=20)
 
-        self.messages_button = tk.Button(self.root, text="Messages", width=15, bg="#d81159", fg="white",
-                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object))
-        self.messages_button.pack(pady=10)
+        # Creating a thin red line using Canvas
+        self.line_canvas = tk.Canvas(self.root, bg="#0e1a40", height=2, highlightthickness=0)
+        self.line_canvas.create_line(0, 0, 800, 0, fill="white", width=1)
+        self.line_canvas.pack(fill=tk.X)
 
-        self.logout_button = tk.Button(self.root, text="Logout", width=15, bg="#d81159", fg="white",
-                                         font=("Helvetica", 12), command=lambda: self.logout(client_object))
-        self.logout_button.pack(pady=10)
+        # Frame for organizing buttons
+        self.button_frame = tk.Frame(self.root, bg="#0e1a40")
+        self.button_frame.pack(pady=20)
 
+        # Adding Examine Button (to the left, top)
+        self.examine_button = tk.Button(self.button_frame, text="Examine", width=25, height=4, bg="#CB2525", fg="white",
+                                        font=("Helvetica", 16), command=lambda: self.open_examine(client_object))
+        self.examine_button.grid(row=0, column=0, padx=20, pady=20)
 
-    def logout(self,client_object):
-        data = encrypt_with_public_key("LOGOUT".encode(),server_public_key)
+        # Adding Send Message Button (to the right, top)
+        self.send_message_button = tk.Button(self.button_frame, text="Send Message", width=25, height=4, bg="#CB2525", fg="white",
+                                             font=("Helvetica", 16))  # Add command for sending message
+        self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
+
+        # Adding View Messages Button (to the left, bottom)
+        self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4, bg="#CB2525", fg="white",
+                                              font=("Helvetica", 16), command=lambda: self.open_messages(client_object))
+        self.view_messages_button.grid(row=1, column=0, padx=20, pady=20)
+
+        self.logout_button = tk.Button(self.button_frame, text="Logout", width=25, height=4, bg="#CB2525", fg="white",
+                                       font=("Helvetica", 16), command=lambda: self.logout(client_object))
+        self.logout_button.grid(row=1, column=1, padx=20, pady=20)
+
+    def logout(self, client_object):
+        data = encrypt_with_public_key("logout".encode(), server_public_key)
         client_object.send(data)
-        LoginPageGUI(client_object,server_public_key,client_private_key,self.root)
-    def open_examine(self,client_object):
+        LoginPageGUI(self.client_object, server_public_key , client_private_key , self.root)
+
+    def open_examine(self, client_object):
         data = encrypt_with_public_key("examine".encode(), server_public_key)
         client_object.send(data)
-        FirstSymptomWindowGUI(self.root,self.client_object,self.username)
-        print("Opening Examine window")
+        FirstSymptomWindowGUI(self.root, self.client_object, self.username)
 
-    def open_messages(self,client_object):
-        data = encrypt_with_public_key("messages".encode(), server_public_key)
+    def open_messages(self, client_object):
+        data = encrypt_with_public_key("open messages".encode(), server_public_key)
         client_object.send(data)
-        MessagesMenu(self.root,client_object,self.username)
-        print("Opening Messages window")
-
+        MessagesGUI(self.root, self.client_object, self.username)
+    def send_messages(self,client_object):
+        data = encrypt_with_public_key("send messages".encode(), server_public_key)
+        client_object.send(data)
+        SendMessageGUI(self.root, self.client_object, self.username)
     def run(self):
         self.root.mainloop()
 class FirstSymptomWindowGUI:
-    def __init__(self, previous_window, client_object,username):
+    def __init__(self, previous_window, client_object, username):
         self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
@@ -148,38 +171,37 @@ class FirstSymptomWindowGUI:
         self.previous_window.destroy()
 
         self.root = tk.Tk()
-        self.root.title("Second GUI Example")
+        self.root.title("First Symptom Window")
         self.root.geometry("550x400")
         self.root.configure(bg="#0e1a40")
+
+        # Magen David label at the top
+        self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 30))
+        self.magen_david_label.pack(fill=tk.X, pady=10)
 
         self.canvas = tk.Canvas(self.root, width=400, height=300, bg="#0e1a40", highlightthickness=0)
         self.canvas.pack()
 
-        self.center_x = self.canvas.winfo_reqwidth() / 2
-        self.center_y = self.canvas.winfo_reqheight() / 2
-
-        self.plus = self.canvas.create_line(self.center_x - 50, self.center_y, self.center_x + 50, self.center_y,
-                                            fill="red", width=20)
-        self.plus = self.canvas.create_line(self.center_x, self.center_y - 50, self.center_x, self.center_y + 50,
-                                            fill="red", width=20)
-
         self.title_label = tk.Label(self.root, text="Enter your first symptom", bg="#0e1a40", fg="white",
                                     font=("Segoe UI", 18, "bold"))
-        self.title_label.place(relx=0.5, rely=0.6, anchor="center")
+        self.title_label.place(relx=0.5, rely=0.35, anchor="center")
+
+        data =  client_object.recv(1024)
 
 
-        data = client_object.recv(1024)
-        data = decrypt_with_private_key(data , client_private_key)
+        # Decrypt options list
+        data = decrypt_with_private_key(data, client_private_key)
         self.options_list = pickle.loads(data)
 
         self.value_inside = tk.StringVar(self.root)
         self.question_menu = tk.OptionMenu(self.root, self.value_inside, *self.options_list)
-        self.question_menu.place(relx=0.5, rely=0.75, anchor="center")
+        self.question_menu.config(font=("Segoe UI", 14))
+        self.question_menu.place(relx=0.5, rely=0.5, anchor="center")
 
-        self.btn_enter = tk.Button(self.root, text="Enter", width=10, font=("Segoe UI", 12, "bold"), bg="#d81159",
+        self.btn_enter = tk.Button(self.root, text="Enter", width=10, font=("Segoe UI", 12, "bold"), bg="#CB2525",
                                    fg="white", bd=0,
                                    command=self.on_enter)
-        self.btn_enter.place(relx=0.5, rely=0.9, anchor="center")
+        self.btn_enter.place(relx=0.5, rely=0.65, anchor="center")
 
         self.root.mainloop()
 
@@ -188,12 +210,12 @@ class FirstSymptomWindowGUI:
         Sends the selected symptom to the server and proceeds to the questionnaire window.
         """
         information = self.value_inside.get()
-        data = encrypt_with_public_key(information.encode(),server_public_key)
+        data = encrypt_with_public_key(information.encode(), server_public_key)
         self.client_object.send(data)
 
         question = self.client_object.recv(1024)
-        question = decrypt_with_private_key(question,client_private_key)
-        QuestionnaireWindowGUI(self.root, self.client_object, question,self.username)
+        question = decrypt_with_private_key(question, client_private_key)
+        QuestionnaireWindowGUI(self.root, self.client_object, question, self.username)
 
 class QuestionnaireWindowGUI:
     def __init__(self, previous_window, client_object, question, username):
@@ -206,36 +228,32 @@ class QuestionnaireWindowGUI:
 
         self.root = tk.Tk()
         self.root.title("Questionnaire")
-        self.root.geometry("600x400")
+        self.root.geometry("800x600")
         self.root.configure(bg="#0e1a40")
 
-        self.canvas = tk.Canvas(self.root, width=400, height=300, bg="#0e1a40", highlightthickness=0)
-        self.canvas.pack()
+        # Magen David label at the top
 
-        self.center_x = self.canvas.winfo_reqwidth() / 2
-        self.center_y = self.canvas.winfo_reqheight() / 2
+        self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 40))
+        self.magen_david_label.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(10, 20))
 
-        self.plus = self.canvas.create_line(self.center_x - 50, self.center_y, self.center_x + 50, self.center_y,
-                                            fill="red", width=20)
-        self.plus = self.canvas.create_line(self.center_x, self.center_y - 50, self.center_x, self.center_y + 50,
-                                            fill="red", width=20)
+        self.canvas = tk.Canvas(self.root, bg="#0e1a40", height=5, bd=0, highlightthickness=0, relief='ridge')
+        self.canvas.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 20))
 
         self.question_label = tk.Label(self.root, text=self.question, bg="#0e1a40", fg="white",
-                                       font=("Segoe UI", 16, "bold"))
-        self.question_label.pack(pady=20)
+                                       font=("Segoe UI", 20, "bold"))
+        self.question_label.grid(row=1, column=0, columnspan=2, pady=20)
 
-        self.btn_frame = tk.Frame(self.root, bg="#0e1a40")
-        self.btn_frame.pack(expand=True)
+        self.btn_yes = tk.Button(self.root, bg="#CB2525", font=("Segoe UI", 16, "bold"), fg="white",
+                                 text="Yes", width=15, height=3, command=self.on_yes)
+        self.btn_yes.grid(row=2, column=0, padx=100, pady=(50, 20))
 
-        self.btn_yes = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
-                                 text="Yes", width=10, height=3, command=self.on_yes)
-        self.btn_yes.pack(side=tk.LEFT, padx=(50, 10))
-
-        self.btn_no = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white", text="No",
-                                width=10, height=3, command=self.on_no)
-        self.btn_no.pack(side=tk.RIGHT, padx=(10, 50))
+        self.btn_no = tk.Button(self.root, bg="#CB2525", font=("Segoe UI", 16, "bold"), fg="white", text="No",
+                                width=15, height=3, command=self.on_no)
+        self.btn_no.grid(row=2, column=1, padx=100, pady=(50, 20))
 
         self.root.mainloop()
+    def on_resize(self, event):
+        self.canvas.coords(self.line, 0, 0, event.width, 0)
 
     def show_text(self, question1):
         """
@@ -250,31 +268,31 @@ class QuestionnaireWindowGUI:
             pass
         if not "You have" in question1:
             self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="white",
-                                           font=("Segoe UI", 16, "bold"))
-            self.question_label.pack(pady=20)
+                                           font=("Segoe UI", 20, "bold"))
+            self.question_label.grid(row=1, column=0, columnspan=2, pady=20)
             symptom = question1[18:len(question1) - 2]
             print(symptom)
 
         else:
 
-            self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#d81159",
-                                           font=("Segoe UI", 14, "bold"))
-            self.question_label.pack(pady=20)
+            self.question_label = tk.Label(self.root, text=question1, bg="#0e1a40", fg="#CB2525",
+                                           font=("Segoe UI", 18, "bold"))
+            self.question_label.grid(row=1, column=0, columnspan=2, pady=20)
             self.btn_no.destroy()
             self.btn_yes.destroy()
-            self.btn_try_again = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
-                                           text="Menu", width=10,
+            self.btn_try_again = tk.Button(self.root, bg="#CB2525", font=("Segoe UI", 16, "bold"), fg="white",
+                                           text="Menu", width=15,
                                            height=3, command=lambda: self.back_to_menu())
-            self.btn_try_again.pack(side=tk.LEFT, padx=(50, 10))
+            self.btn_try_again.grid(row=2, column=0, padx=100, pady=(50, 20))
             print(question1[9:].lower())
-            self.btn_more_info = tk.Button(self.btn_frame, bg="#d81159", font=("Segoe UI", 12, "bold"), fg="white",
-                                           text="More Information", width=15,
+            self.btn_more_info = tk.Button(self.root, bg="#CB2525", font=("Segoe UI", 16, "bold"), fg="white",
+                                           text="More Information", width=20,
                                            height=3, command=lambda: self.go_to_info(question1[9:].lower()))
-            self.btn_more_info.pack(side=tk.RIGHT, padx=(10, 50))
+            self.btn_more_info.grid(row=2, column=1, padx=100, pady=(50, 20))
 
     def back_to_menu(self):
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
-        data = encrypt_with_public_key(pickle.dumps(["Menu", response]),server_public_key)
+        data = encrypt_with_public_key(pickle.dumps(["Menu", response]), server_public_key)
         self.client_object.send(data)
         MainMenuGUI(self.client_object, self.root, self.username)
 
@@ -298,13 +316,11 @@ class QuestionnaireWindowGUI:
         """
         Sends the client's 'No' response to the server and displays the result accordingly.
         """
-        data = encrypt_with_public_key("no".encode(),server_public_key)
+        data = encrypt_with_public_key("no".encode(), server_public_key)
         self.client_object.send(data)
         result = self.client_object.recv(1024)
-        result = decrypt_with_private_key(result,client_private_key).decode()
+        result = decrypt_with_private_key(result, client_private_key).decode()
         self.show_text(result)
-
-
 class SignUpPageGUI:
     def __init__(self, previous_window, client_object):
         self.previous_window = previous_window
@@ -348,13 +364,13 @@ class SignUpPageGUI:
         self.entry_last_name.place(relx=0.5, rely=0.25, anchor="w")
 
         self.gender_var = tk.StringVar()
-        tk.Radiobutton(self.root, text="Male", variable=self.gender_var, value="Male", bg="white", fg="#d81159",
+        tk.Radiobutton(self.root, text="Male", variable=self.gender_var, value="Male", bg="white", fg="#CB2525",
                        font=("Segoe UI", 10), selectcolor="#0e1a40", indicatoron=0).place(relx=0.5, rely=0.35, anchor="w")
-        tk.Radiobutton(self.root, text="Female", variable=self.gender_var, value="Female", bg="white", fg="#d81159",
+        tk.Radiobutton(self.root, text="Female", variable=self.gender_var, value="Female", bg="white", fg="#CB2525",
                        font=("Segoe UI", 10), selectcolor="#0e1a40", indicatoron=0).place(relx=0.65, rely=0.35, anchor="w")
 
         self.is_doctor_var = tk.BooleanVar()
-        tk.Checkbutton(self.root, text="Yes", variable=self.is_doctor_var, onvalue=True, offvalue=False, bg="white", fg="#d81159",
+        tk.Checkbutton(self.root, text="Yes", variable=self.is_doctor_var, onvalue=True, offvalue=False, bg="white", fg="#CB2525",
                        font=("Segoe UI", 10), selectcolor="#0e1a40", command=self.toggle_doctor_option).place(relx=0.5, rely=0.45, anchor="w")
 
         self.entry_username = tk.Entry(self.root, font=("Segoe UI", 12), bg="white")
@@ -398,15 +414,15 @@ class SignUpPageGUI:
 
         self.search_doctor()
 
-        self.btn_search_doctor = tk.Button(self.root, text="Search", width=8, font=("Segoe UI", 10), bg="#d81159", fg="white", bd=0,
+        self.btn_search_doctor = tk.Button(self.root, text="Search", width=8, font=("Segoe UI", 10), bg="#CB2525", fg="white", bd=0,
                                            command=self.search_doctor)
         self.btn_search_doctor.place(relx=0.8, rely=0.85, anchor="w")
 
-        self.btn_submit = tk.Button(self.root, text="Submit", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
+        self.btn_submit = tk.Button(self.root, text="Submit", width=10, font=("Segoe UI", 12), bg="#CB2525", fg="white", bd=0,
                                     command=self.submit_signup)
         self.btn_submit.place(relx=0.4, rely=0.97, anchor="center")
 
-        self.btn_login = tk.Button(self.root, text="Login", width=10, font=("Segoe UI", 12), bg="#d81159", fg="white", bd=0,
+        self.btn_login = tk.Button(self.root, text="Login", width=10, font=("Segoe UI", 12), bg="#CB2525", fg="white", bd=0,
                                    command=self.back_to_login)
         self.btn_login.place(relx=0.7, rely=0.97, anchor="center")
 
@@ -538,7 +554,7 @@ class DiseaseReportGUI:
 
 
 
-        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#d81159", fg="white",
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#CB2525", fg="white",
                                      font=("Helvetica", 12), command=self.show_menu)
         self.menu_button.pack(pady=10)
 
@@ -619,14 +635,14 @@ class MessagesGUI:
         self.message_content_text = tk.Text(self.root, width=60, height=10, wrap=tk.WORD, bg="#0e1a40", fg="white")
         self.message_content_text.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 10))
 
-        self.menu_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#d81159", fg="white")
+        self.menu_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#CB2525", fg="white")
         self.menu_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
-        self.delete_button = tk.Button(self.root, text="Delete", width=10, command=self.delete, bg="#d81159", fg="white")
+        self.delete_button = tk.Button(self.root, text="Delete", width=10, command=self.delete, bg="#CB2525", fg="white")
         self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
         self.reply_button = tk.Button(self.root, text="Reply", width=10, command=lambda: self.reply_message(client_object),
-                                      bg="#d81159", fg="white")
+                                      bg="#CB2525", fg="white")
         self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
@@ -657,9 +673,9 @@ class MessagesGUI:
         data = decrypt_with_private_key(data , client_private_key)
         print(data)
         if "DOCTOR" in data.decode():
-            DoctorMenu(self.root,client_object,self.username)
+            MainMenuGUI(self.root,client_object,self.username)
         else:
-            MessagesMenu(self.root,client_object,self.username)
+            MessagesGUI(self.root,client_object,self.username)
 
     def delete(self):
         selected_index = self.messages_listbox.curselection()
@@ -718,11 +734,11 @@ class SendMessageGUI:
         self.message_entry = tk.Text(self.root, width=34, height=3, bg="white", fg="black")
         self.message_entry.grid(row=3, column=1, pady=7, rowspan=3, ipady=10)
 
-        self.send_button = tk.Button(self.root, text="Send", height=1, width=10, bg="#d81159", fg="white",
+        self.send_button = tk.Button(self.root, text="Send", height=1, width=10, bg="#CB2525", fg="white",
                                      font=("Helvetica", 12), command=self.send_message)
         self.send_button.grid(row=7, column=0, padx=5, pady=5)
 
-        self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#d81159", fg="white",
+        self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#CB2525", fg="white",
                                      font=("Helvetica", 12), command=lambda: self.menu(client_object, username))
         self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
@@ -751,9 +767,9 @@ class SendMessageGUI:
         data = decrypt_with_private_key(data , client_private_key)
         print(data)
         if "DOCTOR" in data.decode():
-            DoctorMenu(self.root,client_object,self.username)
+            MainMenuGUI(self.root,client_object,self.username)
         else:
-            MessagesMenu(self.root,client_object,self.username)
+            MainMenuGUI(self.root,client_object,self.username)
 
     def run(self):
         self.root.mainloop()
@@ -769,15 +785,15 @@ class MessagesMenu:
         self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
         self.title_label.pack(pady=10)
 
-        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#d81159", fg="white",
+        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#CB2525", fg="white",
                                         font=("Helvetica", 12), command= lambda: self.open_sender(client_object,username))
         self.examine_button.pack(pady=10)
 
-        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
+        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#CB2525", fg="white",
                                          font=("Helvetica", 12), command=lambda: self.open_messages(client_object,username))
         self.messages_button.pack(pady=10)
 
-        self.messages_button = tk.Button(self.root, text="Main Menu", width=15, bg="#d81159", fg="white",
+        self.messages_button = tk.Button(self.root, text="Main Menu", width=15, bg="#CB2525", fg="white",
                                          font=("Helvetica", 12),
                                          command= lambda : self.back_to_menu(client_object,username))
         self.messages_button.pack(pady=10)
@@ -810,15 +826,15 @@ class DoctorMenu:
         self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
         self.title_label.pack(pady=10)
 
-        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#d81159", fg="white",
+        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#CB2525", fg="white",
                                         font=("Helvetica", 12), command= lambda: self.open_sender(client_object,username))
         self.examine_button.pack(pady=10)
 
-        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#d81159", fg="white",
+        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#CB2525", fg="white",
                                          font=("Helvetica", 12), command=lambda: self.open_messages(client_object,username))
         self.messages_button.pack(pady=10)
 
-        self.logout_button = tk.Button(self.root, text="Logout", width=15, bg="#d81159", fg="white",
+        self.logout_button = tk.Button(self.root, text="Logout", width=15, bg="#CB2525", fg="white",
                                        font=("Helvetica", 12), command=lambda: self.logout(client_object))
         self.logout_button.pack(pady=10)
 
