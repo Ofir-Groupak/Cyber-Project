@@ -279,7 +279,8 @@ def information_page_handle(client_object, result, username):
 def examine(first_symptom, client_object, username):
     print("in examine")
 
-    user_symptoms = [first_symptom]
+    user_symptoms = []
+    user_symptoms.append(first_symptom)
     asked_symptoms = [first_symptom]
     potential_diseases = get_history_of_diseases(username)
     potential_diseases.extend(get_diseases_with_symptom(first_symptom))
@@ -294,8 +295,8 @@ def examine(first_symptom, client_object, username):
     while result == "":
         for scenario in possible_scenarios:
 
-            # print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
-            # print(get_diseases_by_scenarios(possible_scenarios))
+            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
+            print(get_diseases_by_scenarios(possible_scenarios))
 
             potential_symptom = get_next_symptom(scenario, asked_symptoms)
             if (potential_symptom == "" and get_diseases_by_scenarios(possible_scenarios)):
@@ -309,9 +310,11 @@ def examine(first_symptom, client_object, username):
             client_object.send(data)
 
             answer = client_object.recv(1024)
-            answer = decrypt_with_private_key(answer)
+            answer = decrypt_with_private_key(answer).decode()
+
 
             if answer == "yes":
+                print('aaaaaaa',user_symptoms)
                 possible_scenarios = remove_scenarios_without_x(possible_scenarios, potential_symptom)
                 user_symptoms.append(potential_symptom)
 
@@ -331,11 +334,11 @@ def examine(first_symptom, client_object, username):
     action = decrypt_with_private_key(action)
     action = pickle.loads(action)
     add_disease(username, disease)
-
+    print(action)
     if action[1] == "yes":
-        final_symptoms = ','.join(asked_symptoms)
+        user_symptoms = ','.join(user_symptoms)
         add_message(username, get_doctor_for_user(username), f"{username} Diagnosis",
-                    f"Symptoms : {final_symptoms},\nResult : {disease}")
+                    f"Symptoms : {user_symptoms},\nResult : {disease}")
 
     if action[0] == "Information":
         information_page_handle(client_object, disease, username)

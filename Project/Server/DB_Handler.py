@@ -312,16 +312,16 @@ def get_history_of_diseases(username):
 
 if __name__ == "__main__":
     create_table()
-    #add_user('e', 'e', 'Male', 'e', 'e',"False", str(['Heart attack']),'a')
+    add_user('e', 'e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
     #print(is_doctor("admin1"))
     # print(check_password('admin' ,'12345'))
-    #remove_user('user')
+    #remove_user('Doctor')
     # change_password('admin1','admin')
     #print(get_all_doctors())
     #print(get_all_patients('doc'))
     #print(check_password('doc','doc'))
-    add_disease('a','Common Cold')
-    print(get_history_of_diseases('a'))
+    #add_disease('a','Common Cold')
+    #print(get_history_of_diseases('a'))
 
 
 
