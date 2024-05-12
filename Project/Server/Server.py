@@ -2,7 +2,7 @@ import socket
 import threading
 from Project.Server.Examinor import *
 import pickle
-from Messenger import *
+from Messages_Handler import *
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
@@ -216,9 +216,10 @@ def send_message_handle(client_object, username):
     while "menu" != data[0]:
 
         try:
-
-            add_message(username, data[0], data[1], data[2])
+            print(data)
+            add_message(username, data[1], data[2], data[3])
             data = client_object.recv(1024)
+            data = decrypt_with_private_key(data)
             data = pickle.loads(data)
         except IndexError:
             break

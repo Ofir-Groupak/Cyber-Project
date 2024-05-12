@@ -807,7 +807,7 @@ class SendMessageGUI:
         recipient = self.recipient_var.get()
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
-        message_pattern = [recipient, subject, message]
+        message_pattern = ["Send Message",recipient, subject, message]
         message_pattern = encrypt_with_public_key(pickle.dumps(message_pattern),server_public_key)
         self.client_object.send(message_pattern)
         print("Recipient:", recipient)
@@ -820,7 +820,9 @@ class SendMessageGUI:
         messagebox.showinfo("Success", "Message sent successfully!")
 
     def menu(self, client_object, username):
-        data = encrypt_with_public_key(pickle.dumps(["data"]),server_public_key)
+        print("menu")
+        data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
+        print(data)
         client_object.send(data)
 
 
