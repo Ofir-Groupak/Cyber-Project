@@ -324,8 +324,6 @@ class QuestionnaireWindowGUI:
         self.btn_no.grid(row=2, column=1, padx=100, pady=(50, 20))
 
         self.root.mainloop()
-    def on_resize(self, event):
-        self.canvas.coords(self.line, 0, 0, event.width, 0)
 
     def update_text(self):
         """
