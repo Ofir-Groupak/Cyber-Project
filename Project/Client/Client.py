@@ -327,13 +327,15 @@ class QuestionnaireWindowGUI:
     def on_resize(self, event):
         self.canvas.coords(self.line, 0, 0, event.width, 0)
 
-    def show_text(self, question1):
+    def update_text(self):
         """
         Displays the provided question or result text in the GUI window.
 
         Parameters:
             question1 (str): The question or result text to be displayed.
         """
+        question1 = self.client_object.recv(1024)
+        question1 = decrypt_with_private_key(question1, client_private_key).decode()
         try:
             self.question_label.destroy()
         except tk.TclError:
@@ -380,9 +382,8 @@ class QuestionnaireWindowGUI:
         """
         data = encrypt_with_public_key("yes".encode(), server_public_key)
         self.client_object.send(data)
-        result = self.client_object.recv(1024)
-        result = decrypt_with_private_key(result, client_private_key).decode()
-        self.show_text(result)
+
+        self.update_text()
 
     def on_no(self):
         """
@@ -390,9 +391,8 @@ class QuestionnaireWindowGUI:
         """
         data = encrypt_with_public_key("no".encode(), server_public_key)
         self.client_object.send(data)
-        result = self.client_object.recv(1024)
-        result = decrypt_with_private_key(result, client_private_key).decode()
-        self.show_text(result)
+
+        self.update_text()
 
 
 class SignUpPageGUI:
@@ -556,7 +556,7 @@ class SignUpPageGUI:
         for option in filtered_options:
             self.doctor_listbox.insert('end', option)
 
-    def on_select(self, event):
+    def on_select(self):
         """
         Function to handle selection of doctor from the listbox.
         """
@@ -852,48 +852,6 @@ class SendMessageGUI:
         else:
             MainMenuGUI(client_object,self.root,self.username)
 
-    def run(self):
-        self.root.mainloop()
-
-class MessagesMenu:
-    def __init__(self,previous_window,client_object,username):
-        previous_window.destroy()
-        self.root = tk.Tk()
-        self.root.title("Main Menu")
-        self.root.geometry("400x200")
-        self.root.configure(bg="#0e1a40")
-
-        self.title_label = tk.Label(self.root, text="Menu", bg="#0e1a40", fg="white", font=("Helvetica", 16, "bold"))
-        self.title_label.pack(pady=10)
-
-        self.examine_button = tk.Button(self.root, text="Send Message", width=15, bg="#CB2525", fg="white",
-                                        font=("Helvetica", 12), command= lambda: self.open_sender(client_object,username))
-        self.examine_button.pack(pady=10)
-
-        self.messages_button = tk.Button(self.root, text="Your Messages", width=15, bg="#CB2525", fg="white",
-                                         font=("Helvetica", 12), command=lambda: self.open_messages(client_object,username))
-        self.messages_button.pack(pady=10)
-
-        self.messages_button = tk.Button(self.root, text="Main Menu", width=15, bg="#CB2525", fg="white",
-                                         font=("Helvetica", 12),
-                                         command= lambda : self.back_to_menu(client_object,username))
-        self.messages_button.pack(pady=10)
-
-    def back_to_menu(self,client_object,username):
-        data = encrypt_with_public_key("menu".encode(),server_public_key)
-        client_object.send(data)
-        MainMenuGUI(client_object, self.root, self.username)
-
-    def open_sender(self,client_object,username):
-        data = encrypt_with_public_key("send messages".encode(), server_public_key)
-        client_object.send(data)
-        SendMessageGUI(self.root,client_object,username,'')
-
-    def open_messages(self,client_object,username):
-        data = encrypt_with_public_key("view messages".encode(), server_public_key)
-        client_object.send(data)
-        MainMenuGUI(client_object, self.root, self.username)
-        print("Opening Messages window")
     def run(self):
         self.root.mainloop()
 
