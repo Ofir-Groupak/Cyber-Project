@@ -632,7 +632,7 @@ class DiseaseReportGUI:
 
 
         self.menu_button = tk.Button(self.root, text="Menu", width=10, bg="#CB2525", fg="white",
-                                     font=("Helvetica", 12), command=self.show_menu)
+                                     font=("Helvetica", 12), command=self.go_to_menu)
         self.menu_button.pack(pady=10)
 
         self.root.mainloop()
@@ -666,7 +666,7 @@ class DiseaseReportGUI:
             print(disease_name)
         return report
 
-    def show_menu(self):
+    def go_to_menu(self):
         data = encrypt_with_public_key("menu".encode(),server_public_key)
         self.client_object.send(data)
         MainMenuGUI(self.client_object,self.root,self.username)
@@ -734,7 +734,7 @@ class MessagesGUI:
         data = encrypt_with_public_key(pickle.dumps(data),server_public_key)
         self.client_object.send(data)
         SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
-    def show_message_content(self, event):
+    def show_message_content(self):
         selection = self.messages_listbox.curselection()
         if selection:
             message_index = selection[0]
@@ -816,7 +816,7 @@ class SendMessageGUI:
         self.send_button.grid(row=7, column=0, padx=5, pady=5)
 
         self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#CB2525", fg="white",
-                                     font=("Helvetica", 12), command=lambda: self.menu(client_object, username))
+                                     font=("Helvetica", 12), command=lambda: self.go_to_menu(client_object, username))
         self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
     def send_message(self):
@@ -835,7 +835,7 @@ class SendMessageGUI:
 
         messagebox.showinfo("Success", "Message sent successfully!")
 
-    def menu(self, client_object, username):
+    def go_to_menu(self, client_object, username):
         print("menu")
         data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
         print(data)
