@@ -142,7 +142,7 @@ class LoginPageGUI:
             else:
                 MainMenuGUI(self.client_object, self.root,username)
         else:
-            messagebox.showinfo("Error", "Incorrect password, Try Again!")
+            messagebox.showerror("Error", "Incorrect username or password, Try Again!")
 
     def open_signup_page(self):
         data = encrypt_with_public_key(pickle.dumps(["SIGNUP"]),server_public_key)

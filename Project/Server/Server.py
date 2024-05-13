@@ -179,23 +179,6 @@ def menu_handle(client_object, username):
         client_handle(client_object)
 
 
-def messages_handle(client_object, username):
-    print("in messages handle")
-    data = client_object.recv(1024)
-    data = decrypt_with_private_key(data).decode()
-    print('1', data)
-    if "view messages" in data:
-        data = encrypt_with_public_key(pickle.dumps(get_all_messages_for_user(username)), client_object)
-        client_object.send(data)
-        view_messages_handle(client_object, username)
-    if "menu" in data:
-        menu_handle(client_object, username)
-    if "send message" in data:
-        send_message_handle(client_object, username)
-    if "LOGOUT" in data:
-        client_handle(client_object)
-
-
 def send_message_handle(client_object, username):
     print("in send message handle")
 
