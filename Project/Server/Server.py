@@ -1,6 +1,6 @@
 import socket
 import threading
-from Project.Server.Examinor import *
+from Project.Server.Diseases_db_handler import *
 import pickle
 from Messages_Handler import *
 from cryptography.hazmat.primitives import serialization
