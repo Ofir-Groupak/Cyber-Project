@@ -2,7 +2,7 @@ import socket
 import threading
 from Project.Server.Diseases_db_handler import *
 import pickle
-from Messages_Handler import *
+from DB_Handler import *
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
@@ -110,8 +110,9 @@ def sign_up_handle(client_object):
         client_handle(client_object)
 
     add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),
-             str(login_info[7]), login_info[8])
+             str(login_info[7]))
     print(f"created using {login_info}")
+    client_object.send(encrypt_with_public_key("sucsess".encode(),client_object))
 
     client_handle(client_object)
 

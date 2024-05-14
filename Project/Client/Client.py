@@ -464,9 +464,10 @@ class SignUpPageGUI:
                                                                                                               rely=0.53,
                                                                                                               anchor="w")
 
-        self.past_diseases_var1.set("None")
-        self.past_diseases_var2.set("None")
-        self.past_diseases_var3.set("None")
+        self.past_diseases_var1 = tk.StringVar(self.root)
+        self.past_diseases_var2= tk.StringVar(self.root)
+        self.past_diseases_var3= tk.StringVar(self.root)
+
 
         self.opt_menu1 = tk.OptionMenu(self.root, self.past_diseases_var1, *self.options)
         self.opt_menu1.config(bg="white")
@@ -536,9 +537,11 @@ class SignUpPageGUI:
             self.doctor_listbox.config(state="normal")
         else:
             self.doctor_entry.delete(0, 'end')
-            self.doctor_entry.insert(0, 'None')
+            self.doctor_entry.insert(0, 'Disabled')
             self.doctor_entry.config(state="disabled")
             self.doctor_listbox.config(state="disabled")
+
+
 
     def search_doctor(self):
         """
@@ -554,7 +557,7 @@ class SignUpPageGUI:
         for option in filtered_options:
             self.doctor_listbox.insert('end', option)
 
-    def on_select(self):
+    def on_select(self, event):
         """
         Function to handle selection of doctor from the listbox.
         """
@@ -603,8 +606,16 @@ class SignUpPageGUI:
         information = ["SIGNUP", id, gender, username, password, is_doctor, past_diseases, selected_doctor]
         data = encrypt_with_public_key(pickle.dumps(information), server_public_key)
         self.client_object.send(data)
-        self.root.destroy()
-        LoginPageGUI(self.client_object, server_public_key, client_private_key)
+        response = self.client_object.recv(1024)
+        response = decrypt_with_private_key(response,client_private_key)
+        if "sucsess" in response.decode():
+            messagebox.showinfo("Sucsess", "User Created, Please Login!")
+            self.root.destroy()
+            LoginPageGUI(self.client_object, server_public_key, client_private_key)
+        else:
+            messagebox.showerror("Error", "Something went wrong please try again!")
+
+
 
 
 class DiseaseReportGUI:
@@ -734,13 +745,15 @@ class MessagesGUI:
         data = encrypt_with_public_key(pickle.dumps(data),server_public_key)
         self.client_object.send(data)
         SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
-    def show_message_content(self):
+
+    def show_message_content(self, event):
         selection = self.messages_listbox.curselection()
         if selection:
             message_index = selection[0]
             message = self.messages[message_index]
             self.message_content_text.delete('1.0', tk.END)
-            self.message_content_text.insert(tk.END, f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
+            self.message_content_text.insert(tk.END,
+                                             f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
 
     def menu(self,client_object):
         data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)

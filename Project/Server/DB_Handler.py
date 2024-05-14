@@ -7,40 +7,68 @@ from cryptography.fernet import Fernet
 
 
 
-def encrypt_data(data):
-    key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+def encrypt(data):
+    data = encrypt_vigenere(data)
+    return encrypt_with_fernet(data)
 
-    """
-    Encrypts the given data using the Fernet encryption algorithm.
+def decrypt(data):
+    data = decrypt_with_fernet(data)
+    return decrypt_vigenere(data)
 
-    Parameters:
-        data (bytes): The data to be encrypted as bytes.
-        key (str): The encryption key as a base64 encoded string.
+def encrypt_with_fernet(data):
+    fernet_key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+    f = Fernet(fernet_key)
+    return f.encrypt(data.encode()).decode()
 
-    Returns:
-        bytes: The encrypted data.
-    """
-    f = Fernet(key)
-    encrypted_data = f.encrypt(data.encode())
-    return encrypted_data
+def decrypt_with_fernet(data):
+    fernet_key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+    f = Fernet(fernet_key)
+    return f.decrypt(data.encode()).decode()
 
-def decrypt_data(encrypted_data):
-    key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
+def generate_key(plaintext, key):
+    key = list(key)
+    if len(plaintext) == len(key):
+        return key
+    else:
+        for i in range(len(plaintext) - len(key)):
+            key.append(key[i % len(key)])
+    return "".join(key)
 
-    """
-    Decrypts the given encrypted data using the Fernet encryption algorithm.
+def encrypt_vigenere(plaintext):
+    encrypted_text = []
+    key = "KJSDLSC"
+    key = generate_key(plaintext, key)
+    key_index = 0
+    for i in range(len(plaintext)):
+        if plaintext[i].isalpha():
+            shift = ord(key[key_index]) - ord('A') if key[key_index].isupper() else ord(key[key_index]) - ord('a')
+            if plaintext[i].isupper():
+                x = (ord(plaintext[i]) - ord('A') + shift) % 26 + ord('A')
+            else:
+                x = (ord(plaintext[i]) - ord('a') + shift) % 26 + ord('a')
+            key_index = (key_index + 1) % len(key)
+            encrypted_text.append(chr(x))
+        else:
+            encrypted_text.append(plaintext[i])
+    return "".join(encrypted_text)
 
-    Parameters:
-        encrypted_data (bytes): The encrypted data as bytes.
-        key (str): The encryption key as a base64 encoded string.
-
-    Returns:
-        bytes: The decrypted data.
-    """
-    f = Fernet(key)
-    decrypted_data = f.decrypt(encrypted_data)
-    return decrypted_data.decode()
-
+def decrypt_vigenere(ciphertext):
+    decrypted_text = []
+    key = "KJSDLSC"
+    key = generate_key(ciphertext, key)
+    key_index = 0
+    for i in range(len(ciphertext)):
+        if ciphertext[i].isalpha():
+            shift = ord(key[key_index]) - ord('A') if key[key_index].isupper() else ord(key[key_index]) - ord('a')
+            if ciphertext[i].isupper():
+                x = (ord(ciphertext[i]) - ord('A') - shift + 26) % 26 + ord('A')
+            else:
+                x = (ord(ciphertext[i]) - ord('a') - shift + 26) % 26 + ord('a')
+            key_index = (key_index + 1) % len(key)
+            decrypted_text.append(chr(x))
+        else:
+            decrypted_text.append(ciphertext[i])
+    return "".join(decrypted_text)
 
 def create_tables():
     """
@@ -51,8 +79,7 @@ def create_tables():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
+        id TEXT NOT NULL,
         gender TEXT NOT NULL,
         username TEXT PRIMARY KEY,
         password TEXT NOT NULL,
@@ -85,7 +112,7 @@ def is_doctor(username):
         ''', (username,)
     )
     try:
-        return cursor.fetchone()[0]
+        return cursor.fetchone()[0]==1
     except TypeError:
         return False
     return False
@@ -113,7 +140,7 @@ def check_password(username, given_password):
 
 
     try:
-        correct_password = decrypt_data(cursor.fetchone()[0])
+        correct_password = decrypt(cursor.fetchone()[0])
 
 
     except TypeError:
@@ -124,7 +151,7 @@ def check_password(username, given_password):
     return correct_password == given_password
 
 
-def add_user(first_name, last_name, gender, username, password,is_doctor, past_diseases,doctor):
+def add_user(id, gender, username, password,is_doctor, past_diseases,doctor):
     """
     Adds a new user to the database with provided details including past diseases.
 
@@ -141,18 +168,17 @@ def add_user(first_name, last_name, gender, username, password,is_doctor, past_d
     past_diseases = past_diseases.replace("]", "")
     past_diseases = past_diseases.replace("'","")
 
-    password = encrypt_data(password)
-    past_diseases = encrypt_data(past_diseases)
-    first_name = encrypt_data(first_name)
-    last_name = encrypt_data(last_name)
+    password = encrypt(password)
+    past_diseases = encrypt(past_diseases)
+    id = encrypt(id)
 
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute("""
-            INSERT INTO users (first_name,last_name,gender,username, password,is_doctor,past_diseases,doctor)
-            VALUES (?,?,?,?,?,?,?,?);
-        """, (first_name, last_name, gender, username, password,is_doctor,past_diseases,doctor))
+            INSERT INTO users (id,gender,username, password,is_doctor,past_diseases,doctor)
+            VALUES (?,?,?,?,?,?,?);
+        """, (id, gender, username, password,is_doctor,past_diseases,doctor))
 
 
     #add_disease(username)
@@ -190,7 +216,7 @@ def change_password(username, password):
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
-    password = encrypt_data(password)
+    password = encrypt(password)
     cursor.execute("""
                 UPDATE users
                 SET password = ?
@@ -225,7 +251,7 @@ def add_disease(username, disease):
         curr_diseases = curr_diseases.replace("[", "")
         curr_diseases = curr_diseases.replace("]", "")
         curr_diseases = curr_diseases.replace("'", "")
-        curr_diseases = encrypt_data(curr_diseases)
+        curr_diseases = encrypt(curr_diseases)
         cursor.execute("""
                 UPDATE users
                 SET past_diseases = ?
@@ -244,7 +270,7 @@ def get_all_doctors():
         '''
         SELECT username FROM users
         WHERE is_doctor=?
-        ''', ("True",)
+        ''', (1,)
     )
     doctors = []
     for item in cursor.fetchall():
@@ -309,7 +335,7 @@ def get_history_of_diseases(username):
     diseases = []
     try:
         curr_diseases = cursor.fetchone()[0].decode()
-        curr_diseases = decrypt_data(curr_diseases)
+        curr_diseases = decrypt(curr_diseases)
         diseases = list(curr_diseases.split(","))
     except TypeError:
         return []
@@ -320,14 +346,14 @@ def get_history_of_diseases(username):
     return diseases
 
 def add_message(sender,receiver,subject,message):
-    conn = sqlite3.connect(r'../Server/messages.db')
+    conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
 
     cursor.execute("""
             INSERT INTO messages (sender,receiver,subject,message)
             VALUES (?,?,?,?);
-        """, (sender,receiver,encrypt_data(subject),encrypt_data(message)))
+        """, (sender,receiver,encrypt(subject),encrypt(message)))
 
     conn.commit()
     conn.close()
@@ -335,7 +361,7 @@ def add_message(sender,receiver,subject,message):
 
 def get_all_messages_for_user(user):
 
-    conn = sqlite3.connect(r'../Server/messages.db')
+    conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
     cursor.execute(
@@ -349,8 +375,8 @@ def get_all_messages_for_user(user):
         all_messages.append(dict(zip(message_pattern,message)))
 
     for message in all_messages:
-        message['subject'] = decrypt_data(message['subject'])
-        message['message'] = decrypt_data(message['message'])
+        message['subject'] = decrypt(message['subject'])
+        message['message'] = decrypt(message['message'])
 
 
     conn.commit()
@@ -361,8 +387,8 @@ def get_all_messages_for_user(user):
 
 if __name__ == "__main__":
     create_tables()
-    add_user('e', 'e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
-    #print(is_doctor("admin1"))
+    #add_user('e', 'e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
+    #print(is_doctor("a"))
     # print(check_password('admin' ,'12345'))
     #remove_user('Doctor')
     # change_password('admin1','admin')
