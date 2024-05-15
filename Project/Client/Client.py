@@ -231,7 +231,7 @@ class MainMenuGUI:
     def send_messages(self,client_object):
         data = encrypt_with_public_key("send messages".encode(), server_public_key)
         client_object.send(data)
-        SendMessageGUI(self.root, self.client_object, self.username,"")
+        SendMessageGUI(self.root, self.client_object, self.username," ")
     def run(self):
         self.root.mainloop()
 class FirstSymptomWindowGUI:
@@ -395,6 +395,13 @@ class QuestionnaireWindowGUI:
 
 class SignUpPageGUI:
     def __init__(self, previous_window, client_object):
+        """
+        Initializes the Sign-Up Page GUI.
+
+        Parameters:
+            previous_window (tk.Tk): The previous window to be destroyed.
+            client_object (socket): The client socket object for communication with the server.
+        """
         self.previous_window = previous_window
         self.client_object = client_object
         options = self.client_object.recv(1024)
@@ -588,6 +595,9 @@ class SignUpPageGUI:
         ]
         selected_doctor = self.doctor_var.get()
 
+        if len(id)!=9:
+            messagebox.showinfo("Error, Id must be 9 characters long!")
+            return
         if not id:
             messagebox.showinfo("Error", "Please enter your ID!")
             return
@@ -613,13 +623,11 @@ class SignUpPageGUI:
             self.root.destroy()
             LoginPageGUI(self.client_object, server_public_key, client_private_key)
         else:
-            messagebox.showerror("Error", "Something went wrong please try again!")
-
-
-
-
+            messagebox.showerror("Error", "Username already exists! Please choose another username")
+            return
 class DiseaseReportGUI:
     def __init__(self,previous_window, disease_name,client_object,username):
+        #init the disease report GUI
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title(f"Report for {disease_name}")
@@ -802,9 +810,11 @@ class SendMessageGUI:
         data = self.client_object.recv(1024)
         data = decrypt_with_private_key(data , client_private_key)
         self.options = pickle.loads(data)
+        print(self.options)
         self.recipient_var = tk.StringVar(self.root)
-
         self.recipient_var.set(recipient)
+
+
 
         self.opt_menu1 = tk.OptionMenu(self.root, self.recipient_var, *self.options)
         self.opt_menu1.config(bg="white")
@@ -825,21 +835,22 @@ class SendMessageGUI:
         self.message_entry.grid(row=3, column=1, pady=7, rowspan=3, ipady=10)
 
         self.send_button = tk.Button(self.root, text="Send", height=1, width=10, bg="#CB2525", fg="white",
-                                     font=("Helvetica", 12), command=self.send_message)
+                                         font=("Helvetica", 12), command=self.send_message)
         self.send_button.grid(row=7, column=0, padx=5, pady=5)
+        if recipient==" ":
 
-        self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#CB2525", fg="white",
-                                     font=("Helvetica", 12), command=lambda: self.go_to_menu(client_object, username))
-        self.menu_button.grid(row=7, column=1, padx=5, pady=5)
+            self.menu_button = tk.Button(self.root, text="Menu", height=1, width=10, bg="#CB2525", fg="white",
+                                         font=("Helvetica", 12), command=lambda: self.go_to_menu(client_object, username))
+            self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
     def send_message(self):
-        recipient = self.recipient_var.get()
+        receiver = self.recipient_var.get()
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
-        message_pattern = ["Send Message",recipient, subject, message]
+        message_pattern = ["Send Message",receiver, subject, message]
         message_pattern = encrypt_with_public_key(pickle.dumps(message_pattern),server_public_key)
         self.client_object.send(message_pattern)
-        print("Recipient:", recipient)
+        print("Recipient:", receiver)
         print("Subject:", subject)
         print("Message:", message)
 
@@ -847,6 +858,11 @@ class SendMessageGUI:
         self.message_entry.delete("1.0", tk.END)
 
         messagebox.showinfo("Success", "Message sent successfully!")
+
+        if self.recipient!=" ":
+            self.client_object.send(encrypt_with_public_key(pickle.dumps(["back"]),server_public_key))
+            self.root.destroy()
+
 
     def go_to_menu(self, client_object, username):
         print("menu")
@@ -863,7 +879,6 @@ class SendMessageGUI:
         else:
             MainMenuGUI(client_object,self.root,self.username)
 
-    def run(self):
         self.root.mainloop()
 
 if __name__ == "__main__":

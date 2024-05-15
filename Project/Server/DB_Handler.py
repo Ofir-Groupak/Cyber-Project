@@ -6,7 +6,6 @@ from cryptography.fernet import Fernet
 
 
 
-
 def encrypt(data):
     data = encrypt_vigenere(data)
     return encrypt_with_fernet(data)
@@ -112,7 +111,10 @@ def is_doctor(username):
         ''', (username,)
     )
     try:
-        return cursor.fetchone()[0]==1
+        if cursor.fetchone()[0] == 0:
+            return False
+        else:
+            return True
     except TypeError:
         return False
     return False
@@ -313,7 +315,8 @@ def get_all_patients(doctor):
     )
 
     patients = []
-    for patient in cursor.fetchall():
+    rows = cursor.fetchall()
+    for patient in rows:
         patients.append(patient[0])
 
 
@@ -334,10 +337,11 @@ def get_history_of_diseases(username):
     )
     diseases = []
     try:
-        curr_diseases = cursor.fetchone()[0].decode()
+        curr_diseases = cursor.fetchone()[0]
         curr_diseases = decrypt(curr_diseases)
         diseases = list(curr_diseases.split(","))
-    except TypeError:
+    except Exception as e:
+        print(e)
         return []
 
     conn.commit()
@@ -386,8 +390,9 @@ def get_all_messages_for_user(user):
 
 
 if __name__ == "__main__":
-    create_tables()
-    #add_user('e', 'e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
+    #get_doctor_for_user('yuval')
+    #create_tables()
+    #add_user('e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
     #print(is_doctor("a"))
     # print(check_password('admin' ,'12345'))
     #remove_user('Doctor')
@@ -397,7 +402,8 @@ if __name__ == "__main__":
     #print(check_password('doc','doc'))
     #add_disease('a','Common Cold')
     #print(get_history_of_diseases('a'))
-
+    print(get_history_of_diseases('a'))
+    #add_disease('a','Common Cold')
 
 
 

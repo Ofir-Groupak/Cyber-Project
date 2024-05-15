@@ -1,6 +1,7 @@
 import socket
+import sqlite3
 import threading
-from Project.Server.Diseases_db_handler import *
+from Project.Server.Diseases_handler import *
 import pickle
 from DB_Handler import *
 from cryptography.hazmat.primitives import serialization
@@ -50,7 +51,6 @@ def decrypt_with_private_key(data):
 
 
 def encrypt_with_public_key(data, client_object):
-    print(object_to_keys, type(object_to_keys[client_object]))
     return object_to_keys[client_object].encrypt(
         data,
         padding.OAEP(
@@ -60,6 +60,11 @@ def encrypt_with_public_key(data, client_object):
         )
     )
 
+def send_public_key(client_object):
+    client_object.send(server_public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    ))
 
 def get_clients(server_socket):
     """
@@ -72,11 +77,7 @@ def get_clients(server_socket):
     while True:
         print("Waiting for clients!")
         client_object, client_IP = server_socket.accept()
-
-        client_object.send(server_public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ))
+        send_public_key(client_object)
         client_public_key_pem = client_object.recv(2048)
         client_public_key = serialization.load_pem_public_key(
             client_public_key_pem,
@@ -100,21 +101,28 @@ def sign_up_handle(client_object):
     print(get_all_doctors())
     options = [get_all_diseases(), get_all_doctors(), None]
     client_object.send(encrypt_with_public_key(pickle.dumps(options), client_object))
+    created = False
+    while created==False:
+        login_info = client_object.recv(1024)
+        login_info = decrypt_with_private_key(login_info)
+        login_info = pickle.loads(login_info)
+        print(login_info)
 
-    login_info = client_object.recv(1024)
-    login_info = decrypt_with_private_key(login_info)
-    login_info = pickle.loads(login_info)
-    print(login_info)
+        if "LOGIN" == login_info[0]:
+            client_handle(client_object)
+            created=True
+            break
+        try:
+            add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),
+                     str(login_info[7]))
+            print(f"created using {login_info}")
+            created = True
+            client_object.send(encrypt_with_public_key("sucsess".encode(),client_object))
 
-    if "LOGIN" == login_info[0]:
-        client_handle(client_object)
-
-    add_user(login_info[1], login_info[2], login_info[3], login_info[4], login_info[5], str(login_info[6]),
-             str(login_info[7]))
-    print(f"created using {login_info}")
-    client_object.send(encrypt_with_public_key("sucsess".encode(),client_object))
-
-    client_handle(client_object)
+            client_handle(client_object)
+        except Exception as e:
+            print("User already exist!")
+            client_object.send(encrypt_with_public_key("user already exists".encode(), client_object))
 
 
 def client_handle(client_object):
@@ -159,6 +167,13 @@ def client_handle(client_object):
 
 
 def menu_handle(client_object, username):
+    """
+    handles the client and his requests
+
+    :param client_object: represents the client's object
+    :param username : represents the client's username
+    :return:None
+    """
     print("in menu handle")
 
     custom_menu = str(is_doctor(username))
@@ -181,10 +196,18 @@ def menu_handle(client_object, username):
 
 
 def send_message_handle(client_object, username):
+    """
+       handles the client and his requests
+
+       :param client_object: represents the client's object
+       :param username : represents the client's username
+       :return:None
+       """
     print("in send message handle")
 
     options = []
-    if is_doctor(username) == "False":
+    if not is_doctor(username):
+        print('1')
         options.append(get_doctor_for_user(username))
 
     else:
@@ -197,7 +220,7 @@ def send_message_handle(client_object, username):
     data = decrypt_with_private_key(data)
     data = pickle.loads(data)
 
-    while "menu" != data[0]:
+    while "menu" != data[0] or "back" !=data[0]:
 
         try:
             print(data)
@@ -207,7 +230,9 @@ def send_message_handle(client_object, username):
             data = pickle.loads(data)
         except IndexError:
             break
-
+    print(data[0])
+    if "back" in data[0]:
+        view_messages_handle(client_object,username)
     if is_doctor(username):
         data = encrypt_with_public_key("DOCTOR".encode(), client_object)
         client_object.send(data)
@@ -220,6 +245,13 @@ def send_message_handle(client_object, username):
 
 
 def view_messages_handle(client_object, username):
+    """
+       handles the client and his requests
+
+       :param client_object: represents the client's object
+       :param username : represents the client's username
+       :return:None
+       """
     print("in view messages handle")
 
     data = client_object.recv(1024)
@@ -243,6 +275,13 @@ def view_messages_handle(client_object, username):
 
 
 def first_symptom_handle(client_object, username):
+    """
+       handles the client and his requests
+
+       :param client_object: represents the client's object
+       :param username : represents the client's username
+       :return:None
+       """
     print("in first symptom handle")
     data = encrypt_with_public_key(pickle.dumps(get_all_symptoms()), client_object)
     client_object.send(data)
@@ -252,6 +291,13 @@ def first_symptom_handle(client_object, username):
 
 
 def information_page_handle(client_object, result, username):
+    """
+       handles the client and his requests
+
+       :param client_object: represents the client's object
+       :param username : represents the client's username
+       :return:None
+       """
     print("in information page handle")
     data = encrypt_with_public_key(pickle.dumps(get_advice_for_disease(result)), client_object)
     client_object.send(data)
@@ -261,6 +307,15 @@ def information_page_handle(client_object, result, username):
 
 
 def examine(first_symptom, client_object, username):
+    """
+       handles the client and his requests while also exaamine the client for a disease, also make questions and send them to
+       the client based on their answers
+
+       :param client_object: represents the client's object
+       :param username : represents the client's username
+       :param first_symptom: represents the first symptom of the client
+       :return:None
+       """
     print("in examine")
 
     user_symptoms = []
@@ -318,7 +373,6 @@ def examine(first_symptom, client_object, username):
     action = decrypt_with_private_key(action)
     action = pickle.loads(action)
     add_disease(username, disease)
-    print(action)
     if action[1] == "yes":
         user_symptoms = ','.join(user_symptoms)
         add_message(username, get_doctor_for_user(username), f"{username} Diagnosis",
@@ -331,12 +385,6 @@ def examine(first_symptom, client_object, username):
 
 
 if __name__ == "__main__":
+    create_tables()
     server_socket = init_server()
     get_clients(server_socket)
-
-    # print(get_all_diseases())
-    # print(get_symptoms_for_disease('Malaria'))
-
-    # examine('itching',None,None)
-    # print(get_diseases_with_symptom('acidity'))
-    # #print(possible_scenarios_for_disease('Common Cold'))

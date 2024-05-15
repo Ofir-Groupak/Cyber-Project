@@ -1,7 +1,7 @@
 import pandas
 import pandas as pd
 
-df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\DiseasesDatabases\dataset.csv')
+df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\Diseases_tables\Scenarios.csv')
 
 def get_diseases_with_symptom(symptom):
     """
@@ -108,7 +108,7 @@ def get_advice_for_disease(disease):
     """
 
     df = pd.read_csv(
-        r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\DiseasesDatabases\symptom_precaution.csv').drop_duplicates(
+        r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\Diseases_tables\Advices.csv').drop_duplicates(
         subset=['Disease'])
 
     advices = []
@@ -131,7 +131,7 @@ def get_disease_by_symptoms(symptoms):
         if all(symptom in symptoms for symptom in disease_symptoms):
             return row[0]  # Return the disease name
 
-    return "Unknown"  # Return "Unknown" if no matching disease is found
+    return "Unknown"
 
 def get_next_symptom(scenario,user_symptoms):
 
