@@ -134,7 +134,12 @@ def get_disease_by_symptoms(symptoms):
     return "Unknown"
 
 def get_next_symptom(scenario,user_symptoms):
+    """
 
+    :param scenario: represents a scenario a user can take his symptom from
+    :param user_symptoms: already asked symptoms
+    :return: symptoms that has not been asked yet
+    """
     for symptom in [x for x in scenario if not pd.isna(x)]:
         if not pandas.isna(symptom) and symptom not in user_symptoms:
             print(symptom)

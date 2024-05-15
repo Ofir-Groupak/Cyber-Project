@@ -34,6 +34,7 @@ def generate_key(plaintext, key):
     return "".join(key)
 
 def encrypt_vigenere(plaintext):
+    #encrypts ysing vigenre cipher
     encrypted_text = []
     key = "KJSDLSC"
     key = generate_key(plaintext, key)
@@ -52,6 +53,7 @@ def encrypt_vigenere(plaintext):
     return "".join(encrypted_text)
 
 def decrypt_vigenere(ciphertext):
+    # decrypt using vigenre cipher and a permanent key
     decrypted_text = []
     key = "KJSDLSC"
     key = generate_key(ciphertext, key)
@@ -101,6 +103,7 @@ def create_tables():
     conn.close()
 
 def is_doctor(username):
+    #checks wheater a user is a doctor or not and returns an answer
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -265,6 +268,7 @@ def add_disease(username, disease):
     conn.close()
 
 def get_all_doctors():
+    #returns all doctors
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -285,6 +289,7 @@ def get_all_doctors():
     return doctors
 
 def get_doctor_for_user(username):
+    #returns doctor for user
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -304,6 +309,7 @@ def get_doctor_for_user(username):
 
 
 def get_all_patients(doctor):
+    #returns all patients
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -326,6 +332,7 @@ def get_all_patients(doctor):
     return patients
 
 def get_history_of_diseases(username):
+    #gets past diseases from user and decrypts it
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 

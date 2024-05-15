@@ -303,8 +303,6 @@ class QuestionnaireWindowGUI:
         self.root.geometry("800x600")
         self.root.configure(bg="#0e1a40")
 
-        # Magen David label at the top
-
         self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 40))
         self.magen_david_label.grid(row=0, column=0, columnspan=2, sticky="ew")
 
@@ -733,9 +731,6 @@ class MessagesGUI:
 
         self.menu_button = tk.Button(self.root, text="Menu", width=10, command= lambda : self.menu(client_object), bg="#CB2525", fg="white")
         self.menu_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
-
-        self.delete_button = tk.Button(self.root, text="Delete", width=10, command=self.delete, bg="#CB2525", fg="white")
-        self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
         self.reply_button = tk.Button(self.root, text="Reply", width=10, command=lambda: self.reply_message(client_object),
                                       bg="#CB2525", fg="white")
