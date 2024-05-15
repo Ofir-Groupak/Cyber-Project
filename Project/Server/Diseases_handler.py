@@ -88,7 +88,7 @@ def get_all_symptoms():
     :return: all the symptoms
     """
     lst = list(dict.fromkeys(df['Symptom_1'].tolist()))
-    del lst[15:]
+    del lst[26:]
     return lst
 
 
@@ -97,7 +97,7 @@ def get_all_diseases():
     :return:all the diseases
     """
     lst =  list(dict.fromkeys(df['Disease'].tolist()))
-    del lst[10:]
+    del lst[26:]
     return lst
 
 def get_advice_for_disease(disease):
