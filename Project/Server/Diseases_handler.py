@@ -131,7 +131,7 @@ def get_disease_by_symptoms(symptoms):
         if all(symptom in symptoms for symptom in disease_symptoms):
             return row[0]  # Return the disease name
 
-    return "Unknown"
+    return
 
 def get_next_symptom(scenario,user_symptoms):
     """
