@@ -7,12 +7,12 @@ from cryptography.hazmat.primitives.asymmetric import padding
 import pickle
 import tkinter as tk
 from tkinter import messagebox
-import requests
 from bs4 import BeautifulSoup
+import requests
 
 def start_client():
     #starts client
-    server_ip = '127.0.0.1'
+    server_ip = '172.20.136.242'
     server_port = 4444
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -134,7 +134,6 @@ class LoginPageGUI:
         self.client_object.send(data)
         response = self.client_object.recv(1024)
         response = pickle.loads(response)
-        print(response)
         if response[0] == "Correct":
 
             if response[1]=="True":
@@ -341,7 +340,6 @@ class QuestionnaireWindowGUI:
                                            font=("Segoe UI", 20, "bold"))
             self.question_label.grid(row=1, column=0, columnspan=2, pady=20)
             symptom = question1[18:len(question1) - 2]
-            print(symptom)
 
         else:
 
@@ -354,7 +352,6 @@ class QuestionnaireWindowGUI:
                                            text="Menu", width=15,
                                            height=3, command=lambda: self.back_to_menu())
             self.btn_try_again.grid(row=2, column=0, padx=100, pady=(50, 20))
-            print(question1[9:].lower())
             self.btn_more_info = tk.Button(self.root, bg="#CB2525", font=("Segoe UI", 16, "bold"), fg="white",
                                            text="More Information", width=20,
                                            height=3, command=lambda: self.go_to_info(question1[9:].lower()))
@@ -407,7 +404,6 @@ class SignUpPageGUI:
         options = pickle.loads(options)
         self.options = options[0]
         self.doctors = options[1]
-        print(self.doctors)
         self.options.insert(0, "None")
         self.past_diseases_var1 = tk.StringVar()
         self.past_diseases_var2 = tk.StringVar()
@@ -687,7 +683,6 @@ class DiseaseReportGUI:
         data = encrypt_with_public_key("menu".encode(),server_public_key)
         self.client_object.send(data)
         MainMenuGUI(self.client_object,self.root,self.username)
-        print("Menu button clicked")
 
 class MessagesGUI:
     def __init__(self,previous_window,client_object,username):
@@ -735,6 +730,10 @@ class MessagesGUI:
         self.reply_button = tk.Button(self.root, text="Reply", width=10, command=lambda: self.reply_message(client_object),
                                       bg="#CB2525", fg="white")
         self.reply_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
+        self.delete_button = tk.Button(self.root, text="Delete", width=10,
+                                      command=lambda: self.delete_message(client_object),
+                                      bg="#CB2525", fg="white")
+        self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
         for message in self.messages:
@@ -743,11 +742,26 @@ class MessagesGUI:
 
     def reply_message(self,client_object):
         selected_index = self.messages_listbox.curselection()
+
         message_to_reply = self.messages[selected_index[0]]
         data = ["reply",message_to_reply]
         data = encrypt_with_public_key(pickle.dumps(data),server_public_key)
         self.client_object.send(data)
         SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
+
+    def delete_message(self,client_object):
+        selected_index = self.messages_listbox.curselection()
+        if not selected_index:
+            messagebox.showinfo("Error", "Select a message!")
+            return
+        message_to_reply = self.messages[selected_index[0]]
+        print(selected_index,message_to_reply)
+        data = ["delete",message_to_reply['sender'],message_to_reply['subject']]
+        data = encrypt_with_public_key(pickle.dumps(data), server_public_key)
+        self.client_object.send(data)
+        self.messages_listbox.delete(selected_index)
+        self.message_content_text.delete('1.0', tk.END)
+        messagebox.showinfo("Success", "Message Removed successfully!")
 
     def show_message_content(self, event):
         selection = self.messages_listbox.curselection()
@@ -764,7 +778,6 @@ class MessagesGUI:
 
         data = self.client_object.recv(1024)
         data = decrypt_with_private_key(data , client_private_key)
-        print(data)
         if "DOCTOR" in data.decode():
             MainMenuGUI(client_object,self.root,self.username)
         else:
@@ -793,7 +806,7 @@ class SendMessageGUI:
         self.root.geometry("500x250")
         self.root.configure(bg="#0e1a40")
         self.username = username
-
+        self.recipient = recipient
         self.title_label = tk.Label(self.root, text="Send Message", bg="#0e1a40", fg="white",
                                     font=("Helvetica", 16, "bold"))
         self.title_label.grid(row=0, column=0, columnspan=2, pady=10, sticky='n')
@@ -805,7 +818,6 @@ class SendMessageGUI:
         data = self.client_object.recv(1024)
         data = decrypt_with_private_key(data , client_private_key)
         self.options = pickle.loads(data)
-        print(self.options)
         self.recipient_var = tk.StringVar(self.root)
         self.recipient_var.set(recipient)
 
@@ -845,9 +857,7 @@ class SendMessageGUI:
         message_pattern = ["Send Message",receiver, subject, message]
         message_pattern = encrypt_with_public_key(pickle.dumps(message_pattern),server_public_key)
         self.client_object.send(message_pattern)
-        print("Recipient:", receiver)
-        print("Subject:", subject)
-        print("Message:", message)
+
 
         self.subject_entry.delete(0, tk.END)
         self.message_entry.delete("1.0", tk.END)

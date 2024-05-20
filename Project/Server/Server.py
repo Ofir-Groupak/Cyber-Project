@@ -10,7 +10,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
-server_ip = "127.0.0.1"
+server_ip = "172.20.136.242"
 server_port = 4444
 client_usernames_to_objects = {}
 object_to_keys = {}
@@ -40,14 +40,17 @@ def init_server():
 
     return server_socket
 def decrypt_with_private_key(data):
-    return server_private_key.decrypt(
-        data,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
+    try:
+        return server_private_key.decrypt(
+            data,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
         )
-    )
+    except ValueError:
+        return ""
 
 
 def encrypt_with_public_key(data, client_object):
@@ -135,10 +138,8 @@ def client_handle(client_object):
     print("in client handle")
 
     login_info = client_object.recv(1024)
-    print(login_info)
     login_info = decrypt_with_private_key(login_info)
     login_info = pickle.loads(login_info)
-    print(login_info)
 
     if login_info[0] == "SIGNUP":
         sign_up_handle(client_object)
@@ -146,9 +147,7 @@ def client_handle(client_object):
 
     username = login_info[1]
     password = login_info[2]
-    print(username, password)
 
-    print(check_password(username, password))
 
     if check_password(username, password):
 
@@ -157,7 +156,6 @@ def client_handle(client_object):
         client_object.send(pickle.dumps(response))
 
         if is_doctor(username) == "False":
-            print("menu")
             menu_handle(client_object, username)
         else:
             menu_handle(client_object, username)
@@ -182,7 +180,6 @@ def menu_handle(client_object, username):
 
     data = client_object.recv(1024)
     data = decrypt_with_private_key(data).decode()
-    print(data)
     if "examine" in data:
         first_symptom_handle(client_object, username)
     if "open messages" in data:
@@ -207,7 +204,6 @@ def send_message_handle(client_object, username):
 
     options = []
     if not is_doctor(username):
-        print('1')
         options.append(get_doctor_for_user(username))
 
     else:
@@ -230,7 +226,6 @@ def send_message_handle(client_object, username):
             data = pickle.loads(data)
         except IndexError:
             break
-    print(data[0])
     if "back" in data[0]:
         view_messages_handle(client_object,username)
     if is_doctor(username):
@@ -255,10 +250,8 @@ def view_messages_handle(client_object, username):
     print("in view messages handle")
 
     data = client_object.recv(1024)
-    print(data)
     data = decrypt_with_private_key(data)
     data = pickle.loads(data)
-    print(data)
     if "menu" in data[0]:
         if is_doctor(username):
             data = encrypt_with_public_key("DOCTOR".encode(), client_object)
@@ -272,6 +265,9 @@ def view_messages_handle(client_object, username):
 
     if "reply" in data[0]:
         send_message_handle(client_object, username)
+    if "delete" in data[0]:
+        remove_message(data[1],username,data[2])
+        view_messages_handle(client_object,username)
 
 
 def first_symptom_handle(client_object, username):
@@ -329,13 +325,9 @@ def examine(first_symptom, client_object, username):
     possible_scenarios = remove_scenarios_without_x(possible_scenarios, first_symptom)
 
     result = ""
-    print(f"Potential Diseases : {list(dict.fromkeys(potential_diseases))}")
     lst = []
     while result == "":
         for scenario in possible_scenarios:
-
-            print(f"possible scenarios : {len(possible_scenarios)} \n current scenario :{scenario}")
-            print(get_diseases_by_scenarios(possible_scenarios))
 
             potential_symptom = get_next_symptom(scenario, asked_symptoms)
             if (potential_symptom == "" and get_diseases_by_scenarios(possible_scenarios)):

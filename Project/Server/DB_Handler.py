@@ -364,7 +364,7 @@ def add_message(sender,receiver,subject,message):
     cursor.execute("""
             INSERT INTO messages (sender,receiver,subject,message)
             VALUES (?,?,?,?);
-        """, (sender,receiver,encrypt(subject),encrypt(message)))
+        """, (sender,receiver,subject,encrypt(message)))
 
     conn.commit()
     conn.close()
@@ -386,7 +386,6 @@ def get_all_messages_for_user(user):
         all_messages.append(dict(zip(message_pattern,message)))
 
     for message in all_messages:
-        message['subject'] = decrypt(message['subject'])
         message['message'] = decrypt(message['message'])
 
 
@@ -395,10 +394,23 @@ def get_all_messages_for_user(user):
 
     return all_messages
 
+def remove_message(sender , receiver , subject):
+    conn = sqlite3.connect(r'../Server/users.db')
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM messages WHERE receiver=? AND sender = ? AND subject = ?
+        """, (receiver,sender,subject)
+    )
+
+
+    conn.commit()
+    conn.close()
+
 
 if __name__ == "__main__":
     #get_doctor_for_user('yuval')
-    #create_tables()
     #add_user('e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
     #print(is_doctor("a"))
     # print(check_password('admin' ,'12345'))
@@ -409,8 +421,10 @@ if __name__ == "__main__":
     #print(check_password('doc','doc'))
     #add_disease('a','Common Cold')
     #print(get_history_of_diseases('a'))
-    print(get_history_of_diseases('a'))
     #add_disease('a','Common Cold')
+    #add_message("moshe","moshe","moshe","moshe")
+    #remove_message("moshe","moshe","moshe")
+    print('1')
 
 
 

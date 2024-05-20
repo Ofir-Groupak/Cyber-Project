@@ -1,7 +1,7 @@
 import pandas
 import pandas as pd
 
-df = pd.read_csv(r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\Diseases_tables\Scenarios.csv')
+df = pd.read_csv(r'C:\Users\student\PycharmProjects\Ofir\Project\Server\Diseases_tables\Scenarios.csv')
 
 def get_diseases_with_symptom(symptom):
     """
@@ -108,7 +108,7 @@ def get_advice_for_disease(disease):
     """
 
     df = pd.read_csv(
-        r'C:\Users\Ofir\PycharmProjects\Cyber-Project3\Project\Server\Diseases_tables\Advices.csv').drop_duplicates(
+        r'C:\Users\student\PycharmProjects\Ofir\Project\Server\Diseases_tables\Advices.csv').drop_duplicates(
         subset=['Disease'])
 
     advices = []
