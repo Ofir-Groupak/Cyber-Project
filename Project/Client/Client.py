@@ -11,8 +11,11 @@ from bs4 import BeautifulSoup
 import requests
 
 def start_client():
-    #starts client
-    server_ip = '172.20.136.242'
+    """
+    starts the client
+    :return: client_socket, server public key , client private key
+    """
+    server_ip = '127.0.0.1'
     server_port = 4444
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,6 +44,15 @@ def start_client():
     return client_socket , server_public_key , client_private_key
 
 def decrypt_with_private_key(data,client_private_key):
+    """
+        Decrypts data using the server's private key.
+
+        Parameters:
+            data (bytes): The encrypted data to be decrypted.
+
+        Returns:
+            bytes: The decrypted data, or an empty string if decryption fails.
+        """
     return client_private_key.decrypt(
         data,
         padding.OAEP(
@@ -51,6 +63,16 @@ def decrypt_with_private_key(data,client_private_key):
     )
 
 def encrypt_with_public_key(data,server_public_key):
+    """
+       Encrypts data using a client's public key.
+
+       Parameters:
+           data (bytes): The data to be encrypted.
+           client_object: The client object which has the public key.
+
+       Returns:
+           bytes: The encrypted data.
+       """
     return server_public_key.encrypt(
         data,
         padding.OAEP(
@@ -61,7 +83,15 @@ def encrypt_with_public_key(data,server_public_key):
     )
 class LoginPageGUI:
     def __init__(self, client_object,server_key,client_key,previous_window=None):
+        """
+               Initializes the LoginPageGUI.
 
+               Parameters:
+                   client_object: The client object for server communication.
+                   server_key: The server's public key for encryption.
+                   client_key: The client's private key for decryption.
+                   previous_window (optional): The previous Tkinter window to be destroyed, if any.
+               """
         global server_public_key
         server_public_key = server_key
 
@@ -117,6 +147,9 @@ class LoginPageGUI:
         self.root.mainloop()
 
     def toggle_password_visibility(self):
+        """
+        Toggles the visibility of the password entry field.
+        """
         if self.show_password_var.get():
             self.password_entry.config(show="")
         else:
@@ -144,11 +177,22 @@ class LoginPageGUI:
             messagebox.showerror("Error", "Incorrect username or password, Try Again!")
 
     def open_signup_page(self):
+        """
+        Sends a request to the server to open the signup page and navigates to the signup page GUI.
+        """
         data = encrypt_with_public_key(pickle.dumps(["SIGNUP"]),server_public_key)
         self.client_object.send(data)
         SignUpPageGUI(self.root,self.client_object)
 class MainMenuGUI:
     def __init__(self, client_object, previous_window, username):
+        """
+               Initializes the MainMenuGUI.
+
+               Parameters:
+                   client_object: The client object for server communication.
+                   previous_window: The previous Tkinter window to be destroyed.
+                   username (str): The username of the logged-in user.
+        """
         self.username = username
         self.client_object = client_object
         previous_window.destroy()
@@ -157,14 +201,12 @@ class MainMenuGUI:
         self.root.geometry("800x650")
         self.root.configure(bg="#0e1a40")
 
-        # Adding Magen David
         self.magen_david_label = tk.Label(self.root, text="\u2721", bg="#CB2525", fg="white", font=("Helvetica", 30))
         self.magen_david_label.pack(fill=tk.X)
 
         self.title_label = tk.Label(self.root, text=f"Hello {username}!", bg="#0e1a40", fg="white", font=("Helvetica", 30, "bold"))
         self.title_label.pack(pady=20)
 
-        # Creating a thin red line using Canvas
         self.line_canvas = tk.Canvas(self.root, bg="#0e1a40", height=2, highlightthickness=0)
         self.line_canvas.create_line(0, 0, 800, 0, fill="white", width=1)
         self.line_canvas.pack(fill=tk.X)
@@ -175,7 +217,6 @@ class MainMenuGUI:
         self.button_frame = tk.Frame(self.root, bg="#0e1a40")
         self.button_frame.pack(pady=20)
 
-        # Adding Examine Button (to the left, top)
         if data == "False":
             self.examine_button = tk.Button(self.button_frame, text="Examine", width=25, height=4, bg="#CB2525", fg="white",
                                             font=("Helvetica", 16), command=lambda: self.open_examine(client_object))
@@ -187,7 +228,6 @@ class MainMenuGUI:
                                                  command=lambda: self.send_messages(client_object))
             self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
 
-            # Adding View Messages Button (to the left, bottom)
             self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4,
                                                   bg="#CB2525", fg="white",
                                                   font=("Helvetica", 16),
@@ -204,7 +244,6 @@ class MainMenuGUI:
                                                  font=("Helvetica", 16), command=lambda:self.send_messages(client_object) )
             self.send_message_button.grid(row=0, column=1, padx=20, pady=20)
 
-            # Adding View Messages Button (to the left, bottom)
             self.view_messages_button = tk.Button(self.button_frame, text="View Messages", width=25, height=4, bg="#CB2525", fg="white",
                                                   font=("Helvetica", 16), command=lambda: self.open_messages(client_object))
             self.view_messages_button.grid(row=1, column=1, padx=20, pady=20)
@@ -214,27 +253,50 @@ class MainMenuGUI:
             self.logout_button.grid(row=2, column=1, padx=20, pady=20)
 
     def logout(self, client_object):
+        """
+               Logs out the user by sending a logout request to the server.
+        """
         data = encrypt_with_public_key("logout".encode(), server_public_key)
         client_object.send(data)
         LoginPageGUI(self.client_object, server_public_key , client_private_key , self.root)
 
     def open_examine(self, client_object):
+        """
+               Opens the examination window by sending an examination request to the server.
+        """
         data = encrypt_with_public_key("examine".encode(), server_public_key)
         client_object.send(data)
         FirstSymptomWindowGUI(self.root, self.client_object, self.username)
 
     def open_messages(self, client_object):
+        """
+               Opens the messages window by sending a request to the server to view messages.
+        """
         data = encrypt_with_public_key("open messages".encode(), server_public_key)
         client_object.send(data)
         MessagesGUI(self.root, self.client_object, self.username)
     def send_messages(self,client_object):
+        """
+               Opens the send message window by sending a request to the server to send a message.
+        """
         data = encrypt_with_public_key("send messages".encode(), server_public_key)
         client_object.send(data)
         SendMessageGUI(self.root, self.client_object, self.username," ")
     def run(self):
+        """
+                Runs the main loop of the Tkinter window.
+        """
         self.root.mainloop()
 class FirstSymptomWindowGUI:
     def __init__(self, previous_window, client_object, username):
+        """
+                Initializes the FirstSymptomWindowGUI.
+
+                Parameters:
+                    previous_window: The previous Tkinter window to be destroyed.
+                    client_object: The client object for server communication.
+                    username (str): The username of the logged-in user.
+        """
         self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
@@ -260,7 +322,6 @@ class FirstSymptomWindowGUI:
         data =  client_object.recv(1024)
 
 
-        # Decrypt options list
         data = decrypt_with_private_key(data, client_private_key)
         self.options_list = pickle.loads(data)
 
@@ -279,6 +340,11 @@ class FirstSymptomWindowGUI:
     def on_enter(self):
         """
         Sends the selected symptom to the server and proceeds to the questionnaire window.
+
+        This function retrieves the selected symptom from the dropdown menu, encrypts it using the server's public key,
+        and sends it to the server. Then, it waits for a response from the server, which contains the next question
+        to be displayed in the questionnaire window. The response is decrypted using the client's private key before
+        initializing the QuestionnaireWindowGUI with the received question.
         """
         information = self.value_inside.get()
         data = encrypt_with_public_key(information.encode(), server_public_key)
@@ -290,6 +356,15 @@ class FirstSymptomWindowGUI:
 
 class QuestionnaireWindowGUI:
     def __init__(self, previous_window, client_object, question, username):
+        """
+               Initializes the QuestionnaireWindowGUI.
+
+               Parameters:
+                   previous_window: The previous Tkinter window to be destroyed.
+                   client_object: The client object for server communication.
+                   question (str): The current question to be displayed.
+                   username (str): The username of the logged-in user.
+        """
         self.username = username
         self.previous_window = previous_window
         self.client_object = client_object
@@ -358,12 +433,21 @@ class QuestionnaireWindowGUI:
             self.btn_more_info.grid(row=2, column=1, padx=100, pady=(50, 20))
 
     def back_to_menu(self):
+        """
+                Sends the confirmation response to the server and navigates back to the main menu.
+        """
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
         data = encrypt_with_public_key(pickle.dumps(["Menu", response]), server_public_key)
         self.client_object.send(data)
         MainMenuGUI(self.client_object, self.root, self.username)
 
     def go_to_info(self, disease):
+        """
+                Sends the confirmation response to the server and navigates to the disease information window.
+
+                Parameters:
+                    disease (str): The name of the disease to retrieve information for.
+        """
         response = messagebox.askquestion("Confirmation", "Do you want your results to be reviewed by a Doctor?")
         data = encrypt_with_public_key(pickle.dumps(["Information", response]), server_public_key)
         self.client_object.send(data)
@@ -621,7 +705,15 @@ class SignUpPageGUI:
             return
 class DiseaseReportGUI:
     def __init__(self,previous_window, disease_name,client_object,username):
-        #init the disease report GUI
+        """
+               Initializes the DiseaseReportGUI.
+
+               Parameters:
+                   previous_window: The previous Tkinter window to be destroyed.
+                   disease_name (str): The name of the disease for the report.
+                   client_object: The client object for server communication.
+                   username (str): The username of the logged-in user.
+        """
         previous_window.destroy()
         self.root = tk.Tk()
         self.root.title(f"Report for {disease_name}")
@@ -651,7 +743,15 @@ class DiseaseReportGUI:
         self.root.mainloop()
 
     def fetch_report(self, disease_name):
+        """
+               Fetches the report for the specified disease from Wikipedia and formats it.
 
+               Parameters:
+                   disease_name (str): The name of the disease to fetch the report for.
+
+               Returns:
+                   str: The formatted disease report.
+               """
         url = f"https://en.wikipedia.org/wiki/{disease_name}"
 
         response = requests.get(url)
@@ -680,12 +780,23 @@ class DiseaseReportGUI:
         return report
 
     def go_to_menu(self):
+        """
+        Sends a request to the server to return to the main menu.
+        """
         data = encrypt_with_public_key("menu".encode(),server_public_key)
         self.client_object.send(data)
         MainMenuGUI(self.client_object,self.root,self.username)
 
 class MessagesGUI:
     def __init__(self,previous_window,client_object,username):
+        """
+               Initializes the MessagesGUI.
+
+               Parameters:
+                   previous_window: The previous Tkinter window to be destroyed.
+                   client_object: The client object for server communication.
+                   username (str): The username of the logged-in user.
+        """
         self.client_object = client_object
         self.username = username
         data = client_object.recv(1024)
@@ -736,11 +847,20 @@ class MessagesGUI:
         self.delete_button.pack(side=tk.LEFT, padx=10, pady=(0, 10))
 
     def load_messages(self):
+        """
+                Loads messages into the messages listbox.
+        """
         for message in self.messages:
             self.messages_listbox.insert(tk.END, f"From: {message['sender']} - Subject: {message['subject']}")
 
 
     def reply_message(self,client_object):
+        """
+                Sends a reply to the selected message.
+
+                Parameters:
+                    client_object: The client object for server communication.
+        """
         selected_index = self.messages_listbox.curselection()
 
         message_to_reply = self.messages[selected_index[0]]
@@ -750,6 +870,12 @@ class MessagesGUI:
         SendMessageGUI(None,client_object,self.username,message_to_reply['sender'])
 
     def delete_message(self,client_object):
+        """
+                Deletes the selected message.
+
+                Parameters:
+                    client_object: The client object for server communication.
+                """
         selected_index = self.messages_listbox.curselection()
         if not selected_index:
             messagebox.showinfo("Error", "Select a message!")
@@ -764,6 +890,12 @@ class MessagesGUI:
         messagebox.showinfo("Success", "Message Removed successfully!")
 
     def show_message_content(self, event):
+        """
+          Displays the content of the selected message.
+
+          Parameters:
+              event: The event triggering the function.
+          """
         selection = self.messages_listbox.curselection()
         if selection:
             message_index = selection[0]
@@ -773,6 +905,12 @@ class MessagesGUI:
                                              f"From: {message['sender']}\nSubject: {message['subject']}\n\n{message['message']}")
 
     def menu(self,client_object):
+        """
+        Sends a request to return to the main menu.
+
+        Parameters:
+            client_object: The client object for server communication.
+        """
         data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
         self.client_object.send((data))
 
@@ -784,6 +922,9 @@ class MessagesGUI:
             MainMenuGUI(client_object,self.root,self.username)
 
     def delete(self):
+        """
+        Deletes the selected message.
+        """
         selected_index = self.messages_listbox.curselection()
         if selected_index:
             self.messages_listbox.delete(selected_index)
@@ -792,10 +933,22 @@ class MessagesGUI:
             print("Please select a message to delete.")
 
     def run(self):
+        """
+        Runs the Tkinter event loop.
+        """
         self.root.mainloop()
 
 class SendMessageGUI:
     def __init__(self, previous_window, client_object, username, recipient):
+        """
+        Initializes the SendMessageGUI.
+
+        Parameters:
+            previous_window: The previous Tkinter window to be destroyed.
+            client_object: The client object for server communication.
+            username (str): The username of the logged-in user.
+            recipient (str): The recipient of the message.
+        """
         self.client_object = client_object
         try:
             previous_window.destroy()
@@ -851,6 +1004,11 @@ class SendMessageGUI:
             self.menu_button.grid(row=7, column=1, padx=5, pady=5)
 
     def send_message(self):
+        """
+        Sends the composed message to the recipient.
+
+        If recipient is set, sends the message and closes the window. Otherwise, sends the message and stays on the window.
+        """
         receiver = self.recipient_var.get()
         subject = self.subject_entry.get()
         message = self.message_entry.get("1.0", tk.END)
@@ -870,6 +1028,13 @@ class SendMessageGUI:
 
 
     def go_to_menu(self, client_object, username):
+        """
+        Navigates to the main menu.
+
+        Parameters:
+            client_object: The client object for server communication.
+            username (str): The username of the logged-in user.
+        """
         print("menu")
         data = encrypt_with_public_key(pickle.dumps(["menu"]),server_public_key)
         print(data)

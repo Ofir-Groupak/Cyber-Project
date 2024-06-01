@@ -1,5 +1,4 @@
 import socket
-import sqlite3
 import threading
 from Project.Server.Diseases_handler import *
 import pickle
@@ -10,7 +9,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
-server_ip = "172.20.136.242"
+server_ip = "127.0.0.1"
 server_port = 4444
 client_usernames_to_objects = {}
 object_to_keys = {}
@@ -40,6 +39,16 @@ def init_server():
 
     return server_socket
 def decrypt_with_private_key(data):
+    """
+        Decrypts data using the server's private key.
+
+        Parameters:
+            data (bytes): The encrypted data to be decrypted.
+
+        Returns:
+            bytes: The decrypted data, or an empty string if decryption fails.
+        """
+
     try:
         return server_private_key.decrypt(
             data,
@@ -54,6 +63,16 @@ def decrypt_with_private_key(data):
 
 
 def encrypt_with_public_key(data, client_object):
+    """
+       Encrypts data using a client's public key.
+
+       Parameters:
+           data (bytes): The data to be encrypted.
+           client_object: The client object which has the public key.
+
+       Returns:
+           bytes: The encrypted data.
+       """
     return object_to_keys[client_object].encrypt(
         data,
         padding.OAEP(
@@ -64,6 +83,12 @@ def encrypt_with_public_key(data, client_object):
     )
 
 def send_public_key(client_object):
+    """
+        Sends the server's public key to a client.
+
+        Parameters:
+            client_object: The client object to which the public key will be sent.
+        """
     client_object.send(server_public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo

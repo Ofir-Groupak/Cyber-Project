@@ -2,29 +2,48 @@ import sqlite3
 from cryptography.fernet import Fernet
 
 
-
-
-
-
 def encrypt(data):
+    """
+    :param data:
+    :return: None
+    encrypes the data with both encryptions
+    """
     data = encrypt_vigenere(data)
     return encrypt_with_fernet(data)
 
 def decrypt(data):
+    """
+    :param data:
+    :return: None
+    decrypts the data with both decryptions
+    """
     data = decrypt_with_fernet(data)
     return decrypt_vigenere(data)
 
 def encrypt_with_fernet(data):
+    """
+    :param data:
+    :return: encryped data using fernet
+    """
     fernet_key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
     f = Fernet(fernet_key)
     return f.encrypt(data.encode()).decode()
 
 def decrypt_with_fernet(data):
+    """
+    :param data:
+    :return: decrypted data using fernet
+    """
     fernet_key = b'2BBSsKejvCFTphbyB2sGtwva6NE4ltdvRpl2-ukOKuA='
     f = Fernet(fernet_key)
     return f.decrypt(data.encode()).decode()
 
 def generate_key(plaintext, key):
+    """
+    :param plaintext: the text that needs to be encrypted
+    :param key: the current key
+    :return: a correct key for the plaintext
+    """
     key = list(key)
     if len(plaintext) == len(key):
         return key
@@ -34,7 +53,10 @@ def generate_key(plaintext, key):
     return "".join(key)
 
 def encrypt_vigenere(plaintext):
-    #encrypts ysing vigenre cipher
+    """
+    :param plaintext: the text that needs to be encrypted
+    :return: encrypted text
+    """
     encrypted_text = []
     key = "KJSDLSC"
     key = generate_key(plaintext, key)
@@ -53,7 +75,10 @@ def encrypt_vigenere(plaintext):
     return "".join(encrypted_text)
 
 def decrypt_vigenere(ciphertext):
-    # decrypt using vigenre cipher and a permanent key
+    """
+    :param ciphertext: ciphered text
+    :return: decrypted text using vigenre decryption
+    """
     decrypted_text = []
     key = "KJSDLSC"
     key = generate_key(ciphertext, key)
@@ -103,6 +128,15 @@ def create_tables():
     conn.close()
 
 def is_doctor(username):
+    """
+    Check whether a user is a doctor or not based on their username.
+
+    Parameters:
+        username (str): The username of the user to be checked.
+
+    Returns:
+        bool: True if the user is a doctor, False otherwise.
+    """
     #checks wheater a user is a doctor or not and returns an answer
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
@@ -161,8 +195,7 @@ def add_user(id, gender, username, password,is_doctor, past_diseases,doctor):
     Adds a new user to the database with provided details including past diseases.
 
     Parameters:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
+        username (str): username
         gender (str): Gender of the user.
         username (str): Unique username of the user.
         password (str): Password of the user.
@@ -268,7 +301,12 @@ def add_disease(username, disease):
     conn.close()
 
 def get_all_doctors():
-    #returns all doctors
+    """
+       Returns a list of all doctors.
+
+       Returns:
+           list: A list of usernames of all doctors.
+       """
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -289,7 +327,15 @@ def get_all_doctors():
     return doctors
 
 def get_doctor_for_user(username):
-    #returns doctor for user
+    """
+        Returns the doctor assigned to a specific user.
+
+        Parameters:
+            username (str): The username of the user.
+
+        Returns:
+            str: The username of the doctor assigned to the user.
+        """
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -309,7 +355,15 @@ def get_doctor_for_user(username):
 
 
 def get_all_patients(doctor):
-    #returns all patients
+    """
+       Returns a list of all patients assigned to a specific doctor.
+
+       Parameters:
+           doctor (str): The username of the doctor.
+
+       Returns:
+           list: A list of usernames of all patients assigned to the doctor.
+       """
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -332,7 +386,15 @@ def get_all_patients(doctor):
     return patients
 
 def get_history_of_diseases(username):
-    #gets past diseases from user and decrypts it
+    """
+       Retrieves and decrypts the past diseases of a user.
+
+       Parameters:
+           username (str): The username of the user.
+
+       Returns:
+           list: A list of past diseases of the user.
+       """
     conn = sqlite3.connect('../Server/users.db')
     cursor = conn.cursor()
 
@@ -357,6 +419,15 @@ def get_history_of_diseases(username):
     return diseases
 
 def add_message(sender,receiver,subject,message):
+    """
+      Adds a message to the database.
+
+      Parameters:
+          sender (str): The username of the sender.
+          receiver (str): The username of the receiver.
+          subject (str): The subject of the message.
+          message (str): The content of the message.
+      """
     conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
@@ -371,7 +442,15 @@ def add_message(sender,receiver,subject,message):
 
 
 def get_all_messages_for_user(user):
+    """
+       Retrieves all messages for a specific user and decrypts them.
 
+       Parameters:
+           user (str): The username of the user.
+
+       Returns:
+           list: A list of dictionaries containing the sender, subject, and decrypted message.
+       """
     conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
@@ -384,17 +463,25 @@ def get_all_messages_for_user(user):
     message_pattern = ["sender","subject","message"]
     for message in cursor.fetchall():
         all_messages.append(dict(zip(message_pattern,message)))
-
     for message in all_messages:
         message['message'] = decrypt(message['message'])
+        message['subject'] = decrypt(message['subject'])
 
 
     conn.commit()
     conn.close()
-
+    print(all_messages)
     return all_messages
 
 def remove_message(sender , receiver , subject):
+    """
+       Removes a message from the database.
+
+       Parameters:
+           sender (str): The username of the sender.
+           receiver (str): The username of the receiver.
+           subject (str): The subject of the message.
+    """
     conn = sqlite3.connect(r'../Server/users.db')
     cursor = conn.cursor()
 
@@ -407,26 +494,6 @@ def remove_message(sender , receiver , subject):
 
     conn.commit()
     conn.close()
-
-
-if __name__ == "__main__":
-    #get_doctor_for_user('yuval')
-    #add_user('e', 'Male', 'Doctor', '123',"True", str(['Heart attack']),'a')
-    #print(is_doctor("a"))
-    # print(check_password('admin' ,'12345'))
-    #remove_user('Doctor')
-    # change_password('admin1','admin')
-    #print(get_all_doctors())
-    #print(get_all_patients('doc'))
-    #print(check_password('doc','doc'))
-    #add_disease('a','Common Cold')
-    #print(get_history_of_diseases('a'))
-    #add_disease('a','Common Cold')
-    #add_message("moshe","moshe","moshe","moshe")
-    #remove_message("moshe","moshe","moshe")
-    print('1')
-
-
 
 
 

@@ -1,7 +1,7 @@
 import pandas
 import pandas as pd
 
-df = pd.read_csv(r'C:\Users\student\PycharmProjects\Ofir\Project\Server\Diseases_tables\Scenarios.csv')
+df = pd.read_csv(r'../Server/Diseases_tables/Scenarios.csv')
 
 def get_diseases_with_symptom(symptom):
     """
@@ -108,7 +108,7 @@ def get_advice_for_disease(disease):
     """
 
     df = pd.read_csv(
-        r'C:\Users\student\PycharmProjects\Ofir\Project\Server\Diseases_tables\Advices.csv').drop_duplicates(
+        r'../Server/Diseases_tables/Advices.csv').drop_duplicates(
         subset=['Disease'])
 
     advices = []
@@ -121,15 +121,16 @@ def get_advice_for_disease(disease):
 
 
 def get_disease_by_symptoms(symptoms):
-    # Read the Excel file into a DataFrame
+    """
+    :param symptoms: a list of symptoms
+    :return: a disease that is possible with the given symptoms
+    """
 
-    # Iterate over each row in the DataFrame
     for index, row in df.iterrows():
-        disease_symptoms = row[1:]  # Exclude the first column (disease name)
+        disease_symptoms = row[1:]
 
-        # Check if all symptoms for the current disease are present in the input symptoms
         if all(symptom in symptoms for symptom in disease_symptoms):
-            return row[0]  # Return the disease name
+            return row[0]
 
     return
 
@@ -147,6 +148,10 @@ def get_next_symptom(scenario,user_symptoms):
     return ""
 
 def get_diseases_by_scenarios(scenarios):
+    """
+    :param scenarios: a given scenarios list[list[symptoms]]
+    :return: all the possible diseases with all of the scenarios that has been given to the function
+    """
 
     diseases = []
     for scenario in scenarios:
